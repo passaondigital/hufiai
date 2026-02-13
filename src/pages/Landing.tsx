@@ -4,6 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Sparkles, Shield, MessageSquare, Cpu, ArrowRight, Users, FileText, Building2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import horseHero from "@/assets/horse-hero.png";
+import ComparisonTable from "@/components/landing/ComparisonTable";
+import UseCaseSection from "@/components/landing/UseCaseSection";
+import TrustFooter from "@/components/landing/TrustFooter";
 
 interface BlogPost {
   id: string;
@@ -143,8 +146,17 @@ export default function Landing() {
         </section>
       )}
 
+      {/* Comparison */}
+      <ComparisonTable />
+
+      {/* Use Cases */}
+      <UseCaseSection />
+
+      {/* Trust & AI for Good */}
+      <TrustFooter />
+
       {/* Stats */}
-      <section className="bg-secondary py-16">
+      <section className="bg-muted py-16">
         <div className="max-w-4xl mx-auto grid grid-cols-3 gap-8 text-center">
           {[
             { value: "100%", label: "DSGVO-konform" },
@@ -152,8 +164,8 @@ export default function Landing() {
             { value: "Multi-LLM", label: "KI-Modelle" },
           ].map((s) => (
             <div key={s.label}>
-              <p className="text-3xl font-extrabold text-secondary-foreground">{s.value}</p>
-              <p className="text-sm text-secondary-foreground/70 mt-1">{s.label}</p>
+              <p className="text-3xl font-extrabold">{s.value}</p>
+              <p className="text-sm text-muted-foreground mt-1">{s.label}</p>
             </div>
           ))}
         </div>
