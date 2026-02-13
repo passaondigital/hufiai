@@ -1,9 +1,10 @@
 import { useState, useRef, useEffect } from "react";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
-import { Send, Sparkles, Loader2 } from "lucide-react";
+import { Send, Sparkles, Loader2, FileDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import PdfExportDialog from "@/components/PdfExportDialog";
 
 interface Message {
   id: string;
@@ -17,6 +18,7 @@ export default function ChatInterface() {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [conversationId, setConversationId] = useState<string | null>(null);
+  const [pdfOpen, setPdfOpen] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -137,6 +139,11 @@ export default function ChatInterface() {
       <div className="border-t border-border p-4">
         <div className="max-w-3xl mx-auto">
           <div className="flex items-center gap-2 bg-card rounded-2xl border border-border px-4 py-2 shadow-sm focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary/50 transition-all">
+            {conversationId && messages.length > 0 && (
+              <Button variant="ghost" size="icon" className="rounded-xl h-9 w-9 shrink-0" onClick={() => setPdfOpen(true)} title="Als PDF exportieren">
+                <FileDown className="w-4 h-4" />
+              </Button>
+            )}
             <input
               value={input}
               onChange={(e) => setInput(e.target.value)}
@@ -153,6 +160,8 @@ export default function ChatInterface() {
           </p>
         </div>
       </div>
+
+      <PdfExportDialog conversationId={conversationId} open={pdfOpen} onOpenChange={setPdfOpen} />
     </div>
   );
 }
