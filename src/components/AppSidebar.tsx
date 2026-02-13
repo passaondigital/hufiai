@@ -5,7 +5,7 @@ import { useSubscription } from "@/hooks/useSubscription";
 import {
   MessageSquare, FolderKanban, FileText, CreditCard, Settings,
   LogOut, ChevronLeft, ChevronRight, Plus, Sparkles, Shield,
-  ArrowLeftRight, Building2, Map, Megaphone, Crown, Heart
+  ArrowLeftRight, Building2, Map, Megaphone, Crown, Heart, Award, Users
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -39,6 +39,10 @@ export default function AppSidebar() {
       { icon: Building2, label: "Firmenprofil", path: "/company" },
       { icon: Megaphone, label: "Content Hub", path: "/content" },
     ] : []),
+    ...(profile?.sub_role && ["hufbearbeiter", "tierarzt", "stallbetreiber"].includes(profile.sub_role) ? [
+      { icon: Award, label: "Experten-Profil", path: "/pro-profile" },
+    ] : []),
+    { icon: Users, label: "Experten-Dashboard", path: "/expert-dashboard" },
     ...(isFounderFlowActive ? [
       { icon: Crown, label: `Founder Coach (${founderFlowDaysLeft}d)`, path: "/founder-coach" },
     ] : []),

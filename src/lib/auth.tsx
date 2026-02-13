@@ -17,6 +17,12 @@ interface Profile {
   is_blocked: boolean;
   is_data_contribution_active: boolean;
   exclude_from_training: boolean;
+  bio: string | null;
+  certificates: string[] | null;
+  service_area: string | null;
+  public_profile: boolean;
+  phone: string | null;
+  website: string | null;
 }
 
 interface AuthContextType {
