@@ -24,6 +24,7 @@ import ExpertDashboard from "./pages/ExpertDashboard";
 import Impressum from "./pages/Impressum";
 import AGB from "./pages/AGB";
 import Datenschutz from "./pages/Datenschutz";
+import ExpertenSuche from "./pages/ExpertenSuche";
 import NotFound from "./pages/NotFound";
 import { Loader2 } from "lucide-react";
 
@@ -93,6 +94,7 @@ function AppRoutes() {
       <Route path="/impressum" element={<Impressum />} />
       <Route path="/agb" element={<AGB />} />
       <Route path="/datenschutz" element={<Datenschutz />} />
+      <Route path="/experten" element={<ExpertenSuche />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
