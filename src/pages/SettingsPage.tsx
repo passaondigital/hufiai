@@ -8,15 +8,23 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { Shield, Heart, User } from "lucide-react";
+import { Shield, Heart, User, AlertTriangle, Loader2 } from "lucide-react";
+import HorseManager from "@/components/HorseManager";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+  AlertDialogTrigger
+} from "@/components/ui/alert-dialog";
 
 export default function SettingsPage() {
-  const { user, profile, refreshProfile } = useAuth();
+  const { user, profile, refreshProfile, signOut } = useAuth();
   const [displayName, setDisplayName] = useState(profile?.display_name || "");
   const [companyName, setCompanyName] = useState(profile?.company_name || "");
   const [newPassword, setNewPassword] = useState("");
   const [saving, setSaving] = useState(false);
   const [dataConsent, setDataConsent] = useState(profile?.is_data_contribution_active ?? false);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState("");
 
   const saveProfile = async () => {
     if (!user) return;
@@ -56,15 +64,58 @@ export default function SettingsPage() {
     }
   };
 
+  const downgradeToFree = async () => {
+    if (!user) return;
+    try {
+      const { data: existing } = await supabase.from("user_subscriptions").select("*").eq("user_id", user.id).maybeSingle();
+      if (existing) {
+        await supabase.from("user_subscriptions").update({ plan: "starter", social_media_addon: false }).eq("user_id", user.id);
+      }
+      toast.success("Auf Starter zurückgesetzt");
+    } catch (err: any) { toast.error(err.message); }
+  };
+
+  const deleteAccount = async () => {
+    if (deleteConfirm !== "LÖSCHEN") { toast.error("Bitte 'LÖSCHEN' eingeben"); return; }
+    setDeleting(true);
+    try {
+      // Delete user data in order
+      if (user) {
+        await supabase.from("content_items").delete().eq("user_id", user.id);
+        await supabase.from("user_horses").delete().eq("user_id", user.id);
+        await supabase.from("documents").delete().eq("user_id", user.id);
+        // Delete messages via conversations
+        const { data: convs } = await supabase.from("conversations").select("id").eq("user_id", user.id);
+        if (convs) {
+          for (const c of convs) {
+            await supabase.from("messages").delete().eq("conversation_id", c.id);
+          }
+        }
+        await supabase.from("conversations").delete().eq("user_id", user.id);
+        await supabase.from("projects").delete().eq("user_id", user.id);
+        await supabase.from("user_subscriptions").delete().eq("user_id", user.id);
+        await supabase.from("content_usage").delete().eq("user_id", user.id);
+        await supabase.from("notification_reads").delete().eq("user_id", user.id);
+        await supabase.from("profiles").delete().eq("user_id", user.id);
+      }
+      await signOut();
+      toast.success("Account gelöscht. Auf Wiedersehen.");
+    } catch (err: any) {
+      toast.error(err.message);
+    } finally { setDeleting(false); }
+  };
+
   return (
     <AppLayout>
-      <div className="p-8 max-w-2xl mx-auto">
+      <div className="p-8 max-w-2xl mx-auto overflow-y-auto h-full">
         <h1 className="text-2xl font-bold mb-8">Einstellungen</h1>
 
         <Tabs defaultValue="profile" className="space-y-6">
           <TabsList>
             <TabsTrigger value="profile"><User className="w-4 h-4 mr-2" />Profil</TabsTrigger>
+            <TabsTrigger value="horses">🐴 Pferde</TabsTrigger>
             <TabsTrigger value="privacy"><Shield className="w-4 h-4 mr-2" />Datenschutz</TabsTrigger>
+            <TabsTrigger value="danger"><AlertTriangle className="w-4 h-4 mr-2" />Danger Zone</TabsTrigger>
           </TabsList>
 
           <TabsContent value="profile" className="space-y-6">
@@ -87,6 +138,11 @@ export default function SettingsPage() {
                 <Button onClick={changePassword} disabled={!newPassword}>Passwort ändern</Button>
               </div>
             </div>
+          </TabsContent>
+
+          {/* Horses Tab */}
+          <TabsContent value="horses">
+            <HorseManager />
           </TabsContent>
 
           <TabsContent value="privacy" className="space-y-6">
@@ -122,6 +178,68 @@ export default function SettingsPage() {
                   <span className="text-sm font-medium">Anonymisierte Daten beisteuern</span>
                 </div>
                 <Switch checked={dataConsent} onCheckedChange={toggleDataConsent} />
+              </div>
+            </div>
+          </TabsContent>
+
+          {/* Danger Zone */}
+          <TabsContent value="danger" className="space-y-6">
+            <div className="bg-card rounded-2xl border-2 border-destructive/30 p-6">
+              <div className="flex items-center gap-2 mb-4">
+                <AlertTriangle className="w-5 h-5 text-destructive" />
+                <h2 className="font-semibold text-destructive">Danger Zone</h2>
+              </div>
+
+              {/* Downgrade */}
+              <div className="p-4 rounded-xl bg-muted/50 border border-border mb-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-medium text-sm">Plan downgraden</p>
+                    <p className="text-xs text-muted-foreground">Zurück zum kostenlosen Starter-Plan. Pro-Features werden deaktiviert.</p>
+                  </div>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button variant="outline" size="sm">Downgrade</Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Plan downgraden?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Du verlierst den Zugang zu Pro-Features wie PDF-Export mit Branding und dem Social Media Add-on.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Abbrechen</AlertDialogCancel>
+                        <AlertDialogAction onClick={downgradeToFree}>Bestätigen</AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </div>
+              </div>
+
+              {/* Delete Account */}
+              <div className="p-4 rounded-xl bg-destructive/5 border border-destructive/20">
+                <p className="font-medium text-sm text-destructive mb-1">Account unwiderruflich löschen</p>
+                <p className="text-xs text-muted-foreground mb-3">
+                  Alle deine Daten (Chats, Pferde, Dokumente, Content) werden sofort und unwiderruflich gelöscht. DSGVO-konform.
+                </p>
+                <div className="flex items-center gap-2">
+                  <Input
+                    value={deleteConfirm}
+                    onChange={(e) => setDeleteConfirm(e.target.value)}
+                    placeholder="LÖSCHEN eingeben zum Bestätigen"
+                    className="max-w-xs text-sm"
+                  />
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    disabled={deleteConfirm !== "LÖSCHEN" || deleting}
+                    onClick={deleteAccount}
+                  >
+                    {deleting ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : null}
+                    Account löschen
+                  </Button>
+                </div>
               </div>
             </div>
           </TabsContent>
