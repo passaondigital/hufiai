@@ -1,10 +1,12 @@
 import { useState, useRef, useEffect } from "react";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
-import { Send, Sparkles, Loader2, FileDown, ChevronDown } from "lucide-react";
+import { Send, Sparkles, Loader2, FileDown, ChevronDown, Crown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import PdfExportDialog from "@/components/PdfExportDialog";
+import UpsellModal from "@/components/UpsellModal";
+import { useSubscription } from "@/hooks/useSubscription";
 
 interface Message {
   id: string;
@@ -25,6 +27,7 @@ interface HorseOption {
 
 export default function ChatInterface() {
   const { user, profile } = useAuth();
+  const { isFounderFlowActive, founderFlowDaysLeft, hasGewerbeAccess } = useSubscription();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -33,6 +36,8 @@ export default function ChatInterface() {
   const [horses, setHorses] = useState<HorseOption[]>([]);
   const [selectedHorse, setSelectedHorse] = useState<HorseOption | null>(null);
   const [showSelector, setShowSelector] = useState(false);
+  const [upsellOpen, setUpsellOpen] = useState(false);
+  const [upsellFeature, setUpsellFeature] = useState("");
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -176,34 +181,63 @@ export default function ChatInterface() {
             <div className="grid grid-cols-2 gap-3 mt-8 max-w-lg">
               {(profile?.user_type === "gewerbe"
                 ? [
-                    "Kundenbericht erstellen",
-                    "Projekt-Analyse",
-                    "Social Media Hook generieren",
-                    "Fachbegriffe erklären",
+                    { label: "Kundenbericht erstellen", business: true },
+                    { label: "Projekt-Analyse", business: true },
+                    { label: "Social Media Hook generieren", business: true },
+                    { label: "Fachbegriffe erklären", business: false },
                   ]
                 : selectedHorse
                   ? [
-                      `Hufpflege-Check für ${selectedHorse.name}`,
-                      `Futterplan für ${selectedHorse.name}`,
-                      "Tipps für den Offenstall",
-                      `${selectedHorse.name}: Wann nächster Beschlag?`,
+                      { label: `Hufpflege-Check für ${selectedHorse.name}`, business: false },
+                      { label: `Futterplan für ${selectedHorse.name}`, business: false },
+                      { label: "Tipps für den Offenstall", business: false },
+                      { label: `${selectedHorse.name}: Wann nächster Beschlag?`, business: false },
                     ]
                   : [
-                      "Hufpflege-Check",
-                      "Futterplan erstellen",
-                      "Tipps für den Offenstall",
-                      "Mein erstes Pferd – was brauche ich?",
+                      { label: "Hufpflege-Check", business: false },
+                      { label: "Futterplan erstellen", business: false },
+                      { label: "Tipps für den Offenstall", business: false },
+                      { label: "Mein erstes Pferd – was brauche ich?", business: false },
                     ]
               ).map((q) => (
                 <button
-                  key={q}
-                  onClick={() => setInput(q)}
+                  key={q.label}
+                  onClick={() => {
+                    if (q.business && !hasGewerbeAccess) {
+                      setUpsellFeature(q.label);
+                      setUpsellOpen(true);
+                    } else {
+                      setInput(q.label);
+                    }
+                  }}
                   className="p-3 rounded-xl border border-border bg-card text-sm text-left hover:border-primary/50 hover:bg-accent transition-all"
                 >
-                  {q}
+                  {q.label}
                 </button>
               ))}
             </div>
+
+            {/* Founder Flow CTA for Privat users */}
+            {profile?.user_type === "privat" && !hasGewerbeAccess && (
+              <button
+                onClick={() => setUpsellOpen(true)}
+                className="mt-6 flex items-center gap-3 px-5 py-3 rounded-xl border-2 border-primary/30 bg-primary/5 hover:border-primary hover:bg-primary/10 transition-all"
+              >
+                <Crown className="w-5 h-5 text-primary" />
+                <div className="text-left">
+                  <p className="text-sm font-semibold">HufiAi Founder Flow starten</p>
+                  <p className="text-xs text-muted-foreground">30 Tage Gewerbe Pro kostenlos testen</p>
+                </div>
+              </button>
+            )}
+
+            {/* Founder Flow active badge */}
+            {isFounderFlowActive && (
+              <div className="mt-4 flex items-center gap-2 px-4 py-2 rounded-xl bg-primary/10 text-primary text-sm">
+                <Crown className="w-4 h-4" />
+                <span className="font-medium">Founder Flow aktiv – noch {founderFlowDaysLeft} Tage</span>
+              </div>
+            )}
           </div>
         ) : (
           <div className="max-w-3xl mx-auto space-y-4">
@@ -264,6 +298,7 @@ export default function ChatInterface() {
       </div>
 
       <PdfExportDialog conversationId={conversationId} open={pdfOpen} onOpenChange={setPdfOpen} />
+      <UpsellModal open={upsellOpen} onOpenChange={setUpsellOpen} featureName={upsellFeature} />
     </div>
   );
 }

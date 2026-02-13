@@ -530,6 +530,9 @@ export type Database = {
         Row: {
           created_at: string
           expires_at: string | null
+          founder_flow_active: boolean
+          founder_flow_expires_at: string | null
+          founder_flow_started_at: string | null
           grant_reason: string | null
           granted_by: string | null
           id: string
@@ -541,6 +544,9 @@ export type Database = {
         Insert: {
           created_at?: string
           expires_at?: string | null
+          founder_flow_active?: boolean
+          founder_flow_expires_at?: string | null
+          founder_flow_started_at?: string | null
           grant_reason?: string | null
           granted_by?: string | null
           id?: string
@@ -552,6 +558,9 @@ export type Database = {
         Update: {
           created_at?: string
           expires_at?: string | null
+          founder_flow_active?: boolean
+          founder_flow_expires_at?: string | null
+          founder_flow_started_at?: string | null
           grant_reason?: string | null
           granted_by?: string | null
           id?: string

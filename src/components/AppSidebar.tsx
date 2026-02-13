@@ -1,16 +1,18 @@
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/lib/auth";
+import { useSubscription } from "@/hooks/useSubscription";
 import {
   MessageSquare, FolderKanban, FileText, CreditCard, Settings,
   LogOut, ChevronLeft, ChevronRight, Plus, Sparkles, Shield,
-  ArrowLeftRight, Building2, Map, Megaphone
+  ArrowLeftRight, Building2, Map, Megaphone, Crown
 } from "lucide-react";
 import { toast } from "sonner";
 
 export default function AppSidebar() {
   const [collapsed, setCollapsed] = useState(false);
   const { profile, isAdmin, signOut, switchUserType } = useAuth();
+  const { isFounderFlowActive, founderFlowDaysLeft, hasGewerbeAccess } = useSubscription();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -32,10 +34,13 @@ export default function AppSidebar() {
   const navItems = [
     { icon: MessageSquare, label: "Chat", path: "/" },
     { icon: Sparkles, label: "Meine Pferde", path: "/horses" },
-    ...(profile?.user_type === "gewerbe" ? [
+    ...(profile?.user_type === "gewerbe" || hasGewerbeAccess ? [
       { icon: FolderKanban, label: "Projekte", path: "/projects" },
       { icon: Building2, label: "Firmenprofil", path: "/company" },
       { icon: Megaphone, label: "Content Hub", path: "/content" },
+    ] : []),
+    ...(isFounderFlowActive ? [
+      { icon: Crown, label: `Founder Coach (${founderFlowDaysLeft}d)`, path: "/founder-coach" },
     ] : []),
     { icon: FileText, label: "Wissensdatenbank", path: "/knowledge" },
     { icon: CreditCard, label: "Preise", path: "/pricing" },

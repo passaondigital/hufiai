@@ -223,6 +223,7 @@ export default function Admin() {
           <TabsList className="flex-wrap">
             <TabsTrigger value="users"><Users className="w-4 h-4 mr-2" />Nutzer</TabsTrigger>
             <TabsTrigger value="mission"><Crown className="w-4 h-4 mr-2" />Mission Control</TabsTrigger>
+            <TabsTrigger value="founder"><Loader2 className="w-4 h-4 mr-2" />Founder Flow</TabsTrigger>
             <TabsTrigger value="system"><Database className="w-4 h-4 mr-2" />System</TabsTrigger>
             <TabsTrigger value="broadcast"><Bell className="w-4 h-4 mr-2" />Broadcast</TabsTrigger>
             <TabsTrigger value="health"><Activity className="w-4 h-4 mr-2" />Health</TabsTrigger>
@@ -347,8 +348,8 @@ export default function Admin() {
                           <div>
                             <p className="font-medium text-sm">{p?.display_name || sub.user_id.slice(0, 8)}</p>
                             <div className="flex items-center gap-2 mt-1">
-                              <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${sub.plan === "pro" ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"}`}>
-                                {sub.plan === "pro" ? "Pro Business" : "Starter"}
+                              <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${sub.plan !== "free" && sub.plan !== "starter" ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"}`}>
+                                {sub.plan === "gewerbe_team" ? "Gewerbe Team" : sub.plan === "gewerbe_pro" ? "Gewerbe Pro" : sub.plan === "privat_plus" ? "Privat Plus" : sub.plan === "pro" ? "Pro Business" : "Free"}
                               </span>
                               {sub.social_media_addon && (
                                 <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary font-medium">+ Social Media</span>
@@ -389,8 +390,10 @@ export default function Admin() {
                     <Select value={mcPlan} onValueChange={setMcPlan}>
                       <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="starter">Starter (Free)</SelectItem>
-                        <SelectItem value="pro">Pro Business</SelectItem>
+                        <SelectItem value="free">Free</SelectItem>
+                        <SelectItem value="privat_plus">Privat Plus (9,99€)</SelectItem>
+                        <SelectItem value="gewerbe_pro">Gewerbe Pro (24,99€)</SelectItem>
+                        <SelectItem value="gewerbe_team">Gewerbe Team (49€)</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -406,7 +409,7 @@ export default function Admin() {
                     onChange={(e) => setMcAddon(e.target.checked)}
                     className="w-4 h-4 rounded accent-primary"
                   />
-                  <Label>Social Media Add-on (14,99€/Monat Wert)</Label>
+                  <Label>Social Media Unlimited Add-on (9,99€/Monat)</Label>
                 </div>
                 <div>
                   <Label>Grund (z.B. Gewinnspiel, Offline-Zahlung)</Label>
@@ -442,6 +445,50 @@ export default function Admin() {
                   Zugang speichern
                 </Button>
               </div>
+            </div>
+          </TabsContent>
+
+          {/* FOUNDER FLOW TAB */}
+          <TabsContent value="founder" className="space-y-6">
+            <div className="bg-card rounded-2xl border border-border p-6">
+              <h2 className="font-semibold mb-4 flex items-center gap-2">
+                <Crown className="w-5 h-5 text-primary" /> Aktive Founder Flows
+              </h2>
+              {subscriptions.filter(s => s.founder_flow_active).length === 0 ? (
+                <p className="text-sm text-muted-foreground">Keine aktiven Founder Flows.</p>
+              ) : (
+                <div className="space-y-3">
+                  {subscriptions.filter(s => s.founder_flow_active).map((sub) => {
+                    const p = profiles.find((pr) => pr.user_id === sub.user_id);
+                    const daysLeft = sub.founder_flow_expires_at
+                      ? Math.max(0, Math.ceil((new Date(sub.founder_flow_expires_at).getTime() - Date.now()) / (1000 * 60 * 60 * 24)))
+                      : 0;
+                    const expired = daysLeft === 0;
+                    return (
+                      <div key={sub.id} className={`p-4 rounded-xl border ${expired ? "border-destructive/30 bg-destructive/5" : "border-primary/30 bg-primary/5"}`}>
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="font-medium text-sm">{p?.display_name || sub.user_id.slice(0, 8)}</p>
+                            <p className="text-xs text-muted-foreground mt-1">
+                              Gestartet: {sub.founder_flow_started_at ? new Date(sub.founder_flow_started_at).toLocaleDateString("de-DE") : "–"}
+                            </p>
+                          </div>
+                          <div className="text-right">
+                            <span className={`text-sm font-bold ${expired ? "text-destructive" : "text-primary"}`}>
+                              {expired ? "Abgelaufen" : `${daysLeft} Tage übrig`}
+                            </span>
+                            {sub.founder_flow_expires_at && (
+                              <p className="text-xs text-muted-foreground">
+                                Endet: {new Date(sub.founder_flow_expires_at).toLocaleDateString("de-DE")}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           </TabsContent>
 
