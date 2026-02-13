@@ -16,6 +16,7 @@ import {
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue
 } from "@/components/ui/select";
+import HorsePhotoUpload from "@/components/HorsePhotoUpload";
 
 interface Horse {
   id: string;
@@ -309,6 +310,25 @@ export default function MyHorses() {
             <DialogTitle>{editHorse ? "Pferd bearbeiten" : "Neues Pferd hinzufügen"}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
+            {editHorse && (
+              <div>
+                <Label>Profilbild</Label>
+                <div className="mt-1">
+                  {editHorse.photo_url && (
+                    <img src={editHorse.photo_url} alt={editHorse.name} className="w-20 h-20 rounded-xl object-cover mb-2" />
+                  )}
+                  <HorsePhotoUpload
+                    horseId={editHorse.id}
+                    userId={user!.id}
+                    currentUrl={editHorse.photo_url}
+                    onUploaded={(url) => {
+                      setEditHorse({ ...editHorse, photo_url: url });
+                      fetchHorses();
+                    }}
+                  />
+                </div>
+              </div>
+            )}
             <div><Label>Name *</Label><Input className="mt-1" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder="z.B. Luna" /></div>
             <div className="grid grid-cols-2 gap-3">
               <div><Label>Rasse</Label><Input className="mt-1" value={form.breed} onChange={(e) => setForm((f) => ({ ...f, breed: e.target.value }))} placeholder="z.B. Haflinger" /></div>
