@@ -36,7 +36,7 @@ Wenn du eine potenziell kritische Situation erkennst (akute Verletzung, starke L
 
 ---
 ⚠️ **Wichtig: Diese Situation erfordert professionelle Hilfe vor Ort.**
-🔍 [Finde einen Experten in deiner Nähe](/support)
+🔍 [Finde einen Experten in deiner Nähe](/experten)
 ---
 
 Bei professionellen Nutzern (Gewerbe): Betone explizit, dass du nur ein Assistenz-Tool bist und die fachliche Entscheidung beim Experten liegt.`;
