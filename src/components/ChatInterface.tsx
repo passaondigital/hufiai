@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
-import { Send, Sparkles, Loader2, FileDown } from "lucide-react";
+import { Send, Sparkles, Loader2, FileDown, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import PdfExportDialog from "@/components/PdfExportDialog";
@@ -12,10 +12,15 @@ interface Message {
   content: string;
 }
 
-interface Horse {
+interface HorseOption {
+  id: string;
   name: string;
   breed: string | null;
   known_issues: string | null;
+  hoof_type: string | null;
+  keeping_type: string | null;
+  ai_summary: string | null;
+  is_primary: boolean;
 }
 
 export default function ChatInterface() {
@@ -25,32 +30,44 @@ export default function ChatInterface() {
   const [loading, setLoading] = useState(false);
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [pdfOpen, setPdfOpen] = useState(false);
-  const [primaryHorse, setPrimaryHorse] = useState<Horse | null>(null);
+  const [horses, setHorses] = useState<HorseOption[]>([]);
+  const [selectedHorse, setSelectedHorse] = useState<HorseOption | null>(null);
+  const [showSelector, setShowSelector] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Fetch primary horse for personalized greeting
+  // Fetch all horses
   useEffect(() => {
     if (!user) return;
     supabase
       .from("user_horses")
-      .select("name, breed, known_issues")
+      .select("id, name, breed, known_issues, hoof_type, keeping_type, ai_summary, is_primary")
       .eq("user_id", user.id)
-      .eq("is_primary", true)
-      .maybeSingle()
+      .order("is_primary", { ascending: false })
       .then(({ data }) => {
-        if (data) setPrimaryHorse(data as Horse);
+        if (data && data.length > 0) {
+          const horseList = data as HorseOption[];
+          setHorses(horseList);
+          // Auto-select primary horse
+          const primary = horseList.find((h) => h.is_primary) || horseList[0];
+          setSelectedHorse(primary);
+          // Show selector if multiple horses
+          if (horseList.length > 1) setShowSelector(true);
+        }
       });
   }, [user]);
 
-  const greeting = profile?.display_name
-    ? primaryHorse
-      ? `Hallo ${profile.display_name}! Wie geht es ${primaryHorse.name} heute?`
-      : `Hallo ${profile.display_name}! Wie kann ich dir helfen?`
-    : "Hallo! Wie kann ich helfen?";
+  const displayName = profile?.display_name || "du";
+  const greeting = selectedHorse
+    ? `Hallo ${displayName}! Wie geht es ${selectedHorse.name} heute?`
+    : `Hallo ${displayName}! Wie kann ich dir helfen?`;
+
+  const horseContext = selectedHorse
+    ? `🐴 ${selectedHorse.name}${selectedHorse.breed ? ` (${selectedHorse.breed})` : ""}${selectedHorse.hoof_type ? ` · ${selectedHorse.hoof_type === "barefoot" ? "Barhuf" : selectedHorse.hoof_type === "shod" ? "Beschlagen" : "Alternativ"}` : ""}${selectedHorse.known_issues ? ` · Bekannt: ${selectedHorse.known_issues}` : ""}${selectedHorse.ai_summary ? ` · KI: ${selectedHorse.ai_summary}` : ""}`
+    : null;
 
   const sendMessage = async () => {
     if (!input.trim() || !user || loading) return;
@@ -62,14 +79,17 @@ export default function ChatInterface() {
     try {
       let convId = conversationId;
       if (!convId) {
+        const insertData: any = { user_id: user.id, title: input.trim().slice(0, 50) };
+        if (selectedHorse) insertData.horse_id = selectedHorse.id;
         const { data, error } = await supabase
           .from("conversations")
-          .insert({ user_id: user.id, title: input.trim().slice(0, 50) })
+          .insert(insertData)
           .select("id")
           .single();
         if (error) throw error;
         convId = data.id;
         setConversationId(convId);
+        setShowSelector(false); // Lock horse selection after first message
       }
 
       await supabase.from("messages").insert({
@@ -100,6 +120,39 @@ export default function ChatInterface() {
 
   return (
     <div className="flex flex-col h-full">
+      {/* Horse selector bar */}
+      {horses.length > 1 && showSelector && messages.length === 0 && (
+        <div className="border-b border-border px-6 py-3 bg-card/50">
+          <p className="text-xs text-muted-foreground mb-2 font-medium">Mit welchem Pferd arbeiten wir heute?</p>
+          <div className="flex gap-2 flex-wrap">
+            {horses.map((h) => (
+              <button
+                key={h.id}
+                onClick={() => setSelectedHorse(h)}
+                className={`flex items-center gap-2 px-3 py-2 rounded-xl border text-sm transition-all ${
+                  selectedHorse?.id === h.id
+                    ? "border-primary bg-primary/10 text-primary font-medium"
+                    : "border-border hover:border-primary/50 hover:bg-accent"
+                }`}
+              >
+                <span>🐴</span>
+                <span>{h.name}</span>
+                {h.is_primary && <span className="text-[10px] bg-primary/20 px-1.5 py-0.5 rounded-full">Haupt</span>}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Active horse context indicator */}
+      {selectedHorse && messages.length > 0 && (
+        <div className="px-6 py-2 border-b border-border bg-primary/5 flex items-center gap-2 text-xs text-primary">
+          <span>🐴</span>
+          <span className="font-medium">{selectedHorse.name}</span>
+          {selectedHorse.breed && <span className="text-muted-foreground">({selectedHorse.breed})</span>}
+        </div>
+      )}
+
       {/* Messages area */}
       <div className="flex-1 overflow-y-auto p-6">
         {messages.length === 0 ? (
@@ -108,17 +161,22 @@ export default function ChatInterface() {
               <Sparkles className="w-8 h-8 text-primary" />
             </div>
             <h2 className="text-2xl font-bold mb-2">{greeting}</h2>
+            {horseContext && (
+              <p className="text-sm text-primary/80 bg-primary/5 px-4 py-2 rounded-xl mb-4 max-w-lg">
+                {horseContext}
+              </p>
+            )}
             <p className="text-muted-foreground max-w-md">
-              {primaryHorse
-                ? `Ich kenne ${primaryHorse.name}${primaryHorse.breed ? ` (${primaryHorse.breed})` : ""}${primaryHorse.known_issues ? ` – Bekanntes: ${primaryHorse.known_issues}` : ""}. Stelle mir eine Frage!`
+              {selectedHorse
+                ? `Stelle mir eine Frage zu ${selectedHorse.name} – ich kenne die Historie.`
                 : "Stelle mir eine Frage rund um Pferde, Hufpflege, Tiergesundheit oder dein Gewerbe."}
             </p>
             <div className="grid grid-cols-2 gap-3 mt-8 max-w-lg">
-              {(primaryHorse ? [
-                `Wie pflege ich die Hufe von ${primaryHorse.name}?`,
-                `Futterplan für ${primaryHorse.name}`,
-                "Stallbau-Tipps für Offenstall",
-                "Kundenmanagement-Tipps",
+              {(selectedHorse ? [
+                `Wie pflege ich die Hufe von ${selectedHorse.name}?`,
+                `Futterplan für ${selectedHorse.name}`,
+                `${selectedHorse.name}: Wann nächster Beschlag?`,
+                "Allgemeine Stallbau-Tipps",
               ] : [
                 "Worauf achte ich bei der Hufpflege?",
                 "Futterplan für ein Sportpferd",
@@ -180,7 +238,7 @@ export default function ChatInterface() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && sendMessage()}
-              placeholder="Nachricht eingeben..."
+              placeholder={selectedHorse ? `Frage zu ${selectedHorse.name}...` : "Nachricht eingeben..."}
               className="flex-1 bg-transparent text-sm outline-none py-1.5 placeholder:text-muted-foreground"
             />
             <Button onClick={sendMessage} size="icon" disabled={!input.trim() || loading} className="rounded-xl h-9 w-9">

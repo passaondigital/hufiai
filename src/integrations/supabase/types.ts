@@ -152,6 +152,7 @@ export type Database = {
         Row: {
           created_at: string | null
           folder: string | null
+          horse_id: string | null
           id: string
           project_id: string | null
           title: string | null
@@ -161,6 +162,7 @@ export type Database = {
         Insert: {
           created_at?: string | null
           folder?: string | null
+          horse_id?: string | null
           id?: string
           project_id?: string | null
           title?: string | null
@@ -170,6 +172,7 @@ export type Database = {
         Update: {
           created_at?: string | null
           folder?: string | null
+          horse_id?: string | null
           id?: string
           project_id?: string | null
           title?: string | null
@@ -177,6 +180,13 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "conversations_horse_id_fkey"
+            columns: ["horse_id"]
+            isOneToOne: false
+            referencedRelation: "user_horses"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "conversations_project_id_fkey"
             columns: ["project_id"]
@@ -441,40 +451,58 @@ export type Database = {
       user_horses: {
         Row: {
           age: number | null
+          ai_summary: string | null
           breed: string | null
           color: string | null
           created_at: string
+          hoof_type: string | null
+          horse_id: string | null
           id: string
           is_primary: boolean
+          keeping_type: string | null
           known_issues: string | null
+          last_trim_date: string | null
           name: string
           notes: string | null
+          photo_url: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
           age?: number | null
+          ai_summary?: string | null
           breed?: string | null
           color?: string | null
           created_at?: string
+          hoof_type?: string | null
+          horse_id?: string | null
           id?: string
           is_primary?: boolean
+          keeping_type?: string | null
           known_issues?: string | null
+          last_trim_date?: string | null
           name: string
           notes?: string | null
+          photo_url?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
           age?: number | null
+          ai_summary?: string | null
           breed?: string | null
           color?: string | null
           created_at?: string
+          hoof_type?: string | null
+          horse_id?: string | null
           id?: string
           is_primary?: boolean
+          keeping_type?: string | null
           known_issues?: string | null
+          last_trim_date?: string | null
           name?: string
           notes?: string | null
+          photo_url?: string | null
           updated_at?: string
           user_id?: string
         }

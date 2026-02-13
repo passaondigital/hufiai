@@ -15,6 +15,7 @@ import SettingsPage from "./pages/SettingsPage";
 import Admin from "./pages/Admin";
 import CompanySettings from "./pages/CompanySettings";
 import ContentHub from "./pages/ContentHub";
+import MyHorses from "./pages/MyHorses";
 import Roadmap from "./pages/Roadmap";
 import Impressum from "./pages/Impressum";
 import AGB from "./pages/AGB";
@@ -74,6 +75,7 @@ function AppRoutes() {
       <Route path="/" element={<ProtectedRoute><Chat /></ProtectedRoute>} />
       <Route path="/projects" element={<ProtectedRoute><Projects /></ProtectedRoute>} />
       <Route path="/knowledge" element={<ProtectedRoute><Knowledge /></ProtectedRoute>} />
+      <Route path="/horses" element={<ProtectedRoute><MyHorses /></ProtectedRoute>} />
       <Route path="/pricing" element={<ProtectedRoute><Pricing /></ProtectedRoute>} />
       <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
       <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
