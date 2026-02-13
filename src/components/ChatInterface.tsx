@@ -12,18 +12,45 @@ interface Message {
   content: string;
 }
 
+interface Horse {
+  name: string;
+  breed: string | null;
+  known_issues: string | null;
+}
+
 export default function ChatInterface() {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [pdfOpen, setPdfOpen] = useState(false);
+  const [primaryHorse, setPrimaryHorse] = useState<Horse | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  // Fetch primary horse for personalized greeting
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from("user_horses")
+      .select("name, breed, known_issues")
+      .eq("user_id", user.id)
+      .eq("is_primary", true)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data) setPrimaryHorse(data as Horse);
+      });
+  }, [user]);
+
+  const greeting = profile?.display_name
+    ? primaryHorse
+      ? `Hallo ${profile.display_name}! Wie geht es ${primaryHorse.name} heute?`
+      : `Hallo ${profile.display_name}! Wie kann ich dir helfen?`
+    : "Hallo! Wie kann ich helfen?";
 
   const sendMessage = async () => {
     if (!input.trim() || !user || loading) return;
@@ -33,7 +60,6 @@ export default function ChatInterface() {
     setLoading(true);
 
     try {
-      // Create conversation if needed
       let convId = conversationId;
       if (!convId) {
         const { data, error } = await supabase
@@ -46,14 +72,13 @@ export default function ChatInterface() {
         setConversationId(convId);
       }
 
-      // Save user message
       await supabase.from("messages").insert({
         conversation_id: convId,
         role: "user",
         content: userMsg.content,
       });
 
-      // Placeholder AI response (will connect Lovable AI later)
+      // Placeholder AI response
       const assistantMsg: Message = {
         id: crypto.randomUUID(),
         role: "assistant",
@@ -82,17 +107,24 @@ export default function ChatInterface() {
             <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mb-6">
               <Sparkles className="w-8 h-8 text-primary" />
             </div>
-            <h2 className="text-2xl font-bold mb-2">Hallo! Wie kann ich helfen?</h2>
+            <h2 className="text-2xl font-bold mb-2">{greeting}</h2>
             <p className="text-muted-foreground max-w-md">
-              Stelle mir eine Frage rund um Pferde, Hufpflege, Tiergesundheit oder dein Gewerbe.
+              {primaryHorse
+                ? `Ich kenne ${primaryHorse.name}${primaryHorse.breed ? ` (${primaryHorse.breed})` : ""}${primaryHorse.known_issues ? ` – Bekanntes: ${primaryHorse.known_issues}` : ""}. Stelle mir eine Frage!`
+                : "Stelle mir eine Frage rund um Pferde, Hufpflege, Tiergesundheit oder dein Gewerbe."}
             </p>
             <div className="grid grid-cols-2 gap-3 mt-8 max-w-lg">
-              {[
+              {(primaryHorse ? [
+                `Wie pflege ich die Hufe von ${primaryHorse.name}?`,
+                `Futterplan für ${primaryHorse.name}`,
+                "Stallbau-Tipps für Offenstall",
+                "Kundenmanagement-Tipps",
+              ] : [
                 "Worauf achte ich bei der Hufpflege?",
                 "Futterplan für ein Sportpferd",
                 "Stallbau-Tipps für Offenstall",
                 "Kundenmanagement-Tipps",
-              ].map((q) => (
+              ]).map((q) => (
                 <button
                   key={q}
                   onClick={() => setInput(q)}

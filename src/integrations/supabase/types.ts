@@ -438,6 +438,48 @@ export type Database = {
         }
         Relationships: []
       }
+      user_horses: {
+        Row: {
+          age: number | null
+          breed: string | null
+          color: string | null
+          created_at: string
+          id: string
+          is_primary: boolean
+          known_issues: string | null
+          name: string
+          notes: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          age?: number | null
+          breed?: string | null
+          color?: string | null
+          created_at?: string
+          id?: string
+          is_primary?: boolean
+          known_issues?: string | null
+          name: string
+          notes?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          age?: number | null
+          breed?: string | null
+          color?: string | null
+          created_at?: string
+          id?: string
+          is_primary?: boolean
+          known_issues?: string | null
+          name?: string
+          notes?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string
@@ -452,6 +494,42 @@ export type Database = {
         Update: {
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_subscriptions: {
+        Row: {
+          created_at: string
+          expires_at: string | null
+          grant_reason: string | null
+          granted_by: string | null
+          id: string
+          plan: string
+          social_media_addon: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string | null
+          grant_reason?: string | null
+          granted_by?: string | null
+          id?: string
+          plan?: string
+          social_media_addon?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string | null
+          grant_reason?: string | null
+          granted_by?: string | null
+          id?: string
+          plan?: string
+          social_media_addon?: boolean
+          updated_at?: string
           user_id?: string
         }
         Relationships: []

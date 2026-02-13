@@ -10,9 +10,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import {
   Users, ShieldCheck, Ban, UserPlus, Search, Loader2, CheckCircle, XCircle, Key,
-  Database, Bell, Activity, Send, AlertTriangle, Info, CheckCircle2, Map, TrafficCone
+  Database, Bell, Activity, Send, AlertTriangle, Info, CheckCircle2, Map, TrafficCone,
+  Crown, Calendar as CalendarIcon
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue
+} from "@/components/ui/select";
 
 interface AdminProfile {
   id: string; user_id: string; display_name: string | null; user_type: string;
@@ -41,14 +45,19 @@ const FEATURE_AMPEL = {
     "Login & Registrierung", "Onboarding (Privat/Gewerbe)", "KI-Chat (Platzhalter)", "Landing Page",
     "Admin Dashboard", "Blog CMS", "Firmenlogo-Upload", "Business Vault", "Roadmap / Dev-Journal",
     "Impressum, AGB, Datenschutz", "Nutzerverwaltung", "Global Broadcast", "System-Übersicht",
+    "Cookie-Banner (DSGVO)", "Content Hub (Social Media)", "Horse Memory / Pferde-Verwaltung",
+    "Mission Control (Admin)", "Danger Zone (Self-Service)", "Personalisierte Begrüßung",
+    "Pro-PDF-Export", "Modulares Pricing (DB)",
   ],
   yellow: [
-    "KI-Chat mit echtem LLM (Lovable AI)", "Pro-PDF-Export (mit Logo)", "Cookie-Banner (DSGVO)",
+    "KI-Chat mit echtem LLM (Lovable AI)", "Stripe-Integration",
     "Strukturierte Eingabe-Modi", "Chat-Tagging & Export", "Document Vault (Datei-Manager)",
+    "Smart Reminders (Content Hub)", "Self-Learning Mode",
   ],
   red: [
     "Automatische Video-Analyse", "Context Retention über Sessions", "One-Click AVV",
     "Hufgesundheits-Tracking mit Timeline", "Team-Verwaltung / Multi-User", "Mobile App (PWA)",
+    "Hufmanager-API Anbindung",
   ],
 };
 
@@ -75,6 +84,15 @@ export default function Admin() {
   // Table counts for system overview
   const [tableCounts, setTableCounts] = useState<Record<string, number>>({});
 
+  // Mission Control state
+  const [subscriptions, setSubscriptions] = useState<any[]>([]);
+  const [mcUserId, setMcUserId] = useState("");
+  const [mcPlan, setMcPlan] = useState("starter");
+  const [mcAddon, setMcAddon] = useState(false);
+  const [mcReason, setMcReason] = useState("");
+  const [mcExpires, setMcExpires] = useState("");
+  const [mcSaving, setMcSaving] = useState(false);
+
   const fetchProfiles = async () => {
     setLoading(true);
     const { data, error } = await supabase.from("profiles").select("*").order("created_at", { ascending: false });
@@ -98,11 +116,17 @@ export default function Admin() {
     if (data) setNotifications(data as Notification[]);
   };
 
+  const fetchSubscriptions = async () => {
+    const { data } = await supabase.from("user_subscriptions").select("*").order("updated_at", { ascending: false });
+    if (data) setSubscriptions(data);
+  };
+
   useEffect(() => {
     if (isAdmin) {
       fetchProfiles();
       fetchTableCounts();
       fetchNotifications();
+      fetchSubscriptions();
     }
   }, [isAdmin]);
 
@@ -196,8 +220,9 @@ export default function Admin() {
         </div>
 
         <Tabs defaultValue="users" className="space-y-6">
-          <TabsList>
+          <TabsList className="flex-wrap">
             <TabsTrigger value="users"><Users className="w-4 h-4 mr-2" />Nutzer</TabsTrigger>
+            <TabsTrigger value="mission"><Crown className="w-4 h-4 mr-2" />Mission Control</TabsTrigger>
             <TabsTrigger value="system"><Database className="w-4 h-4 mr-2" />System</TabsTrigger>
             <TabsTrigger value="broadcast"><Bell className="w-4 h-4 mr-2" />Broadcast</TabsTrigger>
             <TabsTrigger value="health"><Activity className="w-4 h-4 mr-2" />Health</TabsTrigger>
@@ -299,6 +324,124 @@ export default function Admin() {
                   {filtered.length === 0 && <div className="p-8 text-center text-muted-foreground">Keine Nutzer gefunden.</div>}
                 </div>
               )}
+            </div>
+          </TabsContent>
+
+          {/* MISSION CONTROL TAB */}
+          <TabsContent value="mission" className="space-y-6">
+            {/* Existing subscriptions */}
+            <div className="bg-card rounded-2xl border border-border p-6">
+              <h2 className="font-semibold mb-4 flex items-center gap-2">
+                <Crown className="w-5 h-5 text-primary" /> Aktive Abos & Zugänge
+              </h2>
+              {subscriptions.length === 0 ? (
+                <p className="text-sm text-muted-foreground">Noch keine manuellen Zugänge vergeben.</p>
+              ) : (
+                <div className="space-y-3">
+                  {subscriptions.map((sub) => {
+                    const p = profiles.find((pr) => pr.user_id === sub.user_id);
+                    const expired = sub.expires_at && new Date(sub.expires_at) < new Date();
+                    return (
+                      <div key={sub.id} className={`p-4 rounded-xl border ${expired ? "border-destructive/30 bg-destructive/5" : "border-border bg-muted/50"}`}>
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="font-medium text-sm">{p?.display_name || sub.user_id.slice(0, 8)}</p>
+                            <div className="flex items-center gap-2 mt-1">
+                              <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${sub.plan === "pro" ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"}`}>
+                                {sub.plan === "pro" ? "Pro Business" : "Starter"}
+                              </span>
+                              {sub.social_media_addon && (
+                                <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary font-medium">+ Social Media</span>
+                              )}
+                              {expired && <span className="text-xs text-destructive font-medium">Abgelaufen</span>}
+                            </div>
+                            {sub.grant_reason && <p className="text-xs text-muted-foreground mt-1">Grund: {sub.grant_reason}</p>}
+                            {sub.expires_at && <p className="text-xs text-muted-foreground">Ablauf: {new Date(sub.expires_at).toLocaleDateString("de-DE")}</p>}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* Grant access manually */}
+            <div className="bg-card rounded-2xl border border-border p-6">
+              <h2 className="font-semibold mb-4">Zugang manuell vergeben</h2>
+              <div className="space-y-4">
+                <div>
+                  <Label>Nutzer auswählen</Label>
+                  <Select value={mcUserId} onValueChange={setMcUserId}>
+                    <SelectTrigger className="mt-1"><SelectValue placeholder="Nutzer wählen..." /></SelectTrigger>
+                    <SelectContent>
+                      {profiles.map((p) => (
+                        <SelectItem key={p.user_id} value={p.user_id}>
+                          {p.display_name || p.user_id.slice(0, 8)} ({p.user_type})
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label>Plan</Label>
+                    <Select value={mcPlan} onValueChange={setMcPlan}>
+                      <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="starter">Starter (Free)</SelectItem>
+                        <SelectItem value="pro">Pro Business</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label>Ablaufdatum (optional)</Label>
+                    <Input className="mt-1" type="date" value={mcExpires} onChange={(e) => setMcExpires(e.target.value)} />
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <input
+                    type="checkbox"
+                    checked={mcAddon}
+                    onChange={(e) => setMcAddon(e.target.checked)}
+                    className="w-4 h-4 rounded accent-primary"
+                  />
+                  <Label>Social Media Add-on (14,99€/Monat Wert)</Label>
+                </div>
+                <div>
+                  <Label>Grund (z.B. Gewinnspiel, Offline-Zahlung)</Label>
+                  <Input className="mt-1" value={mcReason} onChange={(e) => setMcReason(e.target.value)} placeholder="Grund für die manuelle Vergabe..." />
+                </div>
+                <Button
+                  disabled={!mcUserId || mcSaving}
+                  onClick={async () => {
+                    setMcSaving(true);
+                    try {
+                      const { data: existing } = await supabase.from("user_subscriptions").select("*").eq("user_id", mcUserId).maybeSingle();
+                      const payload = {
+                        user_id: mcUserId,
+                        plan: mcPlan,
+                        social_media_addon: mcAddon,
+                        granted_by: user!.id,
+                        grant_reason: mcReason || null,
+                        expires_at: mcExpires ? new Date(mcExpires).toISOString() : null,
+                      };
+                      if (existing) {
+                        await supabase.from("user_subscriptions").update(payload).eq("user_id", mcUserId);
+                      } else {
+                        await supabase.from("user_subscriptions").insert(payload);
+                      }
+                      toast.success("Zugang vergeben!");
+                      setMcUserId(""); setMcReason(""); setMcExpires(""); setMcAddon(false); setMcPlan("starter");
+                      fetchSubscriptions();
+                    } catch (err: any) { toast.error(err.message); }
+                    finally { setMcSaving(false); }
+                  }}
+                >
+                  {mcSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Crown className="w-4 h-4 mr-2" />}
+                  Zugang speichern
+                </Button>
+              </div>
             </div>
           </TabsContent>
 
