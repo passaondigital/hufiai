@@ -49,9 +49,9 @@ export default function Landing() {
             <span className="text-xl font-bold">HufiAi</span>
           </div>
           <div className="hidden md:flex items-center gap-6 text-sm font-medium text-muted-foreground">
-            <button onClick={() => scrollTo("features")} className="hover:text-foreground transition-colors">Über HufiAi</button>
+            <button onClick={() => scrollTo("features")} className="hover:text-foreground transition-colors">Funktionen</button>
             <button onClick={() => scrollTo("blog")} className="hover:text-foreground transition-colors">Blog</button>
-            <button onClick={() => navigate("/pricing")} className="hover:text-foreground transition-colors">Preise</button>
+            <button onClick={() => scrollTo("pricing")} className="hover:text-foreground transition-colors">Preise</button>
           </div>
           <div className="flex items-center gap-3">
             <Button variant="ghost" onClick={() => navigate("/auth")}>Anmelden</Button>
