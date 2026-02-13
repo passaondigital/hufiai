@@ -505,6 +505,47 @@ export type Database = {
         }
         Relationships: []
       }
+      training_data_logs: {
+        Row: {
+          ai_output: string | null
+          conversation_id: string | null
+          created_at: string
+          file_context: string | null
+          id: string
+          model_used: string | null
+          user_id: string
+          user_input: string | null
+        }
+        Insert: {
+          ai_output?: string | null
+          conversation_id?: string | null
+          created_at?: string
+          file_context?: string | null
+          id?: string
+          model_used?: string | null
+          user_id: string
+          user_input?: string | null
+        }
+        Update: {
+          ai_output?: string | null
+          conversation_id?: string | null
+          created_at?: string
+          file_context?: string | null
+          id?: string
+          model_used?: string | null
+          user_id?: string
+          user_input?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "training_data_logs_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       upload_usage: {
         Row: {
           created_at: string

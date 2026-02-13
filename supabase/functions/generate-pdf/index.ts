@@ -273,10 +273,8 @@ Jeder Wert soll 2-5 Sätze lang sein. Falls der Chat wenig Inhalt hat, fasse sin
     doc.text("Erstellt mit HufiAi · KI-gestützte Analyse für die Pferdebranche · DSGVO-konform · Serverstandort Frankfurt, DE", margin, footerY);
     doc.text("hufi.ai", pageW - margin, footerY, { align: "right" });
 
-    if (isBusinessTemplate) {
-      doc.setFontSize(6);
-      doc.text("Dieser Bericht dient der Dokumentation und ersetzt keine tierärztliche Diagnose.", margin, footerY + 4);
-    }
+    doc.setFontSize(6);
+    doc.text("HufiAi ist eine KI-Assistenz zur Unterstützung. Informationen ersetzen keine fachliche Beratung durch Tierärzte, Huf-Experten oder Juristen. Nutzung auf eigenes Risiko.", margin, footerY + 4);
 
     // Generate PDF buffer
     const pdfBuffer = doc.output("arraybuffer");

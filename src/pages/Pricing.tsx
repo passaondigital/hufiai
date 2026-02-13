@@ -9,7 +9,7 @@ const plans = [
     name: "Free",
     price: "0€",
     period: "",
-    features: ["Basis-Chat (5/Tag)", "1 Pferdeprofil", "DSGVO-konform", "EU-Server"],
+    features: ["Basis-Chat (5/Tag)", "1 Pferdeprofil", "3 Datei-Analysen/Monat", "DSGVO-konform", "EU-Server"],
     cta: "Kostenlos starten",
     planKey: "free",
   },
