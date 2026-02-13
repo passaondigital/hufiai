@@ -13,6 +13,8 @@ import Knowledge from "./pages/Knowledge";
 import Pricing from "./pages/Pricing";
 import SettingsPage from "./pages/SettingsPage";
 import Admin from "./pages/Admin";
+import CompanySettings from "./pages/CompanySettings";
+import Roadmap from "./pages/Roadmap";
 import Impressum from "./pages/Impressum";
 import AGB from "./pages/AGB";
 import Datenschutz from "./pages/Datenschutz";
@@ -74,6 +76,8 @@ function AppRoutes() {
       <Route path="/pricing" element={<ProtectedRoute><Pricing /></ProtectedRoute>} />
       <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
       <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
+      <Route path="/company" element={<ProtectedRoute><CompanySettings /></ProtectedRoute>} />
+      <Route path="/roadmap" element={<ProtectedRoute><Roadmap /></ProtectedRoute>} />
       <Route path="/impressum" element={<Impressum />} />
       <Route path="/agb" element={<AGB />} />
       <Route path="/datenschutz" element={<Datenschutz />} />
