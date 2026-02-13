@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
-import { Send, Sparkles, Loader2, FileDown, ChevronDown, Crown } from "lucide-react";
+import { Send, Sparkles, Loader2, FileDown, Crown, Paperclip, X, FileText, Image as ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import PdfExportDialog from "@/components/PdfExportDialog";
@@ -12,6 +12,17 @@ interface Message {
   id: string;
   role: "user" | "assistant";
   content: string;
+  attachments?: AttachmentPreview[];
+}
+
+interface AttachmentPreview {
+  id?: string;
+  fileName: string;
+  fileType: string;
+  fileSize: number;
+  url?: string;
+  extractedText?: string;
+  status: "uploading" | "extracting" | "ready" | "error";
 }
 
 interface HorseOption {
@@ -24,6 +35,16 @@ interface HorseOption {
   ai_summary: string | null;
   is_primary: boolean;
 }
+
+const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20MB
+const ALLOWED_TYPES = [
+  "application/pdf",
+  "image/jpeg", "image/png", "image/webp", "image/gif",
+  "text/plain", "text/markdown", "text/csv",
+  "application/json",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+];
+const ALLOWED_EXTENSIONS = [".pdf", ".jpg", ".jpeg", ".png", ".webp", ".gif", ".txt", ".md", ".csv", ".json", ".docx"];
 
 export default function ChatInterface() {
   const { user, profile } = useAuth();
@@ -38,7 +59,10 @@ export default function ChatInterface() {
   const [showSelector, setShowSelector] = useState(false);
   const [upsellOpen, setUpsellOpen] = useState(false);
   const [upsellFeature, setUpsellFeature] = useState("");
+  const [pendingFiles, setPendingFiles] = useState<AttachmentPreview[]>([]);
+  const [uploading, setUploading] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -56,10 +80,8 @@ export default function ChatInterface() {
         if (data && data.length > 0) {
           const horseList = data as HorseOption[];
           setHorses(horseList);
-          // Auto-select primary horse
           const primary = horseList.find((h) => h.is_primary) || horseList[0];
           setSelectedHorse(primary);
-          // Show selector if multiple horses
           if (horseList.length > 1) setShowSelector(true);
         }
       });
@@ -74,17 +96,156 @@ export default function ChatInterface() {
     ? `🐴 ${selectedHorse.name}${selectedHorse.breed ? ` (${selectedHorse.breed})` : ""}${selectedHorse.hoof_type ? ` · ${selectedHorse.hoof_type === "barefoot" ? "Barhuf" : selectedHorse.hoof_type === "shod" ? "Beschlagen" : "Alternativ"}` : ""}${selectedHorse.known_issues ? ` · Bekannt: ${selectedHorse.known_issues}` : ""}${selectedHorse.ai_summary ? ` · KI: ${selectedHorse.ai_summary}` : ""}`
     : null;
 
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+
+    const validFiles: AttachmentPreview[] = [];
+    for (const file of files) {
+      const ext = "." + file.name.split(".").pop()?.toLowerCase();
+      if (file.size > MAX_FILE_SIZE) {
+        toast.error(`${file.name}: Datei zu groß (max. 20MB)`);
+        continue;
+      }
+      if (!ALLOWED_TYPES.includes(file.type) && !ALLOWED_EXTENSIONS.includes(ext)) {
+        toast.error(`${file.name}: Dateityp nicht unterstützt`);
+        continue;
+      }
+      validFiles.push({
+        fileName: file.name,
+        fileType: file.type,
+        fileSize: file.size,
+        status: "uploading",
+      });
+    }
+
+    if (validFiles.length > 0) {
+      setPendingFiles((prev) => [...prev, ...validFiles]);
+      uploadFiles(files.filter((f) => {
+        const ext = "." + f.name.split(".").pop()?.toLowerCase();
+        return f.size <= MAX_FILE_SIZE && (ALLOWED_TYPES.includes(f.type) || ALLOWED_EXTENSIONS.includes(ext));
+      }));
+    }
+
+    // Reset input
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const uploadFiles = async (files: File[]) => {
+    if (!user) return;
+    setUploading(true);
+
+    for (const file of files) {
+      const filePath = `${user.id}/${crypto.randomUUID()}_${file.name}`;
+
+      try {
+        // Upload to storage
+        const { error: uploadErr } = await supabase.storage
+          .from("chat-attachments")
+          .upload(filePath, file);
+
+        if (uploadErr) throw uploadErr;
+
+        // Create attachment record
+        const { data: attachment, error: insertErr } = await supabase
+          .from("chat_attachments")
+          .insert({
+            user_id: user.id,
+            file_name: file.name,
+            file_type: file.type,
+            file_size: file.size,
+            storage_path: filePath,
+            extraction_status: "pending",
+          })
+          .select("id")
+          .single();
+
+        if (insertErr) throw insertErr;
+
+        // Update pending file with id and status
+        setPendingFiles((prev) =>
+          prev.map((pf) =>
+            pf.fileName === file.name && pf.status === "uploading"
+              ? { ...pf, id: attachment.id, status: "extracting" }
+              : pf
+          )
+        );
+
+        // Trigger text extraction
+        const { data: extractData, error: extractErr } = await supabase.functions.invoke("extract-text", {
+          body: { attachment_id: attachment.id },
+        });
+
+        if (extractErr) {
+          console.error("Extraction error:", extractErr);
+          setPendingFiles((prev) =>
+            prev.map((pf) =>
+              pf.id === attachment.id ? { ...pf, status: "ready" } : pf
+            )
+          );
+        } else {
+          setPendingFiles((prev) =>
+            prev.map((pf) =>
+              pf.id === attachment.id
+                ? { ...pf, extractedText: extractData?.extracted_text || "", status: "ready" }
+                : pf
+            )
+          );
+        }
+      } catch (err: any) {
+        console.error("Upload error:", err);
+        toast.error(`Upload fehlgeschlagen: ${file.name}`);
+        setPendingFiles((prev) =>
+          prev.map((pf) =>
+            pf.fileName === file.name && (pf.status === "uploading" || pf.status === "extracting")
+              ? { ...pf, status: "error" }
+              : pf
+          )
+        );
+      }
+    }
+
+    setUploading(false);
+  };
+
+  const removePendingFile = (fileName: string) => {
+    setPendingFiles((prev) => prev.filter((f) => f.fileName !== fileName));
+  };
+
   const sendMessage = async () => {
-    if (!input.trim() || !user || loading) return;
-    const userMsg: Message = { id: crypto.randomUUID(), role: "user", content: input.trim() };
+    if ((!input.trim() && pendingFiles.length === 0) || !user || loading) return;
+
+    // Build message content including attachment context
+    let fullContent = input.trim();
+    const attachments = [...pendingFiles.filter((f) => f.status === "ready" || f.status === "error")];
+
+    if (attachments.length > 0) {
+      const attachmentContext = attachments
+        .map((a) => {
+          if (a.extractedText) {
+            return `\n\n📎 Datei: ${a.fileName}\n--- Inhalt ---\n${a.extractedText.slice(0, 4000)}\n--- Ende ---`;
+          }
+          return `\n\n📎 Datei: ${a.fileName} (${a.fileType}, ${(a.fileSize / 1024).toFixed(0)} KB)`;
+        })
+        .join("");
+      fullContent += attachmentContext;
+    }
+
+    const userMsg: Message = {
+      id: crypto.randomUUID(),
+      role: "user",
+      content: input.trim() || `📎 ${attachments.map((a) => a.fileName).join(", ")}`,
+      attachments,
+    };
     setMessages((prev) => [...prev, userMsg]);
     setInput("");
+    setPendingFiles([]);
     setLoading(true);
 
     try {
       let convId = conversationId;
       if (!convId) {
-        const insertData: any = { user_id: user.id, title: input.trim().slice(0, 50) };
+        const insertData: any = { user_id: user.id, title: (input.trim() || "Datei-Upload").slice(0, 50) };
         if (selectedHorse) insertData.horse_id = selectedHorse.id;
         const { data, error } = await supabase
           .from("conversations")
@@ -94,20 +255,32 @@ export default function ChatInterface() {
         if (error) throw error;
         convId = data.id;
         setConversationId(convId);
-        setShowSelector(false); // Lock horse selection after first message
+        setShowSelector(false);
+      }
+
+      // Link attachments to conversation
+      for (const att of attachments) {
+        if (att.id) {
+          await supabase
+            .from("chat_attachments")
+            .update({ conversation_id: convId })
+            .eq("id", att.id);
+        }
       }
 
       await supabase.from("messages").insert({
         conversation_id: convId,
         role: "user",
-        content: userMsg.content,
+        content: fullContent,
       });
 
       // Placeholder AI response
       const assistantMsg: Message = {
         id: crypto.randomUUID(),
         role: "assistant",
-        content: "Danke für deine Nachricht! Die KI-Anbindung wird in Kürze aktiviert. Aktuell wird dein Chat gespeichert und du kannst die Oberfläche erkunden.",
+        content: attachments.length > 0
+          ? `Danke! Ich habe ${attachments.length} Datei(en) erhalten und analysiert. Die KI-Anbindung wird in Kürze aktiviert – dann kann ich den Inhalt vollständig auswerten.`
+          : "Danke für deine Nachricht! Die KI-Anbindung wird in Kürze aktiviert. Aktuell wird dein Chat gespeichert und du kannst die Oberfläche erkunden.",
       };
       setMessages((prev) => [...prev, assistantMsg]);
 
@@ -121,6 +294,11 @@ export default function ChatInterface() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const getFileIcon = (type: string) => {
+    if (type.startsWith("image/")) return <ImageIcon className="w-4 h-4" />;
+    return <FileText className="w-4 h-4" />;
   };
 
   return (
@@ -254,6 +432,17 @@ export default function ChatInterface() {
                   }`}
                 >
                   {msg.content}
+                  {/* Show attachment badges */}
+                  {msg.attachments && msg.attachments.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5 mt-2 pt-2 border-t border-primary-foreground/20">
+                      {msg.attachments.map((att, i) => (
+                        <span key={i} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-primary-foreground/10 text-xs">
+                          {getFileIcon(att.fileType)}
+                          {att.fileName}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
@@ -271,6 +460,43 @@ export default function ChatInterface() {
         )}
       </div>
 
+      {/* Pending files preview */}
+      {pendingFiles.length > 0 && (
+        <div className="border-t border-border px-4 py-2 bg-card/50">
+          <div className="max-w-3xl mx-auto flex flex-wrap gap-2">
+            {pendingFiles.map((file, i) => (
+              <div
+                key={`${file.fileName}-${i}`}
+                className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border text-xs ${
+                  file.status === "error"
+                    ? "border-destructive/50 bg-destructive/5 text-destructive"
+                    : file.status === "ready"
+                      ? "border-primary/30 bg-primary/5 text-primary"
+                      : "border-border bg-muted text-muted-foreground"
+                }`}
+              >
+                {file.status === "uploading" || file.status === "extracting" ? (
+                  <Loader2 className="w-3 h-3 animate-spin" />
+                ) : (
+                  getFileIcon(file.fileType)
+                )}
+                <span className="max-w-[150px] truncate">{file.fileName}</span>
+                {file.status === "extracting" && <span className="text-[10px]">Analysiere…</span>}
+                {file.status === "ready" && file.extractedText && (
+                  <span className="text-[10px] text-primary">✓ Analysiert</span>
+                )}
+                <button
+                  onClick={() => removePendingFile(file.fileName)}
+                  className="ml-1 hover:text-destructive transition-colors"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Input area */}
       <div className="border-t border-border p-4">
         <div className="max-w-3xl mx-auto">
@@ -280,6 +506,24 @@ export default function ChatInterface() {
                 <FileDown className="w-4 h-4" />
               </Button>
             )}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="rounded-xl h-9 w-9 shrink-0"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={uploading}
+              title="Datei anhängen (PDF, Bild, Text)"
+            >
+              {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Paperclip className="w-4 h-4" />}
+            </Button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              className="hidden"
+              multiple
+              accept=".pdf,.jpg,.jpeg,.png,.webp,.gif,.txt,.md,.csv,.json,.docx"
+              onChange={handleFileSelect}
+            />
             <input
               value={input}
               onChange={(e) => setInput(e.target.value)}
@@ -287,7 +531,12 @@ export default function ChatInterface() {
               placeholder={selectedHorse ? `Frage zu ${selectedHorse.name}...` : "Nachricht eingeben..."}
               className="flex-1 bg-transparent text-sm outline-none py-1.5 placeholder:text-muted-foreground"
             />
-            <Button onClick={sendMessage} size="icon" disabled={!input.trim() || loading} className="rounded-xl h-9 w-9">
+            <Button
+              onClick={sendMessage}
+              size="icon"
+              disabled={(!input.trim() && pendingFiles.filter((f) => f.status === "ready").length === 0) || loading}
+              className="rounded-xl h-9 w-9"
+            >
               {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
             </Button>
           </div>
