@@ -505,6 +505,33 @@ export type Database = {
         }
         Relationships: []
       }
+      upload_usage: {
+        Row: {
+          created_at: string
+          id: string
+          month_year: string
+          updated_at: string
+          upload_count: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          month_year?: string
+          updated_at?: string
+          upload_count?: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          month_year?: string
+          updated_at?: string
+          upload_count?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_horses: {
         Row: {
           age: number | null
