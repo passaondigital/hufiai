@@ -31,6 +31,7 @@ export default function AppSidebar() {
 
   const navItems = [
     { icon: MessageSquare, label: "Chat", path: "/" },
+    { icon: Sparkles, label: "Meine Pferde", path: "/horses" },
     ...(profile?.user_type === "gewerbe" ? [
       { icon: FolderKanban, label: "Projekte", path: "/projects" },
       { icon: Building2, label: "Firmenprofil", path: "/company" },
