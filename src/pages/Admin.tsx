@@ -11,12 +11,15 @@ import { toast } from "sonner";
 import {
   Users, ShieldCheck, Ban, UserPlus, Search, Loader2, CheckCircle, XCircle, Key,
   Database, Bell, Activity, Send, AlertTriangle, Info, CheckCircle2, Map, TrafficCone,
-  Crown, Calendar as CalendarIcon
+  Crown, Calendar as CalendarIcon, FileText, RotateCcw, Gift, Paperclip
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue
 } from "@/components/ui/select";
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle
+} from "@/components/ui/dialog";
 
 interface AdminProfile {
   id: string; user_id: string; display_name: string | null; user_type: string;
@@ -93,6 +96,13 @@ export default function Admin() {
   const [mcExpires, setMcExpires] = useState("");
   const [mcSaving, setMcSaving] = useState(false);
 
+  // Files & Usage state
+  const [filesDialogOpen, setFilesDialogOpen] = useState(false);
+  const [filesUserId, setFilesUserId] = useState("");
+  const [filesData, setFilesData] = useState<any[]>([]);
+  const [filesLoading, setFilesLoading] = useState(false);
+  const [uploadUsage, setUploadUsage] = useState<any[]>([]);
+
   const fetchProfiles = async () => {
     setLoading(true);
     const { data, error } = await supabase.from("profiles").select("*").order("created_at", { ascending: false });
@@ -121,12 +131,65 @@ export default function Admin() {
     if (data) setSubscriptions(data);
   };
 
+  const fetchUploadUsage = async () => {
+    const { data } = await supabase.from("upload_usage").select("*").order("month_year", { ascending: false });
+    if (data) setUploadUsage(data);
+  };
+
+  const viewUserFiles = async (userId: string) => {
+    setFilesUserId(userId);
+    setFilesLoading(true);
+    setFilesDialogOpen(true);
+    const { data } = await supabase
+      .from("chat_attachments")
+      .select("id, file_name, file_type, file_size, extraction_status, created_at")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false })
+      .limit(50);
+    setFilesData(data || []);
+    setFilesLoading(false);
+  };
+
+  const resetUserLimits = async (userId: string) => {
+    const monthYear = new Date().toISOString().slice(0, 7);
+    const { error } = await supabase
+      .from("upload_usage")
+      .update({ upload_count: 0 })
+      .eq("user_id", userId)
+      .eq("month_year", monthYear);
+    if (error) toast.error(error.message);
+    else { toast.success("Upload-Limit zurückgesetzt"); fetchUploadUsage(); }
+  };
+
+  const giftFounderFlow = async (userId: string) => {
+    const now = new Date();
+    const expires = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+    const { data: existing } = await supabase.from("user_subscriptions").select("*").eq("user_id", userId).maybeSingle();
+    const payload = {
+      user_id: userId,
+      plan: "gewerbe_pro",
+      founder_flow_active: true,
+      founder_flow_started_at: now.toISOString(),
+      founder_flow_expires_at: expires.toISOString(),
+      granted_by: user!.id,
+      grant_reason: "Admin Gift – Founder Flow",
+    };
+    if (existing) {
+      await supabase.from("user_subscriptions").update(payload).eq("user_id", userId);
+    } else {
+      await supabase.from("user_subscriptions").insert(payload);
+    }
+    toast.success("Founder Flow aktiviert!");
+    fetchSubscriptions();
+  };
+
   useEffect(() => {
     if (isAdmin) {
       fetchProfiles();
       fetchTableCounts();
       fetchNotifications();
       fetchSubscriptions();
+      fetchUploadUsage();
     }
   }, [isAdmin]);
 
@@ -313,9 +376,18 @@ export default function Admin() {
                           </div>
                         </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs text-muted-foreground mr-3">{new Date(p.created_at).toLocaleDateString("de-DE")}</span>
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <span className="text-xs text-muted-foreground mr-2">{new Date(p.created_at).toLocaleDateString("de-DE")}</span>
                         {p.onboarding_completed ? <CheckCircle className="w-4 h-4 text-success" /> : <XCircle className="w-4 h-4 text-muted-foreground" />}
+                        <Button variant="ghost" size="sm" onClick={() => viewUserFiles(p.user_id)} title="Dateien anzeigen">
+                          <Paperclip className="w-3.5 h-3.5 mr-1" />Dateien
+                        </Button>
+                        <Button variant="ghost" size="sm" onClick={() => resetUserLimits(p.user_id)} title="Upload-Limit zurücksetzen">
+                          <RotateCcw className="w-3.5 h-3.5 mr-1" />Reset
+                        </Button>
+                        <Button variant="ghost" size="sm" onClick={() => giftFounderFlow(p.user_id)} title="Founder Flow schenken">
+                          <Gift className="w-3.5 h-3.5 mr-1" />Founder
+                        </Button>
                         <Button variant={p.is_blocked ? "outline" : "destructive"} size="sm" onClick={() => toggleBlock(p)}>
                           {p.is_blocked ? "Entsperren" : "Sperren"}
                         </Button>
@@ -638,6 +710,46 @@ export default function Admin() {
 
         </Tabs>
       </div>
+
+      {/* Files Dialog */}
+      <Dialog open={filesDialogOpen} onOpenChange={setFilesDialogOpen}>
+        <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Paperclip className="w-5 h-5 text-primary" />
+              Dateien von {profiles.find(p => p.user_id === filesUserId)?.display_name || "Nutzer"}
+            </DialogTitle>
+          </DialogHeader>
+          {filesLoading ? (
+            <div className="flex justify-center py-8"><Loader2 className="w-6 h-6 animate-spin text-primary" /></div>
+          ) : filesData.length === 0 ? (
+            <p className="text-sm text-muted-foreground py-4">Keine Dateien hochgeladen.</p>
+          ) : (
+            <div className="space-y-2">
+              {filesData.map((f) => (
+                <div key={f.id} className="p-3 rounded-lg border border-border bg-muted/50 text-sm">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <FileText className="w-4 h-4 text-muted-foreground" />
+                      <span className="font-medium truncate max-w-[200px]">{f.file_name}</span>
+                    </div>
+                    <span className={`text-xs px-2 py-0.5 rounded-full ${
+                      f.extraction_status === "completed" ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"
+                    }`}>
+                      {f.extraction_status === "completed" ? "Analysiert" : f.extraction_status}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
+                    <span>{f.file_type}</span>
+                    <span>{f.file_size ? `${(f.file_size / 1024).toFixed(0)} KB` : "–"}</span>
+                    <span>{new Date(f.created_at).toLocaleDateString("de-DE")}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </AppLayout>
   );
 }

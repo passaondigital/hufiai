@@ -48,7 +48,7 @@ const ALLOWED_EXTENSIONS = [".pdf", ".jpg", ".jpeg", ".png", ".webp", ".gif", ".
 
 export default function ChatInterface() {
   const { user, profile } = useAuth();
-  const { isFounderFlowActive, founderFlowDaysLeft, hasGewerbeAccess } = useSubscription();
+  const { isFounderFlowActive, founderFlowDaysLeft, hasGewerbeAccess, hasUnlimitedUploads } = useSubscription();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -96,9 +96,51 @@ export default function ChatInterface() {
     ? `🐴 ${selectedHorse.name}${selectedHorse.breed ? ` (${selectedHorse.breed})` : ""}${selectedHorse.hoof_type ? ` · ${selectedHorse.hoof_type === "barefoot" ? "Barhuf" : selectedHorse.hoof_type === "shod" ? "Beschlagen" : "Alternativ"}` : ""}${selectedHorse.known_issues ? ` · Bekannt: ${selectedHorse.known_issues}` : ""}${selectedHorse.ai_summary ? ` · KI: ${selectedHorse.ai_summary}` : ""}`
     : null;
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const checkUploadLimit = async (): Promise<boolean> => {
+    if (hasUnlimitedUploads) return true;
+    if (!user) return false;
+    const monthYear = new Date().toISOString().slice(0, 7);
+    const { data } = await supabase
+      .from("upload_usage")
+      .select("upload_count")
+      .eq("user_id", user.id)
+      .eq("month_year", monthYear)
+      .maybeSingle();
+    const currentCount = data?.upload_count || 0;
+    if (currentCount >= 3) {
+      setUpsellFeature("Mehr als 3 Datei-Analysen pro Monat");
+      setUpsellOpen(true);
+      return false;
+    }
+    return true;
+  };
+
+  const incrementUploadCount = async () => {
+    if (!user || hasUnlimitedUploads) return;
+    const monthYear = new Date().toISOString().slice(0, 7);
+    const { data: existing } = await supabase
+      .from("upload_usage")
+      .select("id, upload_count")
+      .eq("user_id", user.id)
+      .eq("month_year", monthYear)
+      .maybeSingle();
+    if (existing) {
+      await supabase.from("upload_usage").update({ upload_count: existing.upload_count + 1 }).eq("id", existing.id);
+    } else {
+      await supabase.from("upload_usage").insert({ user_id: user.id, month_year: monthYear, upload_count: 1 });
+    }
+  };
+
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     if (files.length === 0) return;
+
+    // Check upload limit before proceeding
+    const allowed = await checkUploadLimit();
+    if (!allowed) {
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      return;
+    }
 
     const validFiles: AttachmentPreview[] = [];
     for (const file of files) {
@@ -184,6 +226,8 @@ export default function ChatInterface() {
             )
           );
         } else {
+          // Increment usage counter on successful extraction
+          await incrementUploadCount();
           setPendingFiles((prev) =>
             prev.map((pf) =>
               pf.id === attachment.id

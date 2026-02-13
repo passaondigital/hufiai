@@ -40,7 +40,9 @@ export function useSubscription() {
 
   const effectivePlan = subscription?.plan || "free";
 
-  const hasGewerbeAccess = effectivePlan === "gewerbe_pro" || effectivePlan === "gewerbe_team" || isFounderFlowActive;
+  const hasGewerbeAccess = effectivePlan === "gewerbe_pro" || effectivePlan === "gewerbe_team" || !!isFounderFlowActive;
 
-  return { subscription, loading, isFounderFlowActive, founderFlowDaysLeft, effectivePlan, hasGewerbeAccess };
+  const hasUnlimitedUploads = hasGewerbeAccess || effectivePlan === "privat_plus";
+
+  return { subscription, loading, isFounderFlowActive, founderFlowDaysLeft, effectivePlan, hasGewerbeAccess, hasUnlimitedUploads };
 }
