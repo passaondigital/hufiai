@@ -4,14 +4,18 @@ import { supabase } from "@/integrations/supabase/client";
 
 type UserType = "privat" | "gewerbe";
 
+type SubRole = "reiter" | "pferdebesitzer" | "reitbeteiligung" | "hufbearbeiter" | "tierarzt" | "stallbetreiber";
+
 interface Profile {
   id: string;
   user_id: string;
   display_name: string | null;
   user_type: UserType;
+  sub_role: SubRole | null;
   company_name: string | null;
   onboarding_completed: boolean;
   is_blocked: boolean;
+  is_data_contribution_active: boolean;
 }
 
 interface AuthContextType {

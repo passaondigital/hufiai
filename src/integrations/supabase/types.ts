@@ -14,6 +14,51 @@ export type Database = {
   }
   public: {
     Tables: {
+      blog_posts: {
+        Row: {
+          author_id: string
+          category: string | null
+          content: string
+          created_at: string
+          excerpt: string | null
+          id: string
+          image_url: string | null
+          published_at: string | null
+          slug: string
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          author_id: string
+          category?: string | null
+          content?: string
+          created_at?: string
+          excerpt?: string | null
+          id?: string
+          image_url?: string | null
+          published_at?: string | null
+          slug: string
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          author_id?: string
+          category?: string | null
+          content?: string
+          created_at?: string
+          excerpt?: string | null
+          id?: string
+          image_url?: string | null
+          published_at?: string | null
+          slug?: string
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       conversations: {
         Row: {
           created_at: string | null
@@ -135,7 +180,9 @@ export type Database = {
           display_name: string | null
           id: string
           is_blocked: boolean | null
+          is_data_contribution_active: boolean
           onboarding_completed: boolean | null
+          sub_role: Database["public"]["Enums"]["sub_role"] | null
           updated_at: string | null
           user_id: string
           user_type: Database["public"]["Enums"]["user_type"] | null
@@ -146,7 +193,9 @@ export type Database = {
           display_name?: string | null
           id?: string
           is_blocked?: boolean | null
+          is_data_contribution_active?: boolean
           onboarding_completed?: boolean | null
+          sub_role?: Database["public"]["Enums"]["sub_role"] | null
           updated_at?: string | null
           user_id: string
           user_type?: Database["public"]["Enums"]["user_type"] | null
@@ -157,7 +206,9 @@ export type Database = {
           display_name?: string | null
           id?: string
           is_blocked?: boolean | null
+          is_data_contribution_active?: boolean
           onboarding_completed?: boolean | null
+          sub_role?: Database["public"]["Enums"]["sub_role"] | null
           updated_at?: string | null
           user_id?: string
           user_type?: Database["public"]["Enums"]["user_type"] | null
@@ -225,6 +276,13 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "user"
+      sub_role:
+        | "reiter"
+        | "pferdebesitzer"
+        | "reitbeteiligung"
+        | "hufbearbeiter"
+        | "tierarzt"
+        | "stallbetreiber"
       user_type: "privat" | "gewerbe"
     }
     CompositeTypes: {
@@ -354,6 +412,14 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "user"],
+      sub_role: [
+        "reiter",
+        "pferdebesitzer",
+        "reitbeteiligung",
+        "hufbearbeiter",
+        "tierarzt",
+        "stallbetreiber",
+      ],
       user_type: ["privat", "gewerbe"],
     },
   },
