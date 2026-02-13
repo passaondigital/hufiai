@@ -294,6 +294,50 @@ export type Database = {
           },
         ]
       }
+      horse_shares: {
+        Row: {
+          created_at: string
+          expert_email: string
+          expert_id: string | null
+          horse_id: string
+          id: string
+          owner_id: string
+          permissions: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          expert_email: string
+          expert_id?: string | null
+          horse_id: string
+          id?: string
+          owner_id: string
+          permissions?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          expert_email?: string
+          expert_id?: string | null
+          horse_id?: string
+          id?: string
+          owner_id?: string
+          permissions?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "horse_shares_horse_id_fkey"
+            columns: ["horse_id"]
+            isOneToOne: false
+            referencedRelation: "user_horses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       messages: {
         Row: {
           content: string
@@ -390,6 +434,8 @@ export type Database = {
       }
       profiles: {
         Row: {
+          bio: string | null
+          certificates: string[] | null
           company_address: string | null
           company_logo_url: string | null
           company_name: string | null
@@ -399,14 +445,22 @@ export type Database = {
           id: string
           is_blocked: boolean | null
           is_data_contribution_active: boolean
+          latitude: number | null
+          longitude: number | null
           onboarding_completed: boolean | null
+          phone: string | null
+          public_profile: boolean
+          service_area: string | null
           sub_role: Database["public"]["Enums"]["sub_role"] | null
           tax_id: string | null
           updated_at: string | null
           user_id: string
           user_type: Database["public"]["Enums"]["user_type"] | null
+          website: string | null
         }
         Insert: {
+          bio?: string | null
+          certificates?: string[] | null
           company_address?: string | null
           company_logo_url?: string | null
           company_name?: string | null
@@ -416,14 +470,22 @@ export type Database = {
           id?: string
           is_blocked?: boolean | null
           is_data_contribution_active?: boolean
+          latitude?: number | null
+          longitude?: number | null
           onboarding_completed?: boolean | null
+          phone?: string | null
+          public_profile?: boolean
+          service_area?: string | null
           sub_role?: Database["public"]["Enums"]["sub_role"] | null
           tax_id?: string | null
           updated_at?: string | null
           user_id: string
           user_type?: Database["public"]["Enums"]["user_type"] | null
+          website?: string | null
         }
         Update: {
+          bio?: string | null
+          certificates?: string[] | null
           company_address?: string | null
           company_logo_url?: string | null
           company_name?: string | null
@@ -433,12 +495,18 @@ export type Database = {
           id?: string
           is_blocked?: boolean | null
           is_data_contribution_active?: boolean
+          latitude?: number | null
+          longitude?: number | null
           onboarding_completed?: boolean | null
+          phone?: string | null
+          public_profile?: boolean
+          service_area?: string | null
           sub_role?: Database["public"]["Enums"]["sub_role"] | null
           tax_id?: string | null
           updated_at?: string | null
           user_id?: string
           user_type?: Database["public"]["Enums"]["user_type"] | null
+          website?: string | null
         }
         Relationships: []
       }

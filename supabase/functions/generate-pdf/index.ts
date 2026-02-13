@@ -15,11 +15,14 @@ const LIGHT_BG = [250, 247, 243];
 
 interface GenerateRequest {
   conversation_id: string;
-  template: "business" | "private";
+  template: "business" | "private" | "professional";
   horse_name?: string;
   horse_breed?: string;
   horse_age?: string;
   owner_name?: string;
+  expert_name?: string;
+  expert_title?: string;
+  expert_certificates?: string[];
 }
 
 Deno.serve(async (req) => {
@@ -127,7 +130,8 @@ Jeder Wert soll 2-5 Sätze lang sein. Falls der Chat wenig Inhalt hat, fasse sin
     const pageH = 297;
     const margin = 18;
     const contentW = pageW - margin * 2;
-    const isBusinessTemplate = template === "business";
+    const isBusinessTemplate = template === "business" || template === "professional";
+    const isProfessionalTemplate = template === "professional";
     const now = new Date();
     const dateStr = now.toLocaleDateString("de-DE", { day: "2-digit", month: "long", year: "numeric" });
     const timeStr = now.toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" });
@@ -139,8 +143,10 @@ Jeder Wert soll 2-5 Sätze lang sein. Falls der Chat wenig Inhalt hat, fasse sin
 
     let yPos = 14;
 
-    // Logo area - use company name or HufiAi
-    const companyName = (isBusinessTemplate && profile?.company_name) ? profile.company_name : "HufiAi";
+    // Logo area
+    const companyName = isProfessionalTemplate && expert_name
+      ? expert_name
+      : (isBusinessTemplate && profile?.company_name) ? profile.company_name : "HufiAi";
     doc.setFontSize(22);
     doc.setFont("helvetica", "bold");
     doc.setTextColor(...DARK);
@@ -150,10 +156,18 @@ Jeder Wert soll 2-5 Sätze lang sein. Falls der Chat wenig Inhalt hat, fasse sin
     doc.setFontSize(9);
     doc.setFont("helvetica", "normal");
     doc.setTextColor(...GRAY);
-    const subtitle = isBusinessTemplate
-      ? "Professioneller Fallbericht · Vertraulich"
-      : "Persönlicher Pferde-Bericht";
+    const subtitle = isProfessionalTemplate
+      ? `${expert_title || "Fachexperte"} · Professioneller Fallbericht · Vertraulich`
+      : isBusinessTemplate
+        ? "Professioneller Fallbericht · Vertraulich"
+        : "Persönlicher Pferde-Bericht";
     doc.text(subtitle, margin, yPos + 12);
+
+    // Certificates line for professional template
+    if (isProfessionalTemplate && expert_certificates && expert_certificates.length > 0) {
+      doc.setFontSize(7);
+      doc.text(`Qualifikationen: ${expert_certificates.join(" · ")}`, margin, yPos + 17);
+    }
 
     // Date right-aligned
     doc.setFontSize(9);

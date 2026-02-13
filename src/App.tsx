@@ -19,6 +19,8 @@ import MyHorses from "./pages/MyHorses";
 import Roadmap from "./pages/Roadmap";
 import FounderCoach from "./pages/FounderCoach";
 import Support from "./pages/Support";
+import ProProfile from "./pages/ProProfile";
+import ExpertDashboard from "./pages/ExpertDashboard";
 import Impressum from "./pages/Impressum";
 import AGB from "./pages/AGB";
 import Datenschutz from "./pages/Datenschutz";
@@ -86,6 +88,8 @@ function AppRoutes() {
       <Route path="/roadmap" element={<ProtectedRoute><Roadmap /></ProtectedRoute>} />
       <Route path="/founder-coach" element={<ProtectedRoute><FounderCoach /></ProtectedRoute>} />
       <Route path="/support" element={<ProtectedRoute><Support /></ProtectedRoute>} />
+      <Route path="/pro-profile" element={<ProtectedRoute><ProProfile /></ProtectedRoute>} />
+      <Route path="/expert-dashboard" element={<ProtectedRoute><ExpertDashboard /></ProtectedRoute>} />
       <Route path="/impressum" element={<Impressum />} />
       <Route path="/agb" element={<AGB />} />
       <Route path="/datenschutz" element={<Datenschutz />} />
