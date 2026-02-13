@@ -13,6 +13,9 @@ import Knowledge from "./pages/Knowledge";
 import Pricing from "./pages/Pricing";
 import SettingsPage from "./pages/SettingsPage";
 import Admin from "./pages/Admin";
+import Impressum from "./pages/Impressum";
+import AGB from "./pages/AGB";
+import Datenschutz from "./pages/Datenschutz";
 import NotFound from "./pages/NotFound";
 import { Loader2 } from "lucide-react";
 
@@ -71,6 +74,9 @@ function AppRoutes() {
       <Route path="/pricing" element={<ProtectedRoute><Pricing /></ProtectedRoute>} />
       <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
       <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
+      <Route path="/impressum" element={<Impressum />} />
+      <Route path="/agb" element={<AGB />} />
+      <Route path="/datenschutz" element={<Datenschutz />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );

@@ -5,8 +5,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { Shield } from "lucide-react";
+import { Shield, Heart, User } from "lucide-react";
 
 export default function SettingsPage() {
   const { user, profile, refreshProfile } = useAuth();
@@ -14,6 +16,7 @@ export default function SettingsPage() {
   const [companyName, setCompanyName] = useState(profile?.company_name || "");
   const [newPassword, setNewPassword] = useState("");
   const [saving, setSaving] = useState(false);
+  const [dataConsent, setDataConsent] = useState(profile?.is_data_contribution_active ?? false);
 
   const saveProfile = async () => {
     if (!user) return;
@@ -39,41 +42,90 @@ export default function SettingsPage() {
     } catch (err: any) { toast.error(err.message); }
   };
 
+  const toggleDataConsent = async (value: boolean) => {
+    if (!user) return;
+    setDataConsent(value);
+    try {
+      const { error } = await supabase.from("profiles").update({ is_data_contribution_active: value }).eq("user_id", user.id);
+      if (error) throw error;
+      await refreshProfile();
+      toast.success(value ? "Datenbeitrag aktiviert" : "Datenbeitrag deaktiviert");
+    } catch (err: any) {
+      setDataConsent(!value);
+      toast.error(err.message);
+    }
+  };
+
   return (
     <AppLayout>
       <div className="p-8 max-w-2xl mx-auto">
         <h1 className="text-2xl font-bold mb-8">Einstellungen</h1>
 
-        <div className="bg-card rounded-2xl border border-border p-6 mb-6">
-          <h2 className="font-semibold mb-4">Profil</h2>
-          <div className="space-y-4">
-            <div><Label>E-Mail</Label><Input value={user?.email || ""} disabled className="mt-1 bg-muted" /></div>
-            <div><Label>Anzeigename</Label><Input value={displayName} onChange={(e) => setDisplayName(e.target.value)} className="mt-1" /></div>
-            {profile?.user_type === "gewerbe" && (
-              <div><Label>Firmenname</Label><Input value={companyName} onChange={(e) => setCompanyName(e.target.value)} className="mt-1" /></div>
-            )}
-            <Button onClick={saveProfile} disabled={saving}>Speichern</Button>
-          </div>
-        </div>
+        <Tabs defaultValue="profile" className="space-y-6">
+          <TabsList>
+            <TabsTrigger value="profile"><User className="w-4 h-4 mr-2" />Profil</TabsTrigger>
+            <TabsTrigger value="privacy"><Shield className="w-4 h-4 mr-2" />Datenschutz</TabsTrigger>
+          </TabsList>
 
-        <div className="bg-card rounded-2xl border border-border p-6 mb-6">
-          <h2 className="font-semibold mb-4">Passwort ändern</h2>
-          <div className="space-y-4">
-            <div><Label>Neues Passwort</Label><Input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} className="mt-1" placeholder="Mindestens 6 Zeichen" /></div>
-            <Button onClick={changePassword} disabled={!newPassword}>Passwort ändern</Button>
-          </div>
-        </div>
+          <TabsContent value="profile" className="space-y-6">
+            <div className="bg-card rounded-2xl border border-border p-6">
+              <h2 className="font-semibold mb-4">Profil</h2>
+              <div className="space-y-4">
+                <div><Label>E-Mail</Label><Input value={user?.email || ""} disabled className="mt-1 bg-muted" /></div>
+                <div><Label>Anzeigename</Label><Input value={displayName} onChange={(e) => setDisplayName(e.target.value)} className="mt-1" /></div>
+                {profile?.user_type === "gewerbe" && (
+                  <div><Label>Firmenname</Label><Input value={companyName} onChange={(e) => setCompanyName(e.target.value)} className="mt-1" /></div>
+                )}
+                <Button onClick={saveProfile} disabled={saving}>Speichern</Button>
+              </div>
+            </div>
 
-        <div className="bg-card rounded-2xl border border-border p-6">
-          <div className="flex items-center gap-2 mb-2">
-            <Shield className="w-5 h-5 text-primary" />
-            <h2 className="font-semibold">Datenschutz (DSGVO)</h2>
-          </div>
-          <p className="text-sm text-muted-foreground">
-            Alle Daten werden DSGVO-konform in der EU gespeichert. Deine Chats und Dokumente gehören dir.
-            Du kannst jederzeit die Löschung deiner Daten beantragen.
-          </p>
-        </div>
+            <div className="bg-card rounded-2xl border border-border p-6">
+              <h2 className="font-semibold mb-4">Passwort ändern</h2>
+              <div className="space-y-4">
+                <div><Label>Neues Passwort</Label><Input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} className="mt-1" placeholder="Mindestens 6 Zeichen" /></div>
+                <Button onClick={changePassword} disabled={!newPassword}>Passwort ändern</Button>
+              </div>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="privacy" className="space-y-6">
+            <div className="bg-card rounded-2xl border border-border p-6">
+              <div className="flex items-center gap-2 mb-2">
+                <Shield className="w-5 h-5 text-primary" />
+                <h2 className="font-semibold">Datenschutz (DSGVO)</h2>
+              </div>
+              <p className="text-sm text-muted-foreground mb-4">
+                Alle Daten werden DSGVO-konform in der EU gespeichert. Deine Chats und Dokumente gehören dir.
+                Du kannst jederzeit die Löschung deiner Daten beantragen.
+              </p>
+            </div>
+
+            <div className="bg-card rounded-2xl border border-border p-6">
+              <div className="flex items-start gap-3 mb-4">
+                <Heart className="w-6 h-6 text-primary mt-0.5 shrink-0" />
+                <div>
+                  <h2 className="font-semibold mb-1">HufiAi Horse-LLM Initiative</h2>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    Hilf uns, HufiAi smarter zu machen für jedes Pferd. Wir trainieren ein spezialisiertes KI-Modell für die Pferdebranche.
+                    Unser Credo: <strong>Pferdeschutz & Datenschutz zuerst.</strong>
+                  </p>
+                </div>
+              </div>
+              <p className="text-sm text-muted-foreground mb-4 leading-relaxed">
+                Wenn du zustimmst, nutzen wir deine Pferdedaten und Fachlogik für Trainingszwecke. 
+                Dieser Prozess ist <strong>100% anonymisiert</strong>. Personenbezogene Kundendaten (PII) werden strikt ausgeschlossen.
+              </p>
+              <div className="flex items-center justify-between p-4 rounded-xl bg-muted/50">
+                <div className="flex items-center gap-2">
+                  <Shield className="w-4 h-4 text-primary" />
+                  <span className="text-sm font-medium">Anonymisierte Daten beisteuern</span>
+                </div>
+                <Switch checked={dataConsent} onCheckedChange={toggleDataConsent} />
+              </div>
+            </div>
+          </TabsContent>
+        </Tabs>
       </div>
     </AppLayout>
   );

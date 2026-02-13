@@ -1,32 +1,65 @@
 import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Sparkles, Shield, MessageSquare, Cpu, ArrowRight, Users, FileText, Building2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 import horseHero from "@/assets/horse-hero.png";
+
+interface BlogPost {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt: string | null;
+  image_url: string | null;
+  category: string | null;
+  published_at: string | null;
+  created_at: string;
+}
 
 export default function Landing() {
   const navigate = useNavigate();
+  const [posts, setPosts] = useState<BlogPost[]>([]);
+
+  useEffect(() => {
+    supabase
+      .from("blog_posts")
+      .select("id, title, slug, excerpt, image_url, category, published_at, created_at")
+      .eq("status", "published")
+      .lte("published_at", new Date().toISOString())
+      .order("published_at", { ascending: false })
+      .limit(6)
+      .then(({ data }) => { if (data) setPosts(data as BlogPost[]); });
+  }, []);
+
+  const scrollTo = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
 
   return (
     <div className="min-h-screen bg-background">
       {/* Navbar */}
-      <nav className="relative z-10 flex items-center justify-between px-6 py-4 max-w-7xl mx-auto">
-        <div className="flex items-center gap-2">
-          <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center">
-            <Sparkles className="w-5 h-5 text-primary-foreground" />
+      <nav className="sticky top-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border">
+        <div className="flex items-center justify-between px-6 py-3 max-w-7xl mx-auto">
+          <div className="flex items-center gap-2 cursor-pointer" onClick={() => scrollTo("hero")}>
+            <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center">
+              <Sparkles className="w-5 h-5 text-primary-foreground" />
+            </div>
+            <span className="text-xl font-bold">HufiAi</span>
           </div>
-          <span className="text-xl font-bold">HufiAi</span>
-        </div>
-        <div className="flex items-center gap-3">
-          <Button variant="ghost" onClick={() => navigate("/auth")}>Anmelden</Button>
-          <Button onClick={() => navigate("/auth")}>
-            Kostenlos starten
-            <ArrowRight className="w-4 h-4 ml-1" />
-          </Button>
+          <div className="hidden md:flex items-center gap-6 text-sm font-medium text-muted-foreground">
+            <button onClick={() => scrollTo("features")} className="hover:text-foreground transition-colors">Über HufiAi</button>
+            <button onClick={() => scrollTo("blog")} className="hover:text-foreground transition-colors">Blog</button>
+            <button onClick={() => navigate("/pricing")} className="hover:text-foreground transition-colors">Preise</button>
+          </div>
+          <div className="flex items-center gap-3">
+            <Button variant="ghost" onClick={() => navigate("/auth")}>Anmelden</Button>
+            <Button onClick={() => navigate("/auth")}>
+              Kostenlos starten <ArrowRight className="w-4 h-4 ml-1" />
+            </Button>
+          </div>
         </div>
       </nav>
 
       {/* Hero */}
-      <section className="relative max-w-7xl mx-auto pt-12 pb-16 px-6 flex flex-col md:flex-row items-center gap-8">
+      <section id="hero" className="relative max-w-7xl mx-auto pt-16 pb-20 px-6 flex flex-col md:flex-row items-center gap-8">
         <div className="flex-1 text-center md:text-left z-10">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6">
             <Sparkles className="w-4 h-4" />
@@ -41,25 +74,20 @@ export default function Landing() {
           </p>
           <div className="flex items-center gap-4 justify-center md:justify-start">
             <Button size="lg" onClick={() => navigate("/auth")} className="text-base px-8">
-              Jetzt starten
-              <ArrowRight className="w-4 h-4 ml-2" />
+              Jetzt starten <ArrowRight className="w-4 h-4 ml-2" />
             </Button>
-            <Button size="lg" variant="outline" onClick={() => navigate("/auth")} className="text-base px-8">
-              Demo ansehen
+            <Button size="lg" variant="outline" onClick={() => scrollTo("features")} className="text-base px-8">
+              Mehr erfahren
             </Button>
           </div>
         </div>
         <div className="flex-1 flex justify-center md:justify-end">
-          <img
-            src={horseHero}
-            alt="HufiAi – KI für die Pferdebranche"
-            className="w-full max-w-md md:max-w-lg object-contain drop-shadow-2xl"
-          />
+          <img src={horseHero} alt="HufiAi – KI für die Pferdebranche" className="w-full max-w-md md:max-w-lg object-contain drop-shadow-2xl" />
         </div>
       </section>
 
       {/* Features */}
-      <section className="max-w-6xl mx-auto py-20 px-6">
+      <section id="features" className="max-w-6xl mx-auto py-20 px-6">
         <div className="text-center mb-16">
           <h2 className="text-3xl font-bold mb-4">Alles was du brauchst</h2>
           <p className="text-muted-foreground">Für Privatpersonen und Gewerbetreibende gleichermaßen.</p>
@@ -84,6 +112,37 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* Blog */}
+      {posts.length > 0 && (
+        <section id="blog" className="max-w-6xl mx-auto py-20 px-6">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold mb-4">Blog & Neuigkeiten</h2>
+            <p className="text-muted-foreground">Wissenswertes rund um die Pferdebranche und KI.</p>
+          </div>
+          <div className="grid md:grid-cols-3 gap-8">
+            {posts.map((post) => (
+              <article key={post.id} className="bg-card rounded-2xl border border-border overflow-hidden hover:shadow-lg transition-shadow group">
+                {post.image_url && (
+                  <div className="aspect-video overflow-hidden">
+                    <img src={post.image_url} alt={post.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                  </div>
+                )}
+                <div className="p-6">
+                  {post.category && (
+                    <span className="text-xs font-medium text-primary bg-primary/10 px-2 py-1 rounded-full">{post.category}</span>
+                  )}
+                  <h3 className="font-semibold text-lg mt-3 mb-2">{post.title}</h3>
+                  {post.excerpt && <p className="text-sm text-muted-foreground line-clamp-3">{post.excerpt}</p>}
+                  <p className="text-xs text-muted-foreground mt-3">
+                    {new Date(post.published_at || post.created_at).toLocaleDateString("de-DE", { day: "numeric", month: "long", year: "numeric" })}
+                  </p>
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+      )}
+
       {/* Stats */}
       <section className="bg-secondary py-16">
         <div className="max-w-4xl mx-auto grid grid-cols-3 gap-8 text-center">
@@ -101,8 +160,41 @@ export default function Landing() {
       </section>
 
       {/* Footer */}
-      <footer className="py-8 text-center text-sm text-muted-foreground border-t border-border">
-        <p>© {new Date().getFullYear()} HufiAi. Alle Rechte vorbehalten. DSGVO-konform.</p>
+      <footer className="border-t border-border py-12">
+        <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-start gap-8">
+          <div>
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
+                <Sparkles className="w-4 h-4 text-primary-foreground" />
+              </div>
+              <span className="font-bold text-lg">HufiAi</span>
+            </div>
+            <p className="text-sm text-muted-foreground max-w-xs">
+              KI-gestützte Lösungen für die gesamte Pferdebranche. DSGVO-konform, in der EU gehostet.
+            </p>
+          </div>
+          <div className="flex gap-12">
+            <div>
+              <h4 className="font-semibold text-sm mb-3">Produkt</h4>
+              <div className="space-y-2 text-sm text-muted-foreground">
+                <button onClick={() => scrollTo("features")} className="block hover:text-foreground transition-colors">Funktionen</button>
+                <button onClick={() => navigate("/pricing")} className="block hover:text-foreground transition-colors">Preise</button>
+                <button onClick={() => scrollTo("blog")} className="block hover:text-foreground transition-colors">Blog</button>
+              </div>
+            </div>
+            <div>
+              <h4 className="font-semibold text-sm mb-3">Rechtliches</h4>
+              <div className="space-y-2 text-sm text-muted-foreground">
+                <button onClick={() => navigate("/impressum")} className="block hover:text-foreground transition-colors">Impressum</button>
+                <button onClick={() => navigate("/agb")} className="block hover:text-foreground transition-colors">AGB</button>
+                <button onClick={() => navigate("/datenschutz")} className="block hover:text-foreground transition-colors">Datenschutz</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="max-w-7xl mx-auto px-6 mt-8 pt-6 border-t border-border">
+          <p className="text-xs text-muted-foreground text-center">© {new Date().getFullYear()} HufiAi. Alle Rechte vorbehalten.</p>
+        </div>
       </footer>
     </div>
   );
