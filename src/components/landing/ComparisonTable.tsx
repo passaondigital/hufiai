@@ -17,7 +17,7 @@ const features = [
 
 export default function ComparisonTable() {
   return (
-    <section className="max-w-5xl mx-auto py-20 px-6">
+    <section id="pricing" className="max-w-5xl mx-auto py-20 px-6">
       <div className="text-center mb-12">
         <h2 className="text-3xl font-bold mb-4">Tarife im Vergleich</h2>
         <p className="text-muted-foreground">Finde den passenden Plan für deine Bedürfnisse.</p>
