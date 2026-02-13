@@ -17,6 +17,14 @@ export default function Auth() {
   const { signIn, signUp } = useAuth();
   const navigate = useNavigate();
 
+  const getGermanError = (msg: string): string => {
+    if (msg.includes("Invalid login credentials")) return "Ungültige Anmeldedaten. Bitte prüfe E-Mail und Passwort. Falls du dich gerade registriert hast, bestätige bitte zuerst deine E-Mail.";
+    if (msg.includes("User already registered")) return "Diese E-Mail ist bereits registriert. Bitte melde dich an oder prüfe dein Postfach für die Bestätigungs-E-Mail.";
+    if (msg.includes("Email not confirmed")) return "Bitte bestätige zuerst deine E-Mail-Adresse. Prüfe dein Postfach.";
+    if (msg.includes("signup_disabled")) return "Registrierung ist derzeit deaktiviert.";
+    return msg;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -24,13 +32,14 @@ export default function Auth() {
       if (isLogin) {
         await signIn(email, password);
         toast.success("Willkommen zurück!");
+        navigate("/");
       } else {
         await signUp(email, password, displayName);
-        toast.success("Konto erstellt!");
+        toast.success("Konto erstellt! Bitte prüfe dein E-Mail-Postfach und bestätige deine Adresse, bevor du dich anmeldest.", { duration: 8000 });
+        setIsLogin(true);
       }
-      navigate("/");
     } catch (err: any) {
-      toast.error(err.message || "Fehler bei der Anmeldung");
+      toast.error(getGermanError(err.message || "Fehler bei der Anmeldung"));
     } finally {
       setLoading(false);
     }
