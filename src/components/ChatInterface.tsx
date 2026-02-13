@@ -289,7 +289,7 @@ export default function ChatInterface() {
       const disclaimerMsg: Message = {
         id: "disclaimer",
         role: "assistant",
-        content: "⚖️ **Hinweis:** HufiAi ist eine KI-Assistenz zur Unterstützung. Informationen ersetzen keine fachliche Beratung durch Tierärzte, Huf-Experten oder Juristen. Nutzung auf eigenes Risiko.\n\nWie kann ich dir helfen?",
+        content: "⚖️ **Hinweis:** HufiAi ist eine KI-Assistenz zur Unterstützung. Informationen ersetzen keine fachliche Beratung durch Tierärzte, Huf-Experten oder Juristen. Nutzung auf eigenes Risiko.\n\nBasierend auf den vorliegenden Informationen unterstütze ich dich gerne – in Zusammenarbeit mit Fachleuten vor Ort. Wie kann ich dir helfen?",
       };
       setMessages([disclaimerMsg, userMsg]);
     } else {

@@ -60,7 +60,7 @@ serve(async (req) => {
         body: JSON.stringify({
           model: "google/gemini-2.5-flash",
           messages: [
-            { role: "system", content: "Du bist ein Experte für Bildanalyse in der Pferdebranche. Beschreibe das Bild detailliert. Wenn Text im Bild ist, extrahiere ihn vollständig. Wenn es ein Huf-/Pferde-Foto ist, beschreibe den Zustand fachlich." },
+            { role: "system", content: "Du bist ein Experte für Bildanalyse in der Pferdebranche. Beschreibe das Bild detailliert und sachlich. Verwende eine empathisch-sachliche Tonalität: unterstützend und professionell, niemals allwissend. Nutze Formulierungen wie 'Basierend auf dem Bildmaterial...' oder 'Ein möglicher Befund wäre...'. Betone, dass eine fachliche Begutachtung vor Ort unverzichtbar ist. Wenn Text im Bild ist, extrahiere ihn vollständig. Wenn es ein Huf-/Pferde-Foto ist, beschreibe den Zustand fachlich." },
             { role: "user", content: [
               { type: "text", text: `Analysiere dieses Bild (${fileName}). Extrahiere allen Text und beschreibe den Inhalt detailliert.` },
               { type: "image_url", image_url: { url: `data:${mimeType};base64,${base64}` } }

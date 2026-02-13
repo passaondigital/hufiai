@@ -5,7 +5,7 @@ import { useSubscription } from "@/hooks/useSubscription";
 import {
   MessageSquare, FolderKanban, FileText, CreditCard, Settings,
   LogOut, ChevronLeft, ChevronRight, Plus, Sparkles, Shield,
-  ArrowLeftRight, Building2, Map, Megaphone, Crown
+  ArrowLeftRight, Building2, Map, Megaphone, Crown, Heart
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -43,6 +43,7 @@ export default function AppSidebar() {
       { icon: Crown, label: `Founder Coach (${founderFlowDaysLeft}d)`, path: "/founder-coach" },
     ] : []),
     { icon: FileText, label: "Wissensdatenbank", path: "/knowledge" },
+    { icon: Heart, label: "Support & Hilfe", path: "/support" },
     { icon: CreditCard, label: "Preise", path: "/pricing" },
     { icon: Settings, label: "Einstellungen", path: "/settings" },
     ...(isAdmin ? [
