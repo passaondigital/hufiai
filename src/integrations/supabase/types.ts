@@ -508,31 +508,40 @@ export type Database = {
       training_data_logs: {
         Row: {
           ai_output: string | null
+          category: string | null
           conversation_id: string | null
           created_at: string
           file_context: string | null
           id: string
           model_used: string | null
+          source: string | null
+          tone: string | null
           user_id: string
           user_input: string | null
         }
         Insert: {
           ai_output?: string | null
+          category?: string | null
           conversation_id?: string | null
           created_at?: string
           file_context?: string | null
           id?: string
           model_used?: string | null
+          source?: string | null
+          tone?: string | null
           user_id: string
           user_input?: string | null
         }
         Update: {
           ai_output?: string | null
+          category?: string | null
           conversation_id?: string | null
           created_at?: string
           file_context?: string | null
           id?: string
           model_used?: string | null
+          source?: string | null
+          tone?: string | null
           user_id?: string
           user_input?: string | null
         }

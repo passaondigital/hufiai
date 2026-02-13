@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 import { Send, Sparkles, Loader2, FileDown, Crown, Paperclip, X, FileText, Image as ImageIcon } from "lucide-react";
@@ -7,6 +7,9 @@ import { toast } from "sonner";
 import PdfExportDialog from "@/components/PdfExportDialog";
 import UpsellModal from "@/components/UpsellModal";
 import { useSubscription } from "@/hooks/useSubscription";
+import ReactMarkdown from "react-markdown";
+
+const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat`;
 
 interface Message {
   id: string;
@@ -262,6 +265,7 @@ export default function ChatInterface() {
     // Build message content including attachment context
     let fullContent = input.trim();
     const attachments = [...pendingFiles.filter((f) => f.status === "ready" || f.status === "error")];
+    let fileCtx = "";
 
     if (attachments.length > 0) {
       const attachmentContext = attachments
@@ -273,6 +277,10 @@ export default function ChatInterface() {
         })
         .join("");
       fullContent += attachmentContext;
+      fileCtx = attachments
+        .filter((a) => a.extractedText)
+        .map((a) => `${a.fileName}: ${a.extractedText?.slice(0, 2000)}`)
+        .join("\n---\n");
     }
 
     // Show disclaimer as first message in new chats
@@ -285,15 +293,18 @@ export default function ChatInterface() {
       attachments,
     };
 
+    let currentMessages: Message[];
     if (isNewChat) {
       const disclaimerMsg: Message = {
         id: "disclaimer",
         role: "assistant",
         content: "⚖️ **Hinweis:** HufiAi ist eine KI-Assistenz zur Unterstützung. Informationen ersetzen keine fachliche Beratung durch Tierärzte, Huf-Experten oder Juristen. Nutzung auf eigenes Risiko.\n\nBasierend auf den vorliegenden Informationen unterstütze ich dich gerne – in Zusammenarbeit mit Fachleuten vor Ort. Wie kann ich dir helfen?",
       };
-      setMessages([disclaimerMsg, userMsg]);
+      currentMessages = [disclaimerMsg, userMsg];
+      setMessages(currentMessages);
     } else {
-      setMessages((prev) => [...prev, userMsg]);
+      currentMessages = [...messages, userMsg];
+      setMessages(currentMessages);
     }
     setInput("");
     setPendingFiles([]);
@@ -331,38 +342,118 @@ export default function ChatInterface() {
         content: fullContent,
       });
 
-      // Placeholder AI response
-      const assistantMsg: Message = {
-        id: crypto.randomUUID(),
-        role: "assistant",
-        content: attachments.length > 0
-          ? `Danke! Ich habe ${attachments.length} Datei(en) erhalten und analysiert. Die KI-Anbindung wird in Kürze aktiviert – dann kann ich den Inhalt vollständig auswerten.`
-          : "Danke für deine Nachricht! Die KI-Anbindung wird in Kürze aktiviert. Aktuell wird dein Chat gespeichert und du kannst die Oberfläche erkunden.",
-      };
-      setMessages((prev) => [...prev, assistantMsg]);
+      // Build AI messages from conversation history (excluding disclaimer)
+      const aiMessages = currentMessages
+        .filter((m) => m.id !== "disclaimer")
+        .map((m) => ({ role: m.role, content: m.content }));
 
-      await supabase.from("messages").insert({
-        conversation_id: convId,
-        role: "assistant",
-        content: assistantMsg.content,
+      // Determine if training should be logged
+      const shouldLog = profile?.is_data_contribution_active && !profile?.exclude_from_training;
+
+      // Stream from AI
+      const resp = await fetch(CHAT_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+        },
+        body: JSON.stringify({
+          messages: aiMessages,
+          conversation_id: convId,
+          horse_context: horseContext || undefined,
+          user_type: profile?.user_type || "privat",
+          log_training: shouldLog,
+          user_id: shouldLog ? user.id : undefined,
+          file_context: shouldLog && fileCtx ? fileCtx.slice(0, 4000) : undefined,
+        }),
       });
 
-      // Log training data if user has opted in
-      if (profile?.is_data_contribution_active && !profile?.exclude_from_training) {
-        const fileCtx = attachments
-          .filter((a) => a.extractedText)
-          .map((a) => `${a.fileName}: ${a.extractedText?.slice(0, 2000)}`)
-          .join("\n---\n");
-        await supabase.from("training_data_logs").insert({
-          user_id: user.id,
+      if (!resp.ok) {
+        const errData = await resp.json().catch(() => ({}));
+        throw new Error(errData.error || `Fehler ${resp.status}`);
+      }
+
+      if (!resp.body) throw new Error("Kein Stream erhalten");
+
+      // Stream tokens
+      const reader = resp.body.getReader();
+      const decoder = new TextDecoder();
+      let textBuffer = "";
+      let assistantSoFar = "";
+      let streamDone = false;
+      const assistantId = crypto.randomUUID();
+
+      while (!streamDone) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        textBuffer += decoder.decode(value, { stream: true });
+
+        let newlineIndex: number;
+        while ((newlineIndex = textBuffer.indexOf("\n")) !== -1) {
+          let line = textBuffer.slice(0, newlineIndex);
+          textBuffer = textBuffer.slice(newlineIndex + 1);
+
+          if (line.endsWith("\r")) line = line.slice(0, -1);
+          if (line.startsWith(":") || line.trim() === "") continue;
+          if (!line.startsWith("data: ")) continue;
+
+          const jsonStr = line.slice(6).trim();
+          if (jsonStr === "[DONE]") {
+            streamDone = true;
+            break;
+          }
+
+          try {
+            const parsed = JSON.parse(jsonStr);
+            const content = parsed.choices?.[0]?.delta?.content as string | undefined;
+            if (content) {
+              assistantSoFar += content;
+              setMessages((prev) => {
+                const last = prev[prev.length - 1];
+                if (last?.id === assistantId) {
+                  return prev.map((m, i) => (i === prev.length - 1 ? { ...m, content: assistantSoFar } : m));
+                }
+                return [...prev, { id: assistantId, role: "assistant", content: assistantSoFar }];
+              });
+            }
+          } catch {
+            textBuffer = line + "\n" + textBuffer;
+            break;
+          }
+        }
+      }
+
+      // Final flush
+      if (textBuffer.trim()) {
+        for (let raw of textBuffer.split("\n")) {
+          if (!raw) continue;
+          if (raw.endsWith("\r")) raw = raw.slice(0, -1);
+          if (raw.startsWith(":") || raw.trim() === "") continue;
+          if (!raw.startsWith("data: ")) continue;
+          const jsonStr = raw.slice(6).trim();
+          if (jsonStr === "[DONE]") continue;
+          try {
+            const parsed = JSON.parse(jsonStr);
+            const content = parsed.choices?.[0]?.delta?.content as string | undefined;
+            if (content) {
+              assistantSoFar += content;
+              setMessages((prev) => prev.map((m, i) => (i === prev.length - 1 ? { ...m, content: assistantSoFar } : m)));
+            }
+          } catch { /* ignore */ }
+        }
+      }
+
+      // Save final assistant message to DB
+      if (assistantSoFar) {
+        await supabase.from("messages").insert({
           conversation_id: convId,
-          user_input: fullContent.slice(0, 5000),
-          ai_output: assistantMsg.content.slice(0, 5000),
-          file_context: fileCtx || null,
-          model_used: "gemini-2.5-flash",
+          role: "assistant",
+          content: assistantSoFar,
+          model: "google/gemini-3-flash-preview",
         });
       }
     } catch (err: any) {
+      console.error("Chat error:", err);
       toast.error(err.message || "Nachricht konnte nicht gesendet werden");
     } finally {
       setLoading(false);
@@ -504,7 +595,13 @@ export default function ChatInterface() {
                       : "bg-card border border-border rounded-bl-md"
                   }`}
                 >
-                  {msg.content}
+                  {msg.role === "assistant" ? (
+                    <div className="prose prose-sm dark:prose-invert max-w-none">
+                      <ReactMarkdown>{msg.content}</ReactMarkdown>
+                    </div>
+                  ) : (
+                    msg.content
+                  )}
                   {/* Show attachment badges */}
                   {msg.attachments && msg.attachments.length > 0 && (
                     <div className="flex flex-wrap gap-1.5 mt-2 pt-2 border-t border-primary-foreground/20">
