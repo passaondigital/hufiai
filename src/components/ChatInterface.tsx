@@ -275,13 +275,26 @@ export default function ChatInterface() {
       fullContent += attachmentContext;
     }
 
+    // Show disclaimer as first message in new chats
+    const isNewChat = messages.length === 0;
+
     const userMsg: Message = {
       id: crypto.randomUUID(),
       role: "user",
       content: input.trim() || `📎 ${attachments.map((a) => a.fileName).join(", ")}`,
       attachments,
     };
-    setMessages((prev) => [...prev, userMsg]);
+
+    if (isNewChat) {
+      const disclaimerMsg: Message = {
+        id: "disclaimer",
+        role: "assistant",
+        content: "⚖️ **Hinweis:** HufiAi ist eine KI-Assistenz zur Unterstützung. Informationen ersetzen keine fachliche Beratung durch Tierärzte, Huf-Experten oder Juristen. Nutzung auf eigenes Risiko.\n\nWie kann ich dir helfen?",
+      };
+      setMessages([disclaimerMsg, userMsg]);
+    } else {
+      setMessages((prev) => [...prev, userMsg]);
+    }
     setInput("");
     setPendingFiles([]);
     setLoading(true);
@@ -333,6 +346,22 @@ export default function ChatInterface() {
         role: "assistant",
         content: assistantMsg.content,
       });
+
+      // Log training data if user has opted in
+      if (profile?.is_data_contribution_active && !profile?.exclude_from_training) {
+        const fileCtx = attachments
+          .filter((a) => a.extractedText)
+          .map((a) => `${a.fileName}: ${a.extractedText?.slice(0, 2000)}`)
+          .join("\n---\n");
+        await supabase.from("training_data_logs").insert({
+          user_id: user.id,
+          conversation_id: convId,
+          user_input: fullContent.slice(0, 5000),
+          ai_output: assistantMsg.content.slice(0, 5000),
+          file_context: fileCtx || null,
+          model_used: "gemini-2.5-flash",
+        });
+      }
     } catch (err: any) {
       toast.error(err.message || "Nachricht konnte nicht gesendet werden");
     } finally {
@@ -584,8 +613,8 @@ export default function ChatInterface() {
               {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
             </Button>
           </div>
-          <p className="text-xs text-muted-foreground text-center mt-2">
-            HufiAi kann Fehler machen. Überprüfe wichtige Informationen.
+          <p className="text-[10px] text-muted-foreground text-center mt-2 max-w-lg mx-auto leading-relaxed">
+            ⚖️ HufiAi ist eine KI-Assistenz zur Unterstützung. Informationen ersetzen keine fachliche Beratung durch Tierärzte, Huf-Experten oder Juristen. Nutzung auf eigenes Risiko.
           </p>
         </div>
       </div>

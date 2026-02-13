@@ -143,6 +143,9 @@ export default function PdfExportDialog({ conversationId, open, onOpenChange }: 
           <p className="text-xs text-muted-foreground text-center">
             Die KI erstellt eine strukturierte Zusammenfassung deines Chats als professionellen Fallbericht.
           </p>
+          <p className="text-[10px] text-muted-foreground/70 text-center mt-1">
+            ⚖️ HufiAi ist eine KI-Assistenz. Informationen ersetzen keine fachliche Beratung. Nutzung auf eigenes Risiko.
+          </p>
         </div>
       </DialogContent>
     </Dialog>

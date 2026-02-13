@@ -41,6 +41,9 @@ const TABLE_SCHEMA = [
   { name: "notifications", desc: "Globale Benachrichtigungen", cols: "title, message, type, created_by, is_global" },
   { name: "notification_reads", desc: "Lesestatus Benachrichtigungen", cols: "notification_id, user_id, read_at" },
   { name: "roadmap_entries", desc: "Entwickler-Roadmap", cols: "title, description, type, status, priority, created_by" },
+  { name: "training_data_logs", desc: "KI-Trainingsdaten (Opt-in)", cols: "user_id, conversation_id, user_input, ai_output, file_context, model_used" },
+  { name: "upload_usage", desc: "Datei-Upload-Zähler", cols: "user_id, month_year, upload_count" },
+  { name: "user_subscriptions", desc: "Abos & Zugänge", cols: "user_id, plan, social_media_addon, founder_flow_active" },
 ];
 
 const FEATURE_AMPEL = {
@@ -50,7 +53,8 @@ const FEATURE_AMPEL = {
     "Impressum, AGB, Datenschutz", "Nutzerverwaltung", "Global Broadcast", "System-Übersicht",
     "Cookie-Banner (DSGVO)", "Content Hub (Social Media)", "Horse Memory / Pferde-Verwaltung",
     "Mission Control (Admin)", "Danger Zone (Self-Service)", "Personalisierte Begrüßung",
-    "Pro-PDF-Export", "Modulares Pricing (DB)",
+    "Pro-PDF-Export", "Modulares Pricing (DB)", "Content Brain (Datei-Upload)",
+    "Upload-Limits (Tier-basiert)", "Training Data Pipeline", "KI-Disclaimer (Legal)",
   ],
   yellow: [
     "KI-Chat mit echtem LLM (Lovable AI)", "Stripe-Integration",
@@ -60,7 +64,7 @@ const FEATURE_AMPEL = {
   red: [
     "Automatische Video-Analyse", "Context Retention über Sessions", "One-Click AVV",
     "Hufgesundheits-Tracking mit Timeline", "Team-Verwaltung / Multi-User", "Mobile App (PWA)",
-    "Hufmanager-API Anbindung",
+    "Hufmanager-API Anbindung", "Eigenes HufiAi-Modell Training",
   ],
 };
 
@@ -102,6 +106,8 @@ export default function Admin() {
   const [filesData, setFilesData] = useState<any[]>([]);
   const [filesLoading, setFilesLoading] = useState(false);
   const [uploadUsage, setUploadUsage] = useState<any[]>([]);
+  const [trainingLogs, setTrainingLogs] = useState<any[]>([]);
+  const [trainingStats, setTrainingStats] = useState({ total: 0, contributors: 0, thisMonth: 0 });
 
   const fetchProfiles = async () => {
     setLoading(true);
@@ -112,7 +118,7 @@ export default function Admin() {
   };
 
   const fetchTableCounts = async () => {
-    const tables = ["profiles", "conversations", "messages", "documents", "projects", "blog_posts", "notifications", "roadmap_entries"];
+    const tables = ["profiles", "conversations", "messages", "documents", "projects", "blog_posts", "notifications", "roadmap_entries", "training_data_logs", "upload_usage", "user_subscriptions"];
     const counts: Record<string, number> = {};
     await Promise.all(tables.map(async (t) => {
       const { count } = await supabase.from(t as any).select("*", { count: "exact", head: true });
@@ -134,6 +140,21 @@ export default function Admin() {
   const fetchUploadUsage = async () => {
     const { data } = await supabase.from("upload_usage").select("*").order("month_year", { ascending: false });
     if (data) setUploadUsage(data);
+  };
+
+  const fetchTrainingData = async () => {
+    const { data } = await supabase
+      .from("training_data_logs")
+      .select("id, user_id, model_used, created_at")
+      .order("created_at", { ascending: false })
+      .limit(50);
+    if (data) {
+      setTrainingLogs(data);
+      const monthYear = new Date().toISOString().slice(0, 7);
+      const uniqueUsers = new Set(data.map((d: any) => d.user_id));
+      const thisMonth = data.filter((d: any) => d.created_at?.startsWith(monthYear));
+      setTrainingStats({ total: data.length, contributors: uniqueUsers.size, thisMonth: thisMonth.length });
+    }
   };
 
   const viewUserFiles = async (userId: string) => {
@@ -190,6 +211,7 @@ export default function Admin() {
       fetchNotifications();
       fetchSubscriptions();
       fetchUploadUsage();
+      fetchTrainingData();
     }
   }, [isAdmin]);
 
@@ -290,6 +312,7 @@ export default function Admin() {
             <TabsTrigger value="system"><Database className="w-4 h-4 mr-2" />System</TabsTrigger>
             <TabsTrigger value="broadcast"><Bell className="w-4 h-4 mr-2" />Broadcast</TabsTrigger>
             <TabsTrigger value="health"><Activity className="w-4 h-4 mr-2" />Health</TabsTrigger>
+            <TabsTrigger value="training"><Database className="w-4 h-4 mr-2" />KI-Daten</TabsTrigger>
             <TabsTrigger value="ampel"><TrafficCone className="w-4 h-4 mr-2" />Feature-Ampel</TabsTrigger>
           </TabsList>
 
@@ -688,6 +711,86 @@ export default function Admin() {
               </div>
             </div>
           </TabsContent>
+          {/* TRAINING DATA TAB */}
+          <TabsContent value="training" className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {[
+                { label: "Gesamt-Logs", value: trainingStats.total, icon: Database },
+                { label: "Contributors", value: trainingStats.contributors, icon: Users },
+                { label: "Diesen Monat", value: trainingStats.thisMonth, icon: Activity },
+              ].map((s) => (
+                <div key={s.label} className="bg-card rounded-xl border border-border p-5">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                      <s.icon className="w-5 h-5 text-primary" />
+                    </div>
+                    <div>
+                      <p className="text-2xl font-bold">{s.value}</p>
+                      <p className="text-xs text-muted-foreground">{s.label}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="bg-card rounded-2xl border border-border p-6">
+              <h2 className="font-semibold mb-4 flex items-center gap-2">
+                <Database className="w-5 h-5 text-primary" /> Letzte KI-Interaktionen (Opt-in)
+              </h2>
+              <p className="text-xs text-muted-foreground mb-4">
+                Nur von Nutzern mit aktivem Daten-Beitrag. Inhalte werden anonymisiert für zukünftiges HufiAi-Modelltraining gesammelt.
+              </p>
+              {trainingLogs.length === 0 ? (
+                <p className="text-sm text-muted-foreground">Noch keine Trainingsdaten vorhanden.</p>
+              ) : (
+                <div className="space-y-2">
+                  {trainingLogs.map((log: any) => {
+                    const p = profiles.find((pr) => pr.user_id === log.user_id);
+                    return (
+                      <div key={log.id} className="p-3 rounded-lg border border-border bg-muted/50 text-sm">
+                        <div className="flex items-center justify-between">
+                          <span className="font-medium">{p?.display_name || log.user_id.slice(0, 8)}</span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary">{log.model_used || "–"}</span>
+                            <span className="text-xs text-muted-foreground">{new Date(log.created_at).toLocaleString("de-DE")}</span>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+              <Button variant="outline" onClick={fetchTrainingData} className="mt-4">
+                <Loader2 className="w-4 h-4 mr-2" /> Aktualisieren
+              </Button>
+            </div>
+
+            {/* Upload Usage Overview */}
+            <div className="bg-card rounded-2xl border border-border p-6">
+              <h2 className="font-semibold mb-4 flex items-center gap-2">
+                <Paperclip className="w-5 h-5 text-primary" /> Upload-Nutzung (aktueller Monat)
+              </h2>
+              {uploadUsage.length === 0 ? (
+                <p className="text-sm text-muted-foreground">Keine Upload-Nutzung vorhanden.</p>
+              ) : (
+                <div className="space-y-2">
+                  {uploadUsage.slice(0, 20).map((u: any) => {
+                    const p = profiles.find((pr) => pr.user_id === u.user_id);
+                    return (
+                      <div key={u.id} className="p-3 rounded-lg border border-border bg-muted/50 text-sm flex items-center justify-between">
+                        <span className="font-medium">{p?.display_name || u.user_id.slice(0, 8)}</span>
+                        <div className="flex items-center gap-3">
+                          <span className="text-xs text-muted-foreground">{u.month_year}</span>
+                          <span className="text-xs font-mono bg-primary/10 text-primary px-2 py-0.5 rounded-full">{u.upload_count} Uploads</span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </TabsContent>
+
           {/* FEATURE-AMPEL TAB */}
           <TabsContent value="ampel" className="space-y-6">
             {[

@@ -16,6 +16,7 @@ interface Profile {
   onboarding_completed: boolean;
   is_blocked: boolean;
   is_data_contribution_active: boolean;
+  exclude_from_training: boolean;
 }
 
 interface AuthContextType {
