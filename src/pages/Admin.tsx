@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import {
   Users, ShieldCheck, Ban, UserPlus, Search, Loader2, CheckCircle, XCircle, Key,
-  Database, Bell, Activity, Send, AlertTriangle, Info, CheckCircle2, Map
+  Database, Bell, Activity, Send, AlertTriangle, Info, CheckCircle2, Map, TrafficCone
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
@@ -35,6 +35,22 @@ const TABLE_SCHEMA = [
   { name: "notification_reads", desc: "Lesestatus Benachrichtigungen", cols: "notification_id, user_id, read_at" },
   { name: "roadmap_entries", desc: "Entwickler-Roadmap", cols: "title, description, type, status, priority, created_by" },
 ];
+
+const FEATURE_AMPEL = {
+  green: [
+    "Login & Registrierung", "Onboarding (Privat/Gewerbe)", "KI-Chat (Platzhalter)", "Landing Page",
+    "Admin Dashboard", "Blog CMS", "Firmenlogo-Upload", "Business Vault", "Roadmap / Dev-Journal",
+    "Impressum, AGB, Datenschutz", "Nutzerverwaltung", "Global Broadcast", "System-Übersicht",
+  ],
+  yellow: [
+    "KI-Chat mit echtem LLM (Lovable AI)", "Pro-PDF-Export (mit Logo)", "Cookie-Banner (DSGVO)",
+    "Strukturierte Eingabe-Modi", "Chat-Tagging & Export", "Document Vault (Datei-Manager)",
+  ],
+  red: [
+    "Automatische Video-Analyse", "Context Retention über Sessions", "One-Click AVV",
+    "Hufgesundheits-Tracking mit Timeline", "Team-Verwaltung / Multi-User", "Mobile App (PWA)",
+  ],
+};
 
 export default function Admin() {
   const { user, isAdmin } = useAuth();
@@ -185,6 +201,7 @@ export default function Admin() {
             <TabsTrigger value="system"><Database className="w-4 h-4 mr-2" />System</TabsTrigger>
             <TabsTrigger value="broadcast"><Bell className="w-4 h-4 mr-2" />Broadcast</TabsTrigger>
             <TabsTrigger value="health"><Activity className="w-4 h-4 mr-2" />Health</TabsTrigger>
+            <TabsTrigger value="ampel"><TrafficCone className="w-4 h-4 mr-2" />Feature-Ampel</TabsTrigger>
           </TabsList>
 
           {/* USERS TAB */}
@@ -409,6 +426,26 @@ export default function Admin() {
               </div>
             </div>
           </TabsContent>
+          {/* FEATURE-AMPEL TAB */}
+          <TabsContent value="ampel" className="space-y-6">
+            {[
+              { label: "🟢 Live", items: FEATURE_AMPEL.green, color: "bg-success/10 border-success/30 text-success" },
+              { label: "🟡 In Arbeit", items: FEATURE_AMPEL.yellow, color: "bg-warning/10 border-warning/30 text-warning" },
+              { label: "🔴 Vision", items: FEATURE_AMPEL.red, color: "bg-destructive/10 border-destructive/30 text-destructive" },
+            ].map((group) => (
+              <div key={group.label} className="bg-card rounded-2xl border border-border p-6">
+                <h3 className="font-semibold mb-4 text-lg">{group.label}</h3>
+                <div className="flex flex-wrap gap-2">
+                  {group.items.map((item) => (
+                    <span key={item} className={`px-3 py-1.5 rounded-full text-xs font-medium border ${group.color}`}>
+                      {item}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </TabsContent>
+
         </Tabs>
       </div>
     </AppLayout>
