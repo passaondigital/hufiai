@@ -41,14 +41,14 @@ const TABLE_SCHEMA = [
   { name: "notifications", desc: "Globale Benachrichtigungen", cols: "title, message, type, created_by, is_global" },
   { name: "notification_reads", desc: "Lesestatus Benachrichtigungen", cols: "notification_id, user_id, read_at" },
   { name: "roadmap_entries", desc: "Entwickler-Roadmap", cols: "title, description, type, status, priority, created_by" },
-  { name: "training_data_logs", desc: "KI-Trainingsdaten (Opt-in)", cols: "user_id, conversation_id, user_input, ai_output, file_context, model_used" },
+  { name: "training_data_logs", desc: "KI-Trainingsdaten (Opt-in)", cols: "user_id, conversation_id, user_input, ai_output, file_context, model_used, source, tone, category" },
   { name: "upload_usage", desc: "Datei-Upload-Zähler", cols: "user_id, month_year, upload_count" },
   { name: "user_subscriptions", desc: "Abos & Zugänge", cols: "user_id, plan, social_media_addon, founder_flow_active" },
 ];
 
 const FEATURE_AMPEL = {
   green: [
-    "Login & Registrierung", "Onboarding (Privat/Gewerbe)", "KI-Chat (Platzhalter)", "Landing Page",
+    "Login & Registrierung", "Onboarding (Privat/Gewerbe)", "KI-Chat (Streaming)", "Landing Page",
     "Admin Dashboard", "Blog CMS", "Firmenlogo-Upload", "Business Vault", "Roadmap / Dev-Journal",
     "Impressum, AGB, Datenschutz", "Nutzerverwaltung", "Global Broadcast", "System-Übersicht",
     "Cookie-Banner (DSGVO)", "Content Hub (Social Media)", "Horse Memory / Pferde-Verwaltung",
@@ -57,7 +57,7 @@ const FEATURE_AMPEL = {
     "Upload-Limits (Tier-basiert)", "Training Data Pipeline", "KI-Disclaimer (Legal)",
   ],
   yellow: [
-    "KI-Chat mit echtem LLM (Lovable AI)", "Stripe-Integration",
+    "Stripe-Integration",
     "Strukturierte Eingabe-Modi", "Chat-Tagging & Export", "Document Vault (Datei-Manager)",
     "Smart Reminders (Content Hub)", "Self-Learning Mode",
   ],
@@ -145,7 +145,7 @@ export default function Admin() {
   const fetchTrainingData = async () => {
     const { data } = await supabase
       .from("training_data_logs")
-      .select("id, user_id, model_used, created_at")
+      .select("id, user_id, model_used, source, tone, category, created_at")
       .order("created_at", { ascending: false })
       .limit(50);
     if (data) {
@@ -750,10 +750,21 @@ export default function Admin() {
                       <div key={log.id} className="p-3 rounded-lg border border-border bg-muted/50 text-sm">
                         <div className="flex items-center justify-between">
                           <span className="font-medium">{p?.display_name || log.user_id.slice(0, 8)}</span>
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary">{log.model_used || "–"}</span>
-                            <span className="text-xs text-muted-foreground">{new Date(log.created_at).toLocaleString("de-DE")}</span>
-                          </div>
+                          <span className="text-xs text-muted-foreground">{new Date(log.created_at).toLocaleString("de-DE")}</span>
+                        </div>
+                        <div className="flex flex-wrap gap-1.5 mt-2">
+                          {log.model_used && (
+                            <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary">{log.model_used}</span>
+                          )}
+                          {log.source && (
+                            <span className="text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground">📡 {log.source}</span>
+                          )}
+                          {log.tone && (
+                            <span className="text-xs px-2 py-0.5 rounded-full bg-accent text-accent-foreground">🎭 {log.tone}</span>
+                          )}
+                          {log.category && (
+                            <span className="text-xs px-2 py-0.5 rounded-full bg-secondary text-secondary-foreground">📂 {log.category}</span>
+                          )}
                         </div>
                       </div>
                     );
