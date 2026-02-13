@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
+import CookieBanner from "@/components/CookieBanner";
 import { Button } from "@/components/ui/button";
 import { Sparkles, Shield, MessageSquare, Cpu, ArrowRight, Users, FileText, Building2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -154,6 +155,9 @@ export default function Landing() {
 
       {/* Trust & AI for Good */}
       <TrustFooter />
+
+      {/* Cookie Banner */}
+      <CookieBanner />
 
       {/* Stats */}
       <section className="bg-muted py-16">
