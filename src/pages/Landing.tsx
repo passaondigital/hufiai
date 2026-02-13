@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Sparkles, Shield, MessageSquare, Cpu, ArrowRight, Users, FileText, Building2 } from "lucide-react";
+import horseHero from "@/assets/horse-hero.png";
 
 export default function Landing() {
   const navigate = useNavigate();
@@ -8,7 +9,7 @@ export default function Landing() {
   return (
     <div className="min-h-screen bg-background">
       {/* Navbar */}
-      <nav className="flex items-center justify-between px-6 py-4 max-w-7xl mx-auto">
+      <nav className="relative z-10 flex items-center justify-between px-6 py-4 max-w-7xl mx-auto">
         <div className="flex items-center gap-2">
           <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center">
             <Sparkles className="w-5 h-5 text-primary-foreground" />
@@ -25,26 +26,35 @@ export default function Landing() {
       </nav>
 
       {/* Hero */}
-      <section className="max-w-4xl mx-auto text-center pt-20 pb-16 px-6">
-        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6">
-          <Sparkles className="w-4 h-4" />
-          KI für die Pferdebranche
+      <section className="relative max-w-7xl mx-auto pt-12 pb-16 px-6 flex flex-col md:flex-row items-center gap-8">
+        <div className="flex-1 text-center md:text-left z-10">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6">
+            <Sparkles className="w-4 h-4" />
+            KI für die Pferdebranche
+          </div>
+          <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight mb-6 leading-tight">
+            Dein KI-Assistent für die{" "}
+            <span className="text-gradient">Pferdebranche</span>
+          </h1>
+          <p className="text-xl text-muted-foreground max-w-xl mb-10">
+            HufiAi unterstützt Pferdebesitzer, Hufschmiede, Tierärzte und Betriebe mit modernster KI – DSGVO-konform und speziell für die Equine-Branche entwickelt.
+          </p>
+          <div className="flex items-center gap-4 justify-center md:justify-start">
+            <Button size="lg" onClick={() => navigate("/auth")} className="text-base px-8">
+              Jetzt starten
+              <ArrowRight className="w-4 h-4 ml-2" />
+            </Button>
+            <Button size="lg" variant="outline" onClick={() => navigate("/auth")} className="text-base px-8">
+              Demo ansehen
+            </Button>
+          </div>
         </div>
-        <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight mb-6 leading-tight">
-          Dein KI-Assistent für die{" "}
-          <span className="text-gradient">Pferdebranche</span>
-        </h1>
-        <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-10">
-          HufiAi unterstützt Pferdebesitzer, Hufschmiede, Tierärzte und Betriebe mit modernster KI – DSGVO-konform und speziell für die Equine-Branche entwickelt.
-        </p>
-        <div className="flex items-center justify-center gap-4">
-          <Button size="lg" onClick={() => navigate("/auth")} className="text-base px-8">
-            Jetzt starten
-            <ArrowRight className="w-4 h-4 ml-2" />
-          </Button>
-          <Button size="lg" variant="outline" onClick={() => navigate("/auth")} className="text-base px-8">
-            Demo ansehen
-          </Button>
+        <div className="flex-1 flex justify-center md:justify-end">
+          <img
+            src={horseHero}
+            alt="HufiAi – KI für die Pferdebranche"
+            className="w-full max-w-md md:max-w-lg object-contain drop-shadow-2xl"
+          />
         </div>
       </section>
 
