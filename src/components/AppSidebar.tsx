@@ -4,7 +4,7 @@ import { useAuth } from "@/lib/auth";
 import {
   MessageSquare, FolderKanban, FileText, CreditCard, Settings,
   LogOut, ChevronLeft, ChevronRight, Plus, Sparkles, Shield,
-  ArrowLeftRight, Building2, Map
+  ArrowLeftRight, Building2, Map, Megaphone
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -34,6 +34,7 @@ export default function AppSidebar() {
     ...(profile?.user_type === "gewerbe" ? [
       { icon: FolderKanban, label: "Projekte", path: "/projects" },
       { icon: Building2, label: "Firmenprofil", path: "/company" },
+      { icon: Megaphone, label: "Content Hub", path: "/content" },
     ] : []),
     { icon: FileText, label: "Wissensdatenbank", path: "/knowledge" },
     { icon: CreditCard, label: "Preise", path: "/pricing" },

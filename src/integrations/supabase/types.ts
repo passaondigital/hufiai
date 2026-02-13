@@ -59,6 +59,95 @@ export type Database = {
         }
         Relationships: []
       }
+      content_items: {
+        Row: {
+          content: string | null
+          content_type: string
+          created_at: string
+          hashtags: string[] | null
+          hook: string | null
+          id: string
+          published_at: string | null
+          scheduled_at: string | null
+          source_conversation_id: string | null
+          status: string
+          title: string
+          updated_at: string
+          user_id: string
+          visual_ideas: string | null
+        }
+        Insert: {
+          content?: string | null
+          content_type?: string
+          created_at?: string
+          hashtags?: string[] | null
+          hook?: string | null
+          id?: string
+          published_at?: string | null
+          scheduled_at?: string | null
+          source_conversation_id?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+          user_id: string
+          visual_ideas?: string | null
+        }
+        Update: {
+          content?: string | null
+          content_type?: string
+          created_at?: string
+          hashtags?: string[] | null
+          hook?: string | null
+          id?: string
+          published_at?: string | null
+          scheduled_at?: string | null
+          source_conversation_id?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+          visual_ideas?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "content_items_source_conversation_id_fkey"
+            columns: ["source_conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      content_usage: {
+        Row: {
+          created_at: string
+          id: string
+          month_year: string
+          posts_this_month: number
+          tier: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          month_year?: string
+          posts_this_month?: number
+          tier?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          month_year?: string
+          posts_this_month?: number
+          tier?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       conversations: {
         Row: {
           created_at: string | null
