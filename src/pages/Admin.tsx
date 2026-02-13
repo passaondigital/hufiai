@@ -11,7 +11,7 @@ import { toast } from "sonner";
 import {
   Users, ShieldCheck, Ban, UserPlus, Search, Loader2, CheckCircle, XCircle, Key,
   Database, Bell, Activity, Send, AlertTriangle, Info, CheckCircle2, Map, TrafficCone,
-  Crown, Calendar as CalendarIcon, FileText, RotateCcw, Gift, Paperclip
+  Crown, Calendar as CalendarIcon, FileText, RotateCcw, Gift, Paperclip, Download
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -155,6 +155,44 @@ export default function Admin() {
       const thisMonth = data.filter((d: any) => d.created_at?.startsWith(monthYear));
       setTrainingStats({ total: data.length, contributors: uniqueUsers.size, thisMonth: thisMonth.length });
     }
+  };
+
+  const exportTrainingLogs = async (format: "json" | "csv") => {
+    toast.info("Exportiere alle Training-Logs…");
+    const { data, error } = await supabase
+      .from("training_data_logs")
+      .select("*")
+      .order("created_at", { ascending: false });
+    if (error || !data) { toast.error("Export fehlgeschlagen"); return; }
+    if (data.length === 0) { toast.error("Keine Daten vorhanden"); return; }
+
+    let blob: Blob;
+    let filename: string;
+
+    if (format === "json") {
+      blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+      filename = `hufiai-training-logs-${new Date().toISOString().slice(0, 10)}.json`;
+    } else {
+      const headers = Object.keys(data[0]);
+      const csvRows = [
+        headers.join(","),
+        ...data.map((row: any) =>
+          headers.map((h) => {
+            const val = row[h];
+            const str = val == null ? "" : String(val).replace(/"/g, '""');
+            return `"${str}"`;
+          }).join(",")
+        ),
+      ];
+      blob = new Blob([csvRows.join("\n")], { type: "text/csv" });
+      filename = `hufiai-training-logs-${new Date().toISOString().slice(0, 10)}.csv`;
+    }
+
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = filename; a.click();
+    URL.revokeObjectURL(url);
+    toast.success(`${data.length} Logs als ${format.toUpperCase()} exportiert`);
   };
 
   const viewUserFiles = async (userId: string) => {
@@ -771,9 +809,17 @@ export default function Admin() {
                   })}
                 </div>
               )}
-              <Button variant="outline" onClick={fetchTrainingData} className="mt-4">
-                <Loader2 className="w-4 h-4 mr-2" /> Aktualisieren
-              </Button>
+              <div className="flex flex-wrap gap-2 mt-4">
+                <Button variant="outline" onClick={fetchTrainingData}>
+                  <Loader2 className="w-4 h-4 mr-2" /> Aktualisieren
+                </Button>
+                <Button variant="outline" onClick={() => exportTrainingLogs("json")}>
+                  <Download className="w-4 h-4 mr-2" /> JSON Export
+                </Button>
+                <Button variant="outline" onClick={() => exportTrainingLogs("csv")}>
+                  <Download className="w-4 h-4 mr-2" /> CSV Export
+                </Button>
+              </div>
             </div>
 
             {/* Upload Usage Overview */}
