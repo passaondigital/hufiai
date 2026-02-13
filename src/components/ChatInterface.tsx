@@ -167,22 +167,34 @@ export default function ChatInterface() {
               </p>
             )}
             <p className="text-muted-foreground max-w-md">
-              {selectedHorse
-                ? `Stelle mir eine Frage zu ${selectedHorse.name} – ich kenne die Historie.`
-                : "Stelle mir eine Frage rund um Pferde, Hufpflege, Tiergesundheit oder dein Gewerbe."}
+              {profile?.user_type === "gewerbe"
+                ? "Berichte erstellen, Projekte analysieren oder Content für Social Media generieren."
+                : selectedHorse
+                  ? `Stelle mir eine Frage zu ${selectedHorse.name} – ich kenne die Historie.`
+                  : "Stelle mir eine Frage rund um Pferde, Hufpflege oder Tiergesundheit."}
             </p>
             <div className="grid grid-cols-2 gap-3 mt-8 max-w-lg">
-              {(selectedHorse ? [
-                `Wie pflege ich die Hufe von ${selectedHorse.name}?`,
-                `Futterplan für ${selectedHorse.name}`,
-                `${selectedHorse.name}: Wann nächster Beschlag?`,
-                "Allgemeine Stallbau-Tipps",
-              ] : [
-                "Worauf achte ich bei der Hufpflege?",
-                "Futterplan für ein Sportpferd",
-                "Stallbau-Tipps für Offenstall",
-                "Kundenmanagement-Tipps",
-              ]).map((q) => (
+              {(profile?.user_type === "gewerbe"
+                ? [
+                    "Kundenbericht erstellen",
+                    "Projekt-Analyse",
+                    "Social Media Hook generieren",
+                    "Fachbegriffe erklären",
+                  ]
+                : selectedHorse
+                  ? [
+                      `Hufpflege-Check für ${selectedHorse.name}`,
+                      `Futterplan für ${selectedHorse.name}`,
+                      "Tipps für den Offenstall",
+                      `${selectedHorse.name}: Wann nächster Beschlag?`,
+                    ]
+                  : [
+                      "Hufpflege-Check",
+                      "Futterplan erstellen",
+                      "Tipps für den Offenstall",
+                      "Mein erstes Pferd – was brauche ich?",
+                    ]
+              ).map((q) => (
                 <button
                   key={q}
                   onClick={() => setInput(q)}
