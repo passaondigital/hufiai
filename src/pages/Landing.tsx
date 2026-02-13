@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import CookieBanner from "@/components/CookieBanner";
 import { Button } from "@/components/ui/button";
-import { Sparkles, Shield, MessageSquare, Cpu, ArrowRight, Users, FileText, Building2 } from "lucide-react";
+import { Sparkles, Shield, MessageSquare, Cpu, ArrowRight, Users, FileText, Building2, Search } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import horseHero from "@/assets/horse-hero.png";
 import ComparisonTable from "@/components/landing/ComparisonTable";
@@ -50,6 +50,7 @@ export default function Landing() {
           </div>
           <div className="hidden md:flex items-center gap-6 text-sm font-medium text-muted-foreground">
             <button onClick={() => scrollTo("features")} className="hover:text-foreground transition-colors">Funktionen</button>
+            <button onClick={() => navigate("/experten")} className="hover:text-foreground transition-colors">Experten finden</button>
             <button onClick={() => scrollTo("blog")} className="hover:text-foreground transition-colors">Blog</button>
             <button onClick={() => scrollTo("pricing")} className="hover:text-foreground transition-colors">Preise</button>
           </div>
@@ -153,6 +154,22 @@ export default function Landing() {
       {/* Use Cases */}
       <UseCaseSection />
 
+      {/* Expert Search CTA */}
+      <section className="max-w-4xl mx-auto py-16 px-6 text-center">
+        <div className="bg-card rounded-2xl border border-border p-10 space-y-4">
+          <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto">
+            <Search className="w-7 h-7 text-primary" />
+          </div>
+          <h2 className="text-2xl font-bold">Finde einen Experten in deiner Nähe</h2>
+          <p className="text-muted-foreground max-w-lg mx-auto">
+            Zertifizierte Hufbearbeiter, Tierärzte und Stallbetreiber – geprüft und bereit, dir und deinem Pferd zu helfen.
+          </p>
+          <Button size="lg" onClick={() => navigate("/experten")} className="mt-2">
+            Experten suchen <ArrowRight className="w-4 h-4 ml-2" />
+          </Button>
+        </div>
+      </section>
+
       {/* Trust & AI for Good */}
       <TrustFooter />
 
@@ -194,6 +211,7 @@ export default function Landing() {
               <h4 className="font-semibold text-sm mb-3">Produkt</h4>
               <div className="space-y-2 text-sm text-muted-foreground">
                 <button onClick={() => scrollTo("features")} className="block hover:text-foreground transition-colors">Funktionen</button>
+                <button onClick={() => navigate("/experten")} className="block hover:text-foreground transition-colors">Experten finden</button>
                 <button onClick={() => navigate("/pricing")} className="block hover:text-foreground transition-colors">Preise</button>
                 <button onClick={() => scrollTo("blog")} className="block hover:text-foreground transition-colors">Blog</button>
               </div>
