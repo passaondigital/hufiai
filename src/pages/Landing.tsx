@@ -208,8 +208,9 @@ export default function Landing() {
             </div>
           </div>
         </div>
-        <div className="max-w-7xl mx-auto px-6 mt-8 pt-6 border-t border-border">
+        <div className="max-w-7xl mx-auto px-6 mt-8 pt-6 border-t border-border space-y-2">
           <p className="text-xs text-muted-foreground text-center">© {new Date().getFullYear()} HufiAi. Alle Rechte vorbehalten.</p>
+          <p className="text-xs text-muted-foreground/60 text-center">KI kann Fehler machen. Nutzung auf eigenes Risiko.</p>
         </div>
       </footer>
     </div>

@@ -17,6 +17,7 @@ import CompanySettings from "./pages/CompanySettings";
 import ContentHub from "./pages/ContentHub";
 import MyHorses from "./pages/MyHorses";
 import Roadmap from "./pages/Roadmap";
+import FounderCoach from "./pages/FounderCoach";
 import Impressum from "./pages/Impressum";
 import AGB from "./pages/AGB";
 import Datenschutz from "./pages/Datenschutz";
@@ -82,6 +83,7 @@ function AppRoutes() {
       <Route path="/company" element={<ProtectedRoute><CompanySettings /></ProtectedRoute>} />
       <Route path="/content" element={<ProtectedRoute><ContentHub /></ProtectedRoute>} />
       <Route path="/roadmap" element={<ProtectedRoute><Roadmap /></ProtectedRoute>} />
+      <Route path="/founder-coach" element={<ProtectedRoute><FounderCoach /></ProtectedRoute>} />
       <Route path="/impressum" element={<Impressum />} />
       <Route path="/agb" element={<AGB />} />
       <Route path="/datenschutz" element={<Datenschutz />} />
