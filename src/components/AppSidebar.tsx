@@ -4,7 +4,7 @@ import { useAuth } from "@/lib/auth";
 import {
   MessageSquare, FolderKanban, FileText, CreditCard, Settings,
   LogOut, ChevronLeft, ChevronRight, Plus, Sparkles, Shield,
-  ArrowLeftRight
+  ArrowLeftRight, Building2, Map
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -31,11 +31,17 @@ export default function AppSidebar() {
 
   const navItems = [
     { icon: MessageSquare, label: "Chat", path: "/" },
-    ...(profile?.user_type === "gewerbe" ? [{ icon: FolderKanban, label: "Projekte", path: "/projects" }] : []),
+    ...(profile?.user_type === "gewerbe" ? [
+      { icon: FolderKanban, label: "Projekte", path: "/projects" },
+      { icon: Building2, label: "Firmenprofil", path: "/company" },
+    ] : []),
     { icon: FileText, label: "Wissensdatenbank", path: "/knowledge" },
     { icon: CreditCard, label: "Preise", path: "/pricing" },
     { icon: Settings, label: "Einstellungen", path: "/settings" },
-    ...(isAdmin ? [{ icon: Shield, label: "Admin", path: "/admin" }] : []),
+    ...(isAdmin ? [
+      { icon: Shield, label: "Admin", path: "/admin" },
+      { icon: Map, label: "Roadmap", path: "/roadmap" },
+    ] : []),
   ];
 
   return (

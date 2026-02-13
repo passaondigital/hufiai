@@ -173,42 +173,113 @@ export type Database = {
           },
         ]
       }
+      notification_reads: {
+        Row: {
+          id: string
+          notification_id: string
+          read_at: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          notification_id: string
+          read_at?: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          notification_id?: string
+          read_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_reads_notification_id_fkey"
+            columns: ["notification_id"]
+            isOneToOne: false
+            referencedRelation: "notifications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notifications: {
+        Row: {
+          created_at: string
+          created_by: string
+          id: string
+          is_global: boolean
+          message: string
+          title: string
+          type: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          id?: string
+          is_global?: boolean
+          message: string
+          title: string
+          type?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          id?: string
+          is_global?: boolean
+          message?: string
+          title?: string
+          type?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
+          company_address: string | null
+          company_logo_url: string | null
           company_name: string | null
           created_at: string | null
           display_name: string | null
+          exclude_from_training: boolean
           id: string
           is_blocked: boolean | null
           is_data_contribution_active: boolean
           onboarding_completed: boolean | null
           sub_role: Database["public"]["Enums"]["sub_role"] | null
+          tax_id: string | null
           updated_at: string | null
           user_id: string
           user_type: Database["public"]["Enums"]["user_type"] | null
         }
         Insert: {
+          company_address?: string | null
+          company_logo_url?: string | null
           company_name?: string | null
           created_at?: string | null
           display_name?: string | null
+          exclude_from_training?: boolean
           id?: string
           is_blocked?: boolean | null
           is_data_contribution_active?: boolean
           onboarding_completed?: boolean | null
           sub_role?: Database["public"]["Enums"]["sub_role"] | null
+          tax_id?: string | null
           updated_at?: string | null
           user_id: string
           user_type?: Database["public"]["Enums"]["user_type"] | null
         }
         Update: {
+          company_address?: string | null
+          company_logo_url?: string | null
           company_name?: string | null
           created_at?: string | null
           display_name?: string | null
+          exclude_from_training?: boolean
           id?: string
           is_blocked?: boolean | null
           is_data_contribution_active?: boolean
           onboarding_completed?: boolean | null
           sub_role?: Database["public"]["Enums"]["sub_role"] | null
+          tax_id?: string | null
           updated_at?: string | null
           user_id?: string
           user_type?: Database["public"]["Enums"]["user_type"] | null
@@ -239,6 +310,42 @@ export type Database = {
           name?: string
           updated_at?: string | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      roadmap_entries: {
+        Row: {
+          created_at: string
+          created_by: string
+          description: string | null
+          id: string
+          priority: string
+          status: string
+          title: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          description?: string | null
+          id?: string
+          priority?: string
+          status?: string
+          title: string
+          type?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          id?: string
+          priority?: string
+          status?: string
+          title?: string
+          type?: string
+          updated_at?: string
         }
         Relationships: []
       }
