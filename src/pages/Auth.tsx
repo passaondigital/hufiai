@@ -87,7 +87,7 @@ export default function Auth() {
         <div className="w-full max-w-md animate-fade-in">
           <div className="text-center mb-8">
             <div className="inline-flex items-center gap-2 mb-4">
-              <img src={hufiaiLogo} alt="HufiAi" className="h-12" />
+              <img src={hufiaiLogo} alt="HufiAi" className="h-16" />
             </div>
             <p className="text-muted-foreground">
               {isLogin ? "Melde dich bei deinem Konto an" : "Erstelle ein neues Konto"}

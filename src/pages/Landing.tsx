@@ -45,7 +45,7 @@ export default function Landing() {
       <nav className="sticky top-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border">
         <div className="flex items-center justify-between px-6 py-3 max-w-7xl mx-auto">
           <div className="flex items-center gap-2 cursor-pointer" onClick={() => scrollTo("hero")}>
-            <img src={hufiaiLogo} alt="HufiAi" className="h-10" />
+            <img src={hufiaiLogo} alt="HufiAi" className="h-12" />
           </div>
           <div className="hidden md:flex items-center gap-6 text-sm font-medium text-muted-foreground">
             <button onClick={() => navigate("/ueber-hufiai")} className="hover:text-foreground transition-colors">Über HufiAi</button>
@@ -196,7 +196,7 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-start gap-8">
           <div>
             <div className="flex items-center gap-2 mb-3">
-              <img src={hufiaiLogo} alt="HufiAi" className="h-10" />
+              <img src={hufiaiLogo} alt="HufiAi" className="h-12" />
             </div>
             <p className="text-sm text-muted-foreground max-w-xs">
               KI-gestützte Lösungen für die gesamte Pferdebranche. DSGVO-konform, in der EU gehostet.
