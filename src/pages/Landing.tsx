@@ -46,7 +46,6 @@ export default function Landing() {
           <div className="flex items-center gap-2 cursor-pointer" onClick={() => scrollTo("hero")}>
             <HufiLogo size={36} />
             <span className="text-xl font-bold">HufiAi</span>
-            <span className="text-xl font-bold">HufiAi</span>
           </div>
           <div className="hidden md:flex items-center gap-6 text-sm font-medium text-muted-foreground">
             <button onClick={() => navigate("/ueber-hufiai")} className="hover:text-foreground transition-colors">Über HufiAi</button>

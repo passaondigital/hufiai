@@ -6,8 +6,8 @@ interface HufiLogoProps {
 export default function HufiLogo({ size = 32, className = "" }: HufiLogoProps) {
   return (
     <img
-      src="/hufiai-logo.svg"
-      alt="HufiAi Logo"
+      src="/hufiai-icon.svg"
+      alt="HufiAi"
       width={size}
       height={size}
       className={className}
