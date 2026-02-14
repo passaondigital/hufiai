@@ -114,10 +114,39 @@ Antworte IMMER mit einem JSON-Objekt (kein Markdown drumherum):
   });
 }
 
-// ─── Video Analysis ──────────────────────────────────────────────
+// ─── Video Analysis (3 Expert Modes) ─────────────────────────────
+const VIDEO_PROMPTS: Record<string, string> = {
+  hooks: `Du bist ein erfahrener Content-Strategist für die Pferdebranche. Analysiere das Video und erstelle 3 verschiedene Hooks.
+
+Stil: Fachlich kompetent, provokant oder lösungsorientiert.
+Vorgabe: Vermeide Floskeln wie "Wusstest du schon...". Nutze stattdessen Insider-Wissen (z.B. "Warum die weiße Linie dir die Wahrheit sagt...").
+Branding: Nutze Begriffe aus dem HufiAi-Universum (Präzision, Fakten, Pferdewohl).
+Format: Nummeriere die Hooks (1-3) und erkläre jeweils kurz die Strategie dahinter.
+Sprache: Deutsch.`,
+
+  caption: `Schreibe eine packende Bildunterschrift (Caption) basierend auf der Video-Analyse.
+
+Struktur: Kurze Einleitung, 3 Bulletpoints mit Mehrwert, 1 Call-to-Action (CTA).
+Tonalität: Authentisch, wie Pascal Schmid – direkt vom Pferd, ehrlich und modern.
+CTA: Lenke die Leute immer dezent in Richtung "HufiAi Founder Flow" oder "Teste die Analyse selbst".
+Füge am Ende 10-15 relevante Hashtags hinzu (#Hufpflege #Barhuf #HufiAi etc.).
+Sprache: Deutsch.`,
+
+  report: `Extrahiere alle fachlichen Beobachtungen aus dem Video. Erstelle ein technisches Protokoll:
+
+1. **Beobachteter Hufzustand** – Detaillierte Beschreibung aller sichtbaren Merkmale.
+2. **Besprochene Maßnahmen** – Was wurde durchgeführt oder empfohlen?
+3. **Empfohlene Intervalle** – Nächster Termin, Kontrollzeiträume.
+4. **Zusätzliche Anmerkungen** – Relevante Details für die Akte.
+
+Formatiere dies so, dass es direkt als Kundenbericht in das HufiAi-Dashboard übernommen werden kann.
+Sprache: Deutsch, fachlich präzise.`,
+};
+
 async function handleVideoAnalysis(body: any, apiKey: string) {
-  const { model, video_base64, video_type, file_name } = body;
+  const { model, mode, video_base64, video_type, file_name } = body;
   const useModel = model || "google/gemini-2.5-flash";
+  const systemPrompt = VIDEO_PROMPTS[mode] || VIDEO_PROMPTS.hooks;
 
   const response = await fetch(GATEWAY_URL, {
     method: "POST",
@@ -125,20 +154,11 @@ async function handleVideoAnalysis(body: any, apiKey: string) {
     body: JSON.stringify({
       model: useModel,
       messages: [
-        {
-          role: "system",
-          content: `Du bist ein professioneller Social-Media-Analyst und Content-Creator für die Pferdebranche (DACH-Raum).
-Analysiere das bereitgestellte Video und erstelle:
-1. **Hooks** – 3-5 aufmerksamkeitsstarke Hooks für Social Media (Instagram, TikTok, YouTube Shorts). Auf Deutsch.
-2. **Captions** – 3 fertige Captions mit Hashtags für Instagram/Facebook. Auf Deutsch.
-3. **Summary** – Eine kurze, professionelle Zusammenfassung des Video-Inhalts für Social Media (max. 150 Wörter). Auf Deutsch.
-
-Formatiere die Ausgabe klar mit den Überschriften: HOOKS, CAPTIONS, SUMMARY.`
-        },
+        { role: "system", content: systemPrompt },
         {
           role: "user",
           content: [
-            { type: "text", text: `Analysiere dieses Video (${file_name || "video"}) und erstelle Social-Media-Inhalte daraus.` },
+            { type: "text", text: `Analysiere dieses Video (${file_name || "video"}).` },
             { type: "image_url", image_url: { url: `data:${video_type || "video/mp4"};base64,${video_base64}` } }
           ]
         }
@@ -155,24 +175,9 @@ Formatiere die Ausgabe klar mit den Überschriften: HOOKS, CAPTIONS, SUMMARY.`
   const data = await response.json();
   const content = data.choices?.[0]?.message?.content || "";
 
-  const hooks = extractSection(content, "HOOKS", "CAPTIONS") || content;
-  const captions = extractSection(content, "CAPTIONS", "SUMMARY") || "";
-  const summary = extractSection(content, "SUMMARY") || "";
-
-  return new Response(JSON.stringify({ hooks, captions, summary }), {
+  return new Response(JSON.stringify({ content }), {
     headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
-}
-
-function extractSection(text: string, start: string, end?: string): string {
-  const startIdx = text.toUpperCase().indexOf(start);
-  if (startIdx === -1) return "";
-  const afterStart = text.slice(startIdx + start.length).replace(/^[:\s\n*-]+/, "");
-  if (end) {
-    const endIdx = afterStart.toUpperCase().indexOf(end);
-    if (endIdx !== -1) return afterStart.slice(0, endIdx).trim();
-  }
-  return afterStart.trim();
 }
 
 // ─── Speech to Text ──────────────────────────────────────────────
@@ -215,10 +220,13 @@ async function handleSTT(body: any, apiKey: string) {
   });
 }
 
-// ─── Text to Speech (via Web Speech API fallback) ────────────────
+// ─── Text to Speech (Branded Voice Personas) ────────────────────
 async function handleTTS(body: any, apiKey: string) {
   const { text, voice } = body;
-  const voiceDesc = voice === "male" ? "männliche, tiefe, professionelle" : "weibliche, warme, freundliche";
+  
+  const voicePersona = voice === "male"
+    ? `"Der Mentor" – eine tiefe, ruhige, vertrauenserweckende männliche Stimme. Perfekt für Analyse-Auswertungen und fachliche Erklärungen. Sprich langsam und bedacht, mit natürlichen Pausen bei Kommas und Punkten.`
+    : `"Die Innovatorin" – eine klare, motivierende, dynamische weibliche Stimme. Perfekt für Tutorials und Dashboard-Erklärungen. Sprich klar und energisch, aber nicht gehetzt.`;
 
   const response = await fetch(GATEWAY_URL, {
     method: "POST",
@@ -228,7 +236,7 @@ async function handleTTS(body: any, apiKey: string) {
       messages: [
         {
           role: "system",
-          content: `Bereite den folgenden Text für eine ${voiceDesc} Vorlesestimme auf. Verbessere Satzzeichen und Pausen für natürliches Vorlesen. Gib NUR den optimierten Text zurück.`
+          content: `Bereite den folgenden Text für die HufiAi-Stimme ${voicePersona} auf. Optimiere Satzzeichen, Pausen (mit "...") und Betonungen für natürliches Vorlesen auf Deutsch. Gib NUR den optimierten Text zurück, ohne Kommentare.`
         },
         { role: "user", content: text }
       ],
