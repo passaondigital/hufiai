@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,6 +16,7 @@ export default function Auth() {
   const [displayName, setDisplayName] = useState("");
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [agbAccepted, setAgbAccepted] = useState(false);
   const { signIn, signUp } = useAuth();
   const navigate = useNavigate();
 
@@ -139,7 +140,26 @@ export default function Auth() {
                 <Label htmlFor="password">Passwort</Label>
                 <Input id="password" type="password" required minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Mindestens 6 Zeichen" />
               </div>
-              <Button type="submit" className="w-full" disabled={loading}>
+              {!isLogin && (
+                <label className="flex items-start gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={agbAccepted}
+                    onChange={(e) => setAgbAccepted(e.target.checked)}
+                    className="mt-1 w-4 h-4 rounded accent-[#F47B20]"
+                  />
+                  <span className="text-xs text-muted-foreground leading-relaxed">
+                    Ich akzeptiere die{" "}
+                    <Link to="/agb" className="text-primary underline hover:text-primary/80" target="_blank">AGB</Link>
+                    {" "}und habe den{" "}
+                    <Link to="/agb" className="text-primary underline hover:text-primary/80" target="_blank">Haftungsausschluss für KI-Inhalte</Link>
+                    {" "}sowie die{" "}
+                    <Link to="/datenschutz" className="text-primary underline hover:text-primary/80" target="_blank">Datenschutzerklärung</Link>
+                    {" "}gelesen.
+                  </span>
+                </label>
+              )}
+              <Button type="submit" className="w-full" disabled={loading || (!isLogin && !agbAccepted)}>
                 {loading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                 {isLogin ? "Anmelden" : "Registrieren"}
               </Button>
