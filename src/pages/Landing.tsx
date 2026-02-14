@@ -49,9 +49,10 @@ export default function Landing() {
             <span className="text-xl font-bold">HufiAi</span>
           </div>
           <div className="hidden md:flex items-center gap-6 text-sm font-medium text-muted-foreground">
+            <button onClick={() => navigate("/ueber-hufiai")} className="hover:text-foreground transition-colors">Über HufiAi</button>
+            <button onClick={() => navigate("/ethik")} className="hover:text-foreground transition-colors">Ethik</button>
             <button onClick={() => scrollTo("features")} className="hover:text-foreground transition-colors">Funktionen</button>
-            <button onClick={() => navigate("/experten")} className="hover:text-foreground transition-colors">Experten finden</button>
-            <button onClick={() => scrollTo("blog")} className="hover:text-foreground transition-colors">Blog</button>
+            <button onClick={() => navigate("/experten")} className="hover:text-foreground transition-colors">Experten</button>
             <button onClick={() => scrollTo("pricing")} className="hover:text-foreground transition-colors">Preise</button>
           </div>
           <div className="flex items-center gap-3">
@@ -212,8 +213,15 @@ export default function Landing() {
               <div className="space-y-2 text-sm text-muted-foreground">
                 <button onClick={() => scrollTo("features")} className="block hover:text-foreground transition-colors">Funktionen</button>
                 <button onClick={() => navigate("/experten")} className="block hover:text-foreground transition-colors">Experten finden</button>
+                <button onClick={() => navigate("/manual")} className="block hover:text-foreground transition-colors">Handbuch</button>
                 <button onClick={() => navigate("/pricing")} className="block hover:text-foreground transition-colors">Preise</button>
-                <button onClick={() => scrollTo("blog")} className="block hover:text-foreground transition-colors">Blog</button>
+              </div>
+            </div>
+            <div>
+              <h4 className="font-semibold text-sm mb-3">Unternehmen</h4>
+              <div className="space-y-2 text-sm text-muted-foreground">
+                <button onClick={() => navigate("/ueber-hufiai")} className="block hover:text-foreground transition-colors">Über HufiAi</button>
+                <button onClick={() => navigate("/ethik")} className="block hover:text-foreground transition-colors">Ethik & Verantwortung</button>
               </div>
             </div>
             <div>

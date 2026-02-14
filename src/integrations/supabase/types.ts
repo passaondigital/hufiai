@@ -573,6 +573,51 @@ export type Database = {
         }
         Relationships: []
       }
+      system_documentation: {
+        Row: {
+          ai_summary: string | null
+          category: string
+          content: string
+          created_at: string
+          created_by: string
+          id: string
+          is_public: boolean
+          module_name: string | null
+          sort_order: number
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          ai_summary?: string | null
+          category?: string
+          content?: string
+          created_at?: string
+          created_by: string
+          id?: string
+          is_public?: boolean
+          module_name?: string | null
+          sort_order?: number
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          ai_summary?: string | null
+          category?: string
+          content?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          is_public?: boolean
+          module_name?: string | null
+          sort_order?: number
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       training_data_logs: {
         Row: {
           ai_output: string | null
