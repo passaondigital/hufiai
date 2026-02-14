@@ -4,9 +4,10 @@ import { useAuth } from "@/lib/auth";
 import { useSubscription } from "@/hooks/useSubscription";
 import {
   MessageSquare, FolderKanban, FileText, CreditCard, Settings,
-  LogOut, ChevronLeft, ChevronRight, Plus, Sparkles, Shield,
-  ArrowLeftRight, Building2, Map, Megaphone, Crown, Heart, Award, Users
+  LogOut, ChevronLeft, ChevronRight, Plus, Shield,
+  ArrowLeftRight, Building2, Map, Megaphone, Crown, Heart, Award, Users, Sparkles
 } from "lucide-react";
+import HufiLogo from "@/components/HufiLogo";
 import { toast } from "sonner";
 
 export default function AppSidebar() {
@@ -62,9 +63,7 @@ export default function AppSidebar() {
       <div className="flex items-center justify-between p-4 border-b border-sidebar-border">
         {!collapsed && (
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-sidebar-primary flex items-center justify-center">
-              <Sparkles className="w-4 h-4 text-sidebar-primary-foreground" />
-            </div>
+            <HufiLogo size={32} />
             <span className="font-bold text-sidebar-foreground text-lg">HufiAi</span>
           </div>
         )}
