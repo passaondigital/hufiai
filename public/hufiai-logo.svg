@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="5000" height="5000" viewBox="0 0 5000 5000" xmlns="http://www.w3.org/2000/svg">
+  <rect width="5000" height="5000" fill="none"/>
+  <g transform="translate(2500,2000)" text-anchor="middle">
+    <g transform="scale(2.2)">
+      <path d="M-350 -200 
+               C-250 -300 -100 -320 50 -260
+               C150 -220 220 -140 230 -40
+               C240 80 160 160 40 180
+               C-80 200 -180 160 -230 90
+               C-280 20 -320 -100 -350 -200Z"
+            fill="#F47B20"/>
+      <path d="M-120 -320 L-60 -420 L-10 -320 Z" fill="#F47B20"/>
+      <circle cx="-420" cy="-120" r="25" fill="#F47B20"/>
+      <circle cx="-470" cy="-50" r="25" fill="#F47B20"/>
+      <circle cx="-430" cy="30" r="25" fill="#F47B20"/>
+      <line x1="-395" y1="-120" x2="-300" y2="-120" stroke="#F47B20" stroke-width="20"/>
+      <line x1="-445" y1="-50" x2="-300" y2="-50" stroke="#F47B20" stroke-width="20"/>
+      <line x1="-405" y1="30" x2="-280" y2="30" stroke="#F47B20" stroke-width="20"/>
+    </g>
+  </g>
+  <g transform="translate(2500,3400)" text-anchor="middle">
+    <text font-family="Poppins, Arial, sans-serif"
+          font-size="900"
+          font-weight="600">
+      <tspan fill="#000000">Hufi</tspan>
+      <tspan fill="#F47B20">Ai</tspan>
+    </text>
+  </g>
+</svg>
