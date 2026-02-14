@@ -26,11 +26,13 @@ const MODES: { id: AnalysisMode; label: string; icon: typeof Flame; desc: string
 
 export default function VideoAnalysisLab({ selectedModel }: VideoAnalysisLabProps) {
   const [file, setFile] = useState<File | null>(null);
+  const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const [analyzing, setAnalyzing] = useState<AnalysisMode | null>(null);
   const [results, setResults] = useState<Record<string, string>>({});
   const [progress, setProgress] = useState(0);
   const [dragging, setDragging] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+  const videoPreviewRef = useRef<HTMLVideoElement>(null);
 
   const validateAndSetFile = (f: File) => {
     if (!f.type.startsWith("video/")) {
@@ -41,7 +43,10 @@ export default function VideoAnalysisLab({ selectedModel }: VideoAnalysisLabProp
       toast.error("Max. 50 MB erlaubt");
       return;
     }
+    // Revoke old URL to avoid memory leaks
+    if (videoUrl) URL.revokeObjectURL(videoUrl);
     setFile(f);
+    setVideoUrl(URL.createObjectURL(f));
     setResults({});
     setProgress(0);
   };
@@ -149,7 +154,24 @@ export default function VideoAnalysisLab({ selectedModel }: VideoAnalysisLabProp
           )}
         </div>
 
-        {/* Progress Bar */}
+        {/* Video Preview */}
+        {file && videoUrl && (
+          <div className="rounded-xl overflow-hidden border border-border bg-black/5">
+            <video
+              ref={videoPreviewRef}
+              src={videoUrl}
+              controls
+              className="w-full max-h-64 object-contain bg-black"
+              preload="metadata"
+            />
+            <div className="flex items-center justify-between px-3 py-2 bg-muted/30">
+              <span className="text-xs font-medium truncate">{file.name}</span>
+              <span className="text-xs text-muted-foreground">{(file.size / 1024 / 1024).toFixed(1)} MB</span>
+            </div>
+          </div>
+        )}
+
+
         {analyzing && (
           <div className="space-y-1">
             <div className="flex items-center justify-between text-xs text-muted-foreground">
