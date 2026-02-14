@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import {
   TrendingUp, Sparkles, Image as ImageIcon, Send, Loader2, FileText,
-  Eye, Trash2, AlertTriangle, MessageSquare, Hash, Download, CloudUpload, Paintbrush
+  Eye, Trash2, AlertTriangle, MessageSquare, Hash, Download, CloudUpload, Paintbrush, Grid3X3, Copy
 } from "lucide-react";
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || "";
@@ -39,6 +39,21 @@ interface BlogDraft {
   created_at: string;
   published_at: string | null;
 }
+
+interface GalleryImage {
+  id: string;
+  prompt: string;
+  preset: string;
+  image_url: string;
+  created_at: string;
+}
+
+const PRESET_LABELS: Record<string, string> = {
+  technical: "📐 Diagramm",
+  social: "📱 Social",
+  realistic: "📸 Real",
+  infographic: "📊 Infografik",
+};
 
 const CATEGORY_LABELS: Record<string, string> = {
   "hoof-care": "🔨 Hufpflege",
@@ -80,7 +95,11 @@ export default function ContentEngine() {
   const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(null);
   const [savingToDrive, setSavingToDrive] = useState(false);
 
-  useEffect(() => { fetchDrafts(); }, []);
+  // Gallery state
+  const [gallery, setGallery] = useState<GalleryImage[]>([]);
+  const [galleryFilter, setGalleryFilter] = useState<string>("all");
+
+  useEffect(() => { fetchDrafts(); fetchGallery(); }, []);
 
   const fetchDrafts = async () => {
     const { data } = await supabase
@@ -89,6 +108,69 @@ export default function ContentEngine() {
       .order("created_at", { ascending: false })
       .limit(20);
     if (data) setDrafts(data as BlogDraft[]);
+  };
+
+  const fetchGallery = async () => {
+    const { data } = await supabase
+      .from("generated_images" as any)
+      .select("id, prompt, preset, image_url, created_at")
+      .order("created_at", { ascending: false })
+      .limit(50);
+    if (data) setGallery(data as unknown as GalleryImage[]);
+  };
+
+  const saveImageToGallery = async (imageDataUrl: string, prompt: string, preset: string) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      const base64Data = imageDataUrl.split(",")[1] || imageDataUrl;
+      const byteCharacters = atob(base64Data);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+      const blob = new Blob([byteArray], { type: "image/png" });
+      const fileName = `${user.id}/${preset}_${Date.now()}.png`;
+      const { error: uploadError } = await supabase.storage
+        .from("generated-images")
+        .upload(fileName, blob, { contentType: "image/png" });
+      if (uploadError) throw uploadError;
+      const { data: urlData } = supabase.storage
+        .from("generated-images")
+        .getPublicUrl(fileName);
+      const { error: dbError } = await supabase
+        .from("generated_images" as any)
+        .insert({
+          user_id: user.id,
+          prompt,
+          preset,
+          storage_path: fileName,
+          image_url: urlData.publicUrl,
+        });
+      if (dbError) throw dbError;
+      fetchGallery();
+    } catch (err: any) {
+      console.error("Gallery save error:", err);
+    }
+  };
+
+  const deleteGalleryImage = async (img: GalleryImage) => {
+    try {
+      const { data: record } = await supabase
+        .from("generated_images" as any)
+        .select("storage_path")
+        .eq("id", img.id)
+        .single();
+      if (record) {
+        await supabase.storage.from("generated-images").remove([(record as any).storage_path]);
+      }
+      await supabase.from("generated_images" as any).delete().eq("id", img.id);
+      setGallery((prev) => prev.filter((g) => g.id !== img.id));
+      toast.success("Bild gelöscht");
+    } catch (err: any) {
+      toast.error(err.message || "Löschen fehlgeschlagen");
+    }
   };
 
   const fetchTrends = async () => {
@@ -192,6 +274,8 @@ export default function ContentEngine() {
       if (data.image_url) {
         setGeneratedImageUrl(data.image_url);
         toast.success("Bild generiert!");
+        // Save to gallery storage
+        saveImageToGallery(data.image_url, imagePrompt, imagePreset);
         // Auto-save to Google Drive
         autoSaveToDrive(data.image_url, imagePrompt);
       } else {
@@ -509,6 +593,96 @@ export default function ContentEngine() {
             <Badge variant="outline" className="text-xs">Modell: Gemini Image</Badge>
             {savingToDrive && <Badge variant="secondary" className="text-xs animate-pulse">Drive-Export läuft…</Badge>}
           </div>
+        </CardContent>
+      </Card>
+
+      {/* ─── Image Gallery ──────────────────────────────────────── */}
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle className="flex items-center gap-2 text-base">
+            <Grid3X3 className="w-5 h-5 text-primary" /> Bild-Galerie ({gallery.length})
+          </CardTitle>
+          <div className="flex gap-1">
+            <button
+              onClick={() => setGalleryFilter("all")}
+              className={`px-2 py-1 rounded text-xs transition-all ${galleryFilter === "all" ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground"}`}
+            >
+              Alle
+            </button>
+            {Object.entries(PRESET_LABELS).map(([k, v]) => (
+              <button
+                key={k}
+                onClick={() => setGalleryFilter(k)}
+                className={`px-2 py-1 rounded text-xs transition-all ${galleryFilter === k ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground"}`}
+              >
+                {v}
+              </button>
+            ))}
+          </div>
+        </CardHeader>
+        <CardContent>
+          {gallery.length === 0 ? (
+            <p className="text-sm text-muted-foreground">Noch keine Bilder generiert. Nutze den Image Generator oben.</p>
+          ) : (
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+              {gallery
+                .filter((img) => galleryFilter === "all" || img.preset === galleryFilter)
+                .map((img) => (
+                  <div key={img.id} className="group relative rounded-xl border border-border overflow-hidden bg-muted/30">
+                    <img
+                      src={img.image_url}
+                      alt={img.prompt}
+                      className="w-full aspect-square object-cover"
+                    />
+                    <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-2">
+                      <p className="text-white text-xs line-clamp-2 mb-2">{img.prompt}</p>
+                      <div className="flex gap-1">
+                        <Badge variant="secondary" className="text-[10px]">
+                          {PRESET_LABELS[img.preset] || img.preset}
+                        </Badge>
+                        <span className="text-[10px] text-white/60">
+                          {new Date(img.created_at).toLocaleDateString("de-DE")}
+                        </span>
+                      </div>
+                      <div className="flex gap-1 mt-2">
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          className="h-7 text-xs flex-1"
+                          onClick={() => {
+                            navigator.clipboard.writeText(img.image_url);
+                            toast.success("URL kopiert!");
+                          }}
+                        >
+                          <Copy className="w-3 h-3 mr-1" /> URL
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          className="h-7 text-xs flex-1"
+                          onClick={() => {
+                            const a = document.createElement("a");
+                            a.href = img.image_url;
+                            a.download = `hufiai-${img.preset}-${img.id}.png`;
+                            a.click();
+                          }}
+                        >
+                          <Download className="w-3 h-3 mr-1" /> DL
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="h-7 text-xs text-destructive"
+                          onClick={() => deleteGalleryImage(img)}
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

@@ -294,6 +294,36 @@ export type Database = {
           },
         ]
       }
+      generated_images: {
+        Row: {
+          created_at: string
+          id: string
+          image_url: string
+          preset: string
+          prompt: string
+          storage_path: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          image_url: string
+          preset?: string
+          prompt: string
+          storage_path: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          image_url?: string
+          preset?: string
+          prompt?: string
+          storage_path?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       horse_shares: {
         Row: {
           created_at: string
