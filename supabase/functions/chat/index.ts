@@ -64,7 +64,31 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { messages, conversation_id, horse_context, user_type, log_training, user_id, file_context } = await req.json();
+    // Authenticate user via JWT
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+    const authClient = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } },
+    });
+
+    const token = authHeader.replace("Bearer ", "");
+    const { data: claimsData, error: claimsError } = await authClient.auth.getClaims(token);
+    if (claimsError || !claimsData?.claims) {
+      return new Response(JSON.stringify({ error: "Invalid or expired token" }), {
+        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const verifiedUserId = claimsData.claims.sub as string;
+
+    const { messages, conversation_id, horse_context, user_type, log_training, file_context } = await req.json();
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
@@ -147,9 +171,8 @@ serve(async (req) => {
         await writer.close();
 
         // After stream completes, log training data if user consented
-        if (log_training && user_id && fullResponse) {
+        if (log_training && verifiedUserId && fullResponse) {
           try {
-            const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
             const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
             const sb = createClient(supabaseUrl, supabaseKey);
 
@@ -158,7 +181,7 @@ serve(async (req) => {
             const category = detectCategory(userInput);
 
             await sb.from("training_data_logs").insert({
-              user_id,
+              user_id: verifiedUserId,
               conversation_id: conversation_id || null,
               user_input: typeof userInput === "string" ? userInput.slice(0, 8000) : JSON.stringify(userInput).slice(0, 8000),
               ai_output: fullResponse.slice(0, 8000),
@@ -183,7 +206,7 @@ serve(async (req) => {
     });
   } catch (e) {
     console.error("chat error:", e);
-    return new Response(JSON.stringify({ error: e instanceof Error ? e.message : "Unbekannter Fehler" }), {
+    return new Response(JSON.stringify({ error: "Unbekannter Fehler" }), {
       status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }

@@ -12,6 +12,30 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
+    // Authenticate user via JWT
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+    const authClient = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } },
+    });
+
+    const token = authHeader.replace("Bearer ", "");
+    const { data: claimsData, error: claimsError } = await authClient.auth.getClaims(token);
+    if (claimsError || !claimsData?.claims) {
+      return new Response(JSON.stringify({ error: "Invalid or expired token" }), {
+        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const verifiedUserId = claimsData.claims.sub as string;
+
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
 
@@ -25,7 +49,7 @@ serve(async (req) => {
     if (action === "generate_image") return await handleImageGeneration(body, LOVABLE_API_KEY);
 
     // Legacy content generation
-    return await handleContentGeneration(body, LOVABLE_API_KEY);
+    return await handleContentGeneration(body, LOVABLE_API_KEY, verifiedUserId);
   } catch (e) {
     console.error("generate-content error:", e);
     const status = (e as any).status || 500;
@@ -36,9 +60,9 @@ serve(async (req) => {
 });
 
 // ─── Legacy Content Generation ───────────────────────────────────
-async function handleContentGeneration(body: any, apiKey: string) {
-  const { idea, content_type, user_id } = body;
-  if (!idea || !content_type || !user_id) {
+async function handleContentGeneration(body: any, apiKey: string, verifiedUserId: string) {
+  const { idea, content_type } = body;
+  if (!idea || !content_type) {
     return new Response(JSON.stringify({ error: "Missing fields" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
   }
 
@@ -97,7 +121,7 @@ Antworte IMMER mit einem JSON-Objekt (kein Markdown drumherum):
   const sb = createClient(supabaseUrl, supabaseKey);
 
   const { data: item, error } = await sb.from("content_items").insert({
-    user_id,
+    user_id: verifiedUserId,
     title: parsed.title || idea,
     content_type,
     content: parsed.content || "",
