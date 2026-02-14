@@ -1,9 +1,10 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
-import { Video, Upload, Loader2, Hash, FileText, Sparkles, Flame, MessageSquare, ClipboardList } from "lucide-react";
+import { Video, Upload, Loader2, Flame, MessageSquare, ClipboardList } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 interface VideoAnalysisLabProps {
@@ -17,7 +18,7 @@ interface AnalysisResult {
   mode: AnalysisMode;
 }
 
-const MODES: { id: AnalysisMode; label: string; icon: typeof Hash; desc: string }[] = [
+const MODES: { id: AnalysisMode; label: string; icon: typeof Flame; desc: string }[] = [
   { id: "hooks", label: "Viral Hooks erstellen", icon: Flame, desc: "3 provokante, fachlich fundierte Hooks für Reels & TikTok" },
   { id: "caption", label: "Social Caption schreiben", icon: MessageSquare, desc: "Packende Caption mit CTA im HufiAi Brand Voice" },
   { id: "report", label: "Technischer Bericht", icon: ClipboardList, desc: "Fachliches Protokoll für Kunden-Dokumentation" },
@@ -27,11 +28,11 @@ export default function VideoAnalysisLab({ selectedModel }: VideoAnalysisLabProp
   const [file, setFile] = useState<File | null>(null);
   const [analyzing, setAnalyzing] = useState<AnalysisMode | null>(null);
   const [results, setResults] = useState<Record<string, string>>({});
+  const [progress, setProgress] = useState(0);
+  const [dragging, setDragging] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
-  const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const f = e.target.files?.[0];
-    if (!f) return;
+  const validateAndSetFile = (f: File) => {
     if (!f.type.startsWith("video/")) {
       toast.error("Nur Video-Dateien (.mp4) erlaubt");
       return;
@@ -42,11 +43,38 @@ export default function VideoAnalysisLab({ selectedModel }: VideoAnalysisLabProp
     }
     setFile(f);
     setResults({});
+    setProgress(0);
   };
+
+  const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const f = e.target.files?.[0];
+    if (f) validateAndSetFile(f);
+  };
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setDragging(false);
+    const f = e.dataTransfer.files?.[0];
+    if (f) validateAndSetFile(f);
+  }, []);
+
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setDragging(true);
+  }, []);
+
+  const handleDragLeave = useCallback(() => setDragging(false), []);
 
   const analyzeVideo = async (mode: AnalysisMode) => {
     if (!file) return;
     setAnalyzing(mode);
+    setProgress(0);
+
+    // Simulate progress while waiting for API
+    const interval = setInterval(() => {
+      setProgress((p) => Math.min(p + Math.random() * 8, 92));
+    }, 400);
+
     try {
       const buffer = await file.arrayBuffer();
       const base64 = btoa(
@@ -65,12 +93,17 @@ export default function VideoAnalysisLab({ selectedModel }: VideoAnalysisLabProp
       });
 
       if (error) throw error;
+      setProgress(100);
       setResults((prev) => ({ ...prev, [mode]: data.content || data.hooks || "" }));
       toast.success("Analyse abgeschlossen!");
     } catch (err: any) {
       toast.error(err.message || "Analyse fehlgeschlagen");
     }
-    setAnalyzing(null);
+    clearInterval(interval);
+    setTimeout(() => {
+      setAnalyzing(null);
+      setProgress(0);
+    }, 500);
   };
 
   const copyToClipboard = (text: string, label: string) => {
@@ -93,19 +126,42 @@ export default function VideoAnalysisLab({ selectedModel }: VideoAnalysisLabProp
         {/* Upload Zone */}
         <div
           onClick={() => fileRef.current?.click()}
-          className="border-2 border-dashed border-border rounded-xl p-8 text-center cursor-pointer hover:border-primary/50 hover:bg-accent/50 transition-all"
+          onDrop={handleDrop}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all ${
+            dragging
+              ? "border-primary bg-primary/10 scale-[1.01]"
+              : "border-border hover:border-primary/50 hover:bg-accent/50"
+          }`}
         >
           <input ref={fileRef} type="file" accept="video/mp4,video/*" className="hidden" onChange={handleUpload} />
-          <Upload className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
+          <Upload className={`w-8 h-8 mx-auto mb-2 transition-colors ${dragging ? "text-primary" : "text-muted-foreground"}`} />
           {file ? (
             <div>
               <p className="font-medium text-sm">{file.name}</p>
               <p className="text-xs text-muted-foreground">{(file.size / 1024 / 1024).toFixed(1)} MB</p>
             </div>
           ) : (
-            <p className="text-sm text-muted-foreground">Video hier ablegen oder klicken</p>
+            <p className="text-sm text-muted-foreground">
+              {dragging ? "Jetzt loslassen!" : "Video hierher ziehen oder klicken"}
+            </p>
           )}
         </div>
+
+        {/* Progress Bar */}
+        {analyzing && (
+          <div className="space-y-1">
+            <div className="flex items-center justify-between text-xs text-muted-foreground">
+              <span className="flex items-center gap-1.5">
+                <Loader2 className="w-3 h-3 animate-spin" />
+                {MODES.find(m => m.id === analyzing)?.label}…
+              </span>
+              <span>{Math.round(progress)}%</span>
+            </div>
+            <Progress value={progress} className="h-2" />
+          </div>
+        )}
 
         {/* 3 Action Buttons */}
         {file && (
