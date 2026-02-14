@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
-import HufiLogo from "@/components/HufiLogo";
+
 import { lovable } from "@/integrations/lovable/index";
 import horseHero from "@/assets/horse-hero.png";
 
@@ -86,7 +86,6 @@ export default function Auth() {
         <div className="w-full max-w-md animate-fade-in">
           <div className="text-center mb-8">
             <div className="inline-flex items-center gap-2 mb-4">
-              <HufiLogo size={40} />
               <span className="text-2xl font-bold tracking-tight">HufiAi</span>
             </div>
             <p className="text-muted-foreground">

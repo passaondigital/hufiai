@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import CookieBanner from "@/components/CookieBanner";
 import { Button } from "@/components/ui/button";
 import { Shield, MessageSquare, Cpu, ArrowRight, Users, FileText, Building2, Search } from "lucide-react";
-import HufiLogo from "@/components/HufiLogo";
+
 import { supabase } from "@/integrations/supabase/client";
 import horseHero from "@/assets/horse-hero.png";
 import ComparisonTable from "@/components/landing/ComparisonTable";
@@ -44,7 +44,6 @@ export default function Landing() {
       <nav className="sticky top-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border">
         <div className="flex items-center justify-between px-6 py-3 max-w-7xl mx-auto">
           <div className="flex items-center gap-2 cursor-pointer" onClick={() => scrollTo("hero")}>
-            <HufiLogo size={36} />
             <span className="text-xl font-bold">HufiAi</span>
           </div>
           <div className="hidden md:flex items-center gap-6 text-sm font-medium text-muted-foreground">
@@ -67,7 +66,6 @@ export default function Landing() {
       <section id="hero" className="relative max-w-7xl mx-auto pt-16 pb-20 px-6 flex flex-col md:flex-row items-center gap-8">
         <div className="flex-1 text-center md:text-left z-10">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6">
-            <HufiLogo size={16} />
             KI für die Pferdebranche
           </div>
           <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight mb-6 leading-tight">
@@ -197,7 +195,6 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-start gap-8">
           <div>
             <div className="flex items-center gap-2 mb-3">
-              <HufiLogo size={32} />
               <span className="font-bold text-lg">HufiAi</span>
             </div>
             <p className="text-sm text-muted-foreground max-w-xs">
