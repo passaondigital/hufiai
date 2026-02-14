@@ -4,8 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
-import { Video, Upload, Loader2, Flame, MessageSquare, ClipboardList } from "lucide-react";
+import { Video, Upload, Loader2, Flame, MessageSquare, ClipboardList, CloudUpload } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || "";
+const DRIVE_SCOPES = "https://www.googleapis.com/auth/drive.file";
 
 interface VideoAnalysisLabProps {
   selectedModel: string;
@@ -114,6 +117,64 @@ export default function VideoAnalysisLab({ selectedModel }: VideoAnalysisLabProp
   const copyToClipboard = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
     toast.success(`${label} kopiert!`);
+  };
+
+  const exportToDrive = async (content: string, label: string) => {
+    if (!GOOGLE_CLIENT_ID) {
+      toast.error("Google Client ID nicht konfiguriert");
+      return;
+    }
+
+    // Open Google OAuth consent popup
+    const redirectUri = window.location.origin;
+    const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?` +
+      `client_id=${encodeURIComponent(GOOGLE_CLIENT_ID)}` +
+      `&redirect_uri=${encodeURIComponent(redirectUri)}` +
+      `&response_type=code` +
+      `&scope=${encodeURIComponent(DRIVE_SCOPES)}` +
+      `&access_type=offline` +
+      `&prompt=consent` +
+      `&state=${encodeURIComponent(JSON.stringify({ content, label }))}`;
+
+    // Store content for after redirect
+    sessionStorage.setItem("drive_export_content", content);
+    sessionStorage.setItem("drive_export_label", label);
+    
+    // Open in popup
+    const popup = window.open(authUrl, "google_auth", "width=500,height=600,menubar=no,toolbar=no");
+    
+    // Listen for the code from the popup
+    const handleMessage = async (event: MessageEvent) => {
+      if (event.data?.type !== "google_auth_code") return;
+      window.removeEventListener("message", handleMessage);
+      
+      const code = event.data.code;
+      try {
+        // Exchange code for token
+        const { data: tokenData, error: tokenErr } = await supabase.functions.invoke("export-to-drive", {
+          body: { action: "exchange_code", code, redirect_uri: redirectUri },
+        });
+        if (tokenErr) throw tokenErr;
+
+        // Upload to Drive
+        const fileName = `HufiAi_${label.replace(/\s+/g, "_")}_${new Date().toISOString().slice(0, 10)}.txt`;
+        const { data: uploadData, error: uploadErr } = await supabase.functions.invoke("export-to-drive", {
+          body: { action: "upload", access_token: tokenData.access_token, content, file_name: fileName },
+        });
+        if (uploadErr) throw uploadErr;
+
+        toast.success(`"${fileName}" erfolgreich in Google Drive gespeichert!`, {
+          action: {
+            label: "Öffnen",
+            onClick: () => window.open(uploadData.web_view_link, "_blank"),
+          },
+        });
+      } catch (err: any) {
+        toast.error(err.message || "Export nach Google Drive fehlgeschlagen");
+      }
+    };
+
+    window.addEventListener("message", handleMessage);
   };
 
   return (
@@ -225,9 +286,14 @@ export default function VideoAnalysisLab({ selectedModel }: VideoAnalysisLabProp
                 <span className="flex items-center gap-2 font-semibold text-sm">
                   <Icon className="w-4 h-4 text-primary" /> {modeInfo.label}
                 </span>
-                <Button size="sm" variant="ghost" onClick={() => copyToClipboard(content, modeInfo.label)}>
-                  Kopieren
-                </Button>
+              <div className="flex items-center gap-1">
+                  <Button size="sm" variant="ghost" onClick={() => exportToDrive(content, modeInfo.label)}>
+                    <CloudUpload className="w-3.5 h-3.5 mr-1" /> Drive
+                  </Button>
+                  <Button size="sm" variant="ghost" onClick={() => copyToClipboard(content, modeInfo.label)}>
+                    Kopieren
+                  </Button>
+                </div>
               </div>
               <p className="text-sm text-muted-foreground whitespace-pre-wrap">{content}</p>
             </div>
