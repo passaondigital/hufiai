@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import {
   Scissors, Bot, Smartphone, Users,
-  CheckCircle2, XCircle, AlertTriangle, Loader2, Link2
+  CheckCircle2, XCircle, AlertTriangle, Loader2, Link2, RefreshCw
 } from "lucide-react";
 
 interface EcosystemApp {
@@ -60,27 +60,47 @@ interface LinkRow {
   external_id: string | null;
   status: string;
   data_sharing_enabled: boolean;
+  message?: string;
 }
 
 export default function EcosystemConnect() {
-  const { user } = useAuth();
+  const { user, session } = useAuth();
   const [links, setLinks] = useState<Record<string, LinkRow>>({});
   const [loading, setLoading] = useState(true);
+  const [checking, setChecking] = useState(false);
   const [connecting, setConnecting] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (!user) { setLoading(false); return; }
-    supabase
-      .from("ecosystem_links")
-      .select("app_key, external_id, status, data_sharing_enabled")
-      .eq("user_id", user.id)
-      .then(({ data }) => {
-        const map: Record<string, LinkRow> = {};
-        (data ?? []).forEach((r: any) => { map[r.app_key] = r; });
-        setLinks(map);
-        setLoading(false);
+  const fetchStatus = async () => {
+    if (!session?.access_token) return;
+    setChecking(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("check-ecosystem", {
+        headers: { Authorization: `Bearer ${session.access_token}` },
       });
-  }, [user]);
+      if (error) throw error;
+      const map: Record<string, LinkRow> = {};
+      ((data as any)?.apps ?? []).forEach((r: any) => { map[r.app_key] = r; });
+      setLinks(map);
+    } catch (err) {
+      console.error("Ecosystem check failed:", err);
+      // Fallback to direct DB read
+      const { data } = await supabase
+        .from("ecosystem_links")
+        .select("app_key, external_id, status, data_sharing_enabled")
+        .eq("user_id", user!.id);
+      const map: Record<string, LinkRow> = {};
+      (data ?? []).forEach((r: any) => { map[r.app_key] = r; });
+      setLinks(map);
+    } finally {
+      setLoading(false);
+      setChecking(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!user || !session) { setLoading(false); return; }
+    fetchStatus();
+  }, [user, session]);
 
   const handleConnect = async (app: EcosystemApp) => {
     if (!user) return;
@@ -177,14 +197,19 @@ export default function EcosystemConnect() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-3">
-        <div className="p-2 rounded-lg bg-primary/10">
-          <Link2 className="w-5 h-5 text-primary" />
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="p-2 rounded-lg bg-primary/10">
+            <Link2 className="w-5 h-5 text-primary" />
+          </div>
+          <div>
+            <h2 className="text-lg font-semibold">Ecosystem Connect</h2>
+            <p className="text-sm text-muted-foreground">Verknüpfe deine Pascal Schmid Anwendungen</p>
+          </div>
         </div>
-        <div>
-          <h2 className="text-lg font-semibold">Ecosystem Connect</h2>
-          <p className="text-sm text-muted-foreground">Verknüpfe deine Pascal Schmid Anwendungen</p>
-        </div>
+        <Button variant="ghost" size="icon" onClick={fetchStatus} disabled={checking} title="Status prüfen">
+          <RefreshCw className={`w-4 h-4 ${checking ? "animate-spin" : ""}`} />
+        </Button>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
