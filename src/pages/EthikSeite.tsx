@@ -1,7 +1,6 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, ArrowRight, Shield, Heart, AlertTriangle, Scale, Sparkles, Users } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { ArrowLeft, ArrowRight, Shield, Heart, AlertTriangle, Scale, Sparkles, Users, Eye, Leaf, Target } from "lucide-react";
 
 export default function EthikSeite() {
   const navigate = useNavigate();
@@ -23,53 +22,144 @@ export default function EthikSeite() {
         </div>
       </header>
 
-      <main className="max-w-4xl mx-auto px-4 py-12 space-y-16">
+      <main className="max-w-4xl mx-auto px-4 py-12 space-y-20">
         {/* Hero */}
-        <section className="text-center space-y-4">
+        <section className="text-center space-y-6">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium">
             <Shield className="w-4 h-4" /> Ethik & Verantwortung
           </div>
           <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight leading-tight">
-            KI mit <span className="text-primary">Verantwortung</span>
+            Unsere Verantwortung: <span className="text-primary">KI im Dienst des Pferdewohls</span>
           </h1>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Wir entwickeln KI, die dem Tierwohl dient, das Handwerk schützt und 
-            ethische Grenzen respektiert.
+          <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+            Warum HufiAi kein Ersatz für das Handwerk ist, sondern dessen stärkster Verbündeter.
           </p>
         </section>
 
-        {/* Principles */}
-        <section className="grid md:grid-cols-2 gap-6">
-          {[
-            {
-              icon: Heart,
-              title: "Tierwohl zuerst",
-              desc: "Bei kritischen Situationen (Kolik, Lahmheit, Verletzungen) verweist HufiAi IMMER an qualifizierte Experten vor Ort. Die KI gibt niemals eigenständige Diagnosen oder Behandlungsempfehlungen.",
-            },
-            {
-              icon: Users,
-              title: "Handwerk schützen",
-              desc: "HufiAi ersetzt keine Hufbearbeiter, Tierärzte oder Stallbetreiber. Wir unterstützen sie. Unsere KI ist ein Werkzeug – die fachliche Entscheidung liegt immer beim Menschen.",
-            },
-            {
-              icon: Shield,
-              title: "Datenschutz by Design",
-              desc: "DSGVO-konform von Anfang an. Alle Daten bleiben in der EU. Nutzer haben volle Kontrolle über ihre Daten und können Trainings-Beiträge jederzeit deaktivieren.",
-            },
-            {
-              icon: Scale,
-              title: "Transparenz",
-              desc: "Jede KI-Antwort enthält den Hinweis, dass HufiAi eine Assistenz ist. Wir kommunizieren offen über Limitierungen, Fehlerquoten und die Technologie hinter der Plattform.",
-            },
-          ].map((p) => (
-            <div key={p.title} className="bg-card rounded-2xl border border-border p-8 space-y-4">
-              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
-                <p.icon className="w-6 h-6 text-primary" />
-              </div>
-              <h2 className="text-xl font-bold">{p.title}</h2>
-              <p className="text-muted-foreground leading-relaxed">{p.desc}</p>
+        {/* 1. Die Vision 2030 */}
+        <section className="bg-card rounded-2xl border border-border p-10 space-y-6">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+              <Target className="w-6 h-6 text-primary" />
             </div>
-          ))}
+            <h2 className="text-2xl font-bold">1. Die Vision 2030</h2>
+          </div>
+          <p className="text-muted-foreground leading-relaxed text-lg">
+            HufiAi ist nicht einfach eine App. Es ist der erste Schritt einer Reise, die am <strong className="text-foreground">15. November 2030</strong> in der Eröffnung des modernsten Forschungs- und Schulungszentrums der Pferdewelt gipfeln wird.
+          </p>
+          <p className="text-muted-foreground leading-relaxed">
+            Unser Ziel ist es, die digitale Intelligenz zu nutzen, um die physische Welt der Pferde – vom Stallbau bis zur Hufpflege – radikal zu verbessern.
+          </p>
+        </section>
+
+        {/* 2. Wissen ist keine Kompetenz */}
+        <section className="bg-card rounded-2xl border border-border p-10 space-y-6">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+              <Users className="w-6 h-6 text-primary" />
+            </div>
+            <h2 className="text-2xl font-bold">2. Wissen ist keine Kompetenz</h2>
+          </div>
+          <p className="text-muted-foreground leading-relaxed text-lg">
+            Wir glauben an die Demokratisierung von Wissen. HufiAi macht Expertenwissen für jeden Pferdebesitzer zugänglich. Doch wir ziehen eine klare Grenze:
+          </p>
+          <div className="grid md:grid-cols-2 gap-6">
+            <div className="bg-primary/5 rounded-xl p-6 border border-primary/10">
+              <p className="font-semibold text-primary mb-2">🤖 KI analysiert</p>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                Sie erkennt Muster, wertet Daten aus und gibt Impulse.
+              </p>
+            </div>
+            <div className="bg-primary/5 rounded-xl p-6 border border-primary/10">
+              <p className="font-semibold text-primary mb-2">🧑‍🔧 Der Mensch handelt</p>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                Kein Algorithmus der Welt ersetzt das Fingerspitzengefühl eines erfahrenen Hufschmieds, die Intuition eines Tierarztes oder das feine Gespür eines Trainers. HufiAi ist der Kompass, aber der Mensch hält das Steuer.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* 3. Transparenz & Daten-Ethik */}
+        <section className="bg-card rounded-2xl border border-border p-10 space-y-6">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+              <Eye className="w-6 h-6 text-primary" />
+            </div>
+            <h2 className="text-2xl font-bold">3. Transparenz & Daten-Ethik</h2>
+          </div>
+          <p className="text-muted-foreground leading-relaxed text-lg">
+            Wir sammeln Daten nicht für den Profit, sondern für den Fortschritt.
+          </p>
+          <div className="space-y-4">
+            <div className="flex gap-4 items-start">
+              <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
+                <Shield className="w-4 h-4 text-primary" />
+              </div>
+              <div>
+                <p className="font-semibold">Anonymität</p>
+                <p className="text-sm text-muted-foreground">Deine Daten gehören dir. Für unsere globalen Statistiken nutzen wir ausschließlich anonymisierte Werte.</p>
+              </div>
+            </div>
+            <div className="flex gap-4 items-start">
+              <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
+                <Scale className="w-4 h-4 text-primary" />
+              </div>
+              <div>
+                <p className="font-semibold">Open Insights</p>
+                <p className="text-sm text-muted-foreground">Wir machen unsere Erkenntnisse über die globale Pferdegesundheit öffentlich zugänglich, um die gesamte Branche zu inspirieren und Missstände sichtbar zu machen.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* 4. Passive Miete */}
+        <section className="bg-card rounded-2xl border-2 border-primary/20 p-10 space-y-6">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+              <Heart className="w-6 h-6 text-primary" />
+            </div>
+            <h2 className="text-2xl font-bold">4. Die „Passive Miete" für einen guten Zweck</h2>
+          </div>
+          <p className="text-muted-foreground leading-relaxed text-lg">
+            HufiAi finanziert sich durch ein faires Abo-Modell. Diese „passive Miete" ist der Treibstoff für unsere größeren Ziele:
+          </p>
+          <div className="grid md:grid-cols-2 gap-4">
+            <div className="bg-background rounded-xl p-5 border border-border">
+              <p className="text-2xl mb-2">🌾</p>
+              <p className="font-semibold mb-1">Globales Futter-Netzwerk</p>
+              <p className="text-sm text-muted-foreground">Aufbau eines Netzwerks für Gnadenhöfe weltweit.</p>
+            </div>
+            <div className="bg-background rounded-xl p-5 border border-border">
+              <p className="text-2xl mb-2">🤝</p>
+              <p className="font-semibold mb-1">Förderung vor Ort</p>
+              <p className="text-sm text-muted-foreground">Unterstützung von Projekten, die dort anpacken, wo es die Welt der Pferde am nötigsten hat.</p>
+            </div>
+          </div>
+        </section>
+
+        {/* 5. Unser Versprechen */}
+        <section className="bg-card rounded-2xl border border-border p-10 space-y-6">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+              <Leaf className="w-6 h-6 text-primary" />
+            </div>
+            <h2 className="text-2xl font-bold">5. Unser Versprechen</h2>
+          </div>
+          <p className="text-muted-foreground leading-relaxed text-lg">
+            Wir lehnen Abhängigkeiten ab. Wir bauen unsere eigenen Systeme, um unabhängig von den „Big Playern" agieren zu können. HufiAi bleibt eine Plattform <strong className="text-foreground">von Pferdemenschen für Pferdemenschen</strong> – getrieben von Leidenschaft, nicht von reiner Gier.
+          </p>
+          <div className="grid md:grid-cols-3 gap-6 text-sm">
+            {[
+              { emoji: "🐴", text: "Das Wohl des Tieres steht IMMER über dem Geschäftsinteresse." },
+              { emoji: "🔒", text: "Deine Daten gehören dir. Wir verkaufen keine Nutzerdaten." },
+              { emoji: "🤝", text: "KI unterstützt Experten, sie ersetzt sie nicht." },
+            ].map((item) => (
+              <div key={item.emoji} className="text-center space-y-2">
+                <p className="text-3xl">{item.emoji}</p>
+                <p className="text-muted-foreground">{item.text}</p>
+              </div>
+            ))}
+          </div>
         </section>
 
         {/* Ethic Guardrail */}
@@ -79,8 +169,8 @@ export default function EthikSeite() {
             <h2 className="text-2xl font-bold">Der Ethic Guardrail</h2>
           </div>
           <p className="text-muted-foreground leading-relaxed">
-            HufiAi verfügt über einen eingebauten "Ethic Guardrail". Wenn die KI eine 
-            potenziell kritische Situation erkennt – ob akute Verletzung, Kolik-Verdacht, 
+            HufiAi verfügt über einen eingebauten "Ethic Guardrail". Wenn die KI eine
+            potenziell kritische Situation erkennt – ob akute Verletzung, Kolik-Verdacht,
             Hufrehe oder andere Notfälle – greift ein automatischer Schutzmechanismus:
           </p>
           <div className="bg-background rounded-xl p-6 border border-border space-y-3">
@@ -102,23 +192,14 @@ export default function EthikSeite() {
           </div>
         </section>
 
-        {/* Commitment */}
+        {/* CTA */}
         <section className="text-center space-y-6 bg-card rounded-2xl border border-border p-10">
-          <h2 className="text-2xl font-bold">Unser Versprechen</h2>
-          <div className="grid md:grid-cols-3 gap-6 text-sm">
-            {[
-              { emoji: "🐴", text: "Das Wohl des Tieres steht IMMER über dem Geschäftsinteresse." },
-              { emoji: "🔒", text: "Deine Daten gehören dir. Wir verkaufen keine Nutzerdaten." },
-              { emoji: "🤝", text: "KI unterstützt Experten, sie ersetzt sie nicht." },
-            ].map((item) => (
-              <div key={item.emoji} className="space-y-2">
-                <p className="text-3xl">{item.emoji}</p>
-                <p className="text-muted-foreground">{item.text}</p>
-              </div>
-            ))}
-          </div>
+          <h2 className="text-2xl font-bold">Werde Teil der Vision 2030</h2>
+          <p className="text-muted-foreground max-w-lg mx-auto">
+            Starte deinen Founder Flow und gestalte die Zukunft der Pferdebranche mit uns.
+          </p>
           <Button size="lg" onClick={() => navigate("/auth")}>
-            Verantwortungsvoll starten <ArrowRight className="w-4 h-4 ml-2" />
+            Starte deinen Founder Flow <ArrowRight className="w-4 h-4 ml-2" />
           </Button>
         </section>
       </main>

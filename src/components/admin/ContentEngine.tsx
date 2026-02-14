@@ -2,13 +2,12 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import {
   TrendingUp, Sparkles, Image as ImageIcon, Send, Loader2, FileText,
-  CheckCircle, Eye, Edit, Trash2
+  Eye, Trash2, AlertTriangle, MessageSquare, Hash
 } from "lucide-react";
 
 interface TrendTopic {
@@ -42,23 +41,28 @@ const CATEGORY_LABELS: Record<string, string> = {
   "hoof-rehab": "🦶 Huf-Reha",
   "equine-nutrition": "🥕 Pferdeernährung",
   "stable-tech": "⚙️ Stall-Technik",
+  "ethical-debate": "⚖️ Ethik-Debatte",
+  "barefoot-vs-shoeing": "🔨 Barhuf vs. Beschlag",
+  "feed-controversy": "🌿 Futter-Kontroverse",
+  "welfare-scandals": "🛡️ Tierwohl-Aufklärung",
 };
 
 export default function ContentEngine() {
   const [trends, setTrends] = useState<TrendTopic[]>([]);
   const [openClaw, setOpenClaw] = useState<TrendTopic[]>([]);
+  const [ethicalConflicts, setEthicalConflicts] = useState<TrendTopic[]>([]);
   const [drafts, setDrafts] = useState<BlogDraft[]>([]);
   const [loadingTrends, setLoadingTrends] = useState(false);
   const [selectedTopic, setSelectedTopic] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("general");
   const [generating, setGenerating] = useState(false);
   const [generatingImage, setGeneratingImage] = useState<string | null>(null);
+  const [generatingHook, setGeneratingHook] = useState<string | null>(null);
   const [publishing, setPublishing] = useState<string | null>(null);
   const [previewContent, setPreviewContent] = useState<string | null>(null);
+  const [hookPreview, setHookPreview] = useState<Record<string, string>>({});
 
-  useEffect(() => {
-    fetchDrafts();
-  }, []);
+  useEffect(() => { fetchDrafts(); }, []);
 
   const fetchDrafts = async () => {
     const { data } = await supabase
@@ -78,6 +82,7 @@ export default function ContentEngine() {
       if (error) throw error;
       setTrends(data.trends || []);
       setOpenClaw(data.openClaw || []);
+      setEthicalConflicts(data.ethicalConflicts || []);
     } catch (err: any) {
       toast.error(err.message || "Trends konnten nicht geladen werden");
     }
@@ -117,6 +122,21 @@ export default function ContentEngine() {
     setGeneratingImage(null);
   };
 
+  const generateHook = async (blogId: string, title: string) => {
+    setGeneratingHook(blogId);
+    try {
+      const { data, error } = await supabase.functions.invoke("generate-blog", {
+        body: { action: "generate_hook", topic: title, blog_id: blogId },
+      });
+      if (error) throw error;
+      setHookPreview((prev) => ({ ...prev, [blogId]: data.hooks }));
+      toast.success("Social Media Hooks generiert!");
+    } catch (err: any) {
+      toast.error(err.message || "Hook-Generierung fehlgeschlagen");
+    }
+    setGeneratingHook(null);
+  };
+
   const publishPost = async (blogId: string) => {
     setPublishing(blogId);
     try {
@@ -138,40 +158,53 @@ export default function ContentEngine() {
     else { toast.success("Entwurf gelöscht"); fetchDrafts(); }
   };
 
+  const TopicButton = ({ t, dashed }: { t: TrendTopic; dashed?: boolean }) => (
+    <button
+      key={t.category}
+      onClick={() => {
+        setSelectedCategory(t.category);
+        setSelectedTopic(t.snippets[0] || t.category);
+      }}
+      className={`flex items-center gap-2 px-3 py-2 rounded-lg border ${dashed ? "border-dashed" : ""} border-border hover:border-primary/50 hover:bg-accent transition-all text-sm text-left`}
+    >
+      <span>{CATEGORY_LABELS[t.category] || t.category}</span>
+      <Badge variant={dashed ? "outline" : "secondary"} className="text-xs">{t.count}×</Badge>
+    </button>
+  );
+
   return (
     <div className="space-y-6">
       {/* Trending Topics */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="flex items-center gap-2 text-base">
-            <TrendingUp className="w-5 h-5 text-primary" /> Trending Topics
+            <TrendingUp className="w-5 h-5 text-primary" /> Trend-Radar
           </CardTitle>
           <Button size="sm" variant="outline" onClick={fetchTrends} disabled={loadingTrends}>
             {loadingTrends ? <Loader2 className="w-4 h-4 animate-spin" /> : "Trends laden"}
           </Button>
         </CardHeader>
         <CardContent>
-          {trends.length === 0 && openClaw.length === 0 ? (
+          {trends.length === 0 && openClaw.length === 0 && ethicalConflicts.length === 0 ? (
             <p className="text-sm text-muted-foreground">Klicke "Trends laden" um aktuelle Themen zu analysieren.</p>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-5">
+              {/* Ethical Conflicts - prioritized */}
+              {ethicalConflicts.length > 0 && (
+                <div>
+                  <p className="text-xs font-semibold text-primary mb-2 flex items-center gap-1">
+                    <AlertTriangle className="w-3.5 h-3.5" /> Ethische Konflikthemen (Priorität)
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {ethicalConflicts.map((t) => <TopicButton key={t.category} t={t} />)}
+                  </div>
+                </div>
+              )}
               {trends.length > 0 && (
                 <div>
                   <p className="text-xs font-semibold text-muted-foreground mb-2">📊 HufiAi Chat-Trends</p>
                   <div className="flex flex-wrap gap-2">
-                    {trends.map((t) => (
-                      <button
-                        key={t.category}
-                        onClick={() => {
-                          setSelectedCategory(t.category);
-                          setSelectedTopic(t.snippets[0] || t.category);
-                        }}
-                        className="flex items-center gap-2 px-3 py-2 rounded-lg border border-border hover:border-primary/50 hover:bg-accent transition-all text-sm"
-                      >
-                        <span>{CATEGORY_LABELS[t.category] || t.category}</span>
-                        <Badge variant="secondary" className="text-xs">{t.count}×</Badge>
-                      </button>
-                    ))}
+                    {trends.map((t) => <TopicButton key={t.category} t={t} />)}
                   </div>
                 </div>
               )}
@@ -179,19 +212,7 @@ export default function ContentEngine() {
                 <div>
                   <p className="text-xs font-semibold text-muted-foreground mb-2">🌐 OpenClaw API (Mock)</p>
                   <div className="flex flex-wrap gap-2">
-                    {openClaw.map((t) => (
-                      <button
-                        key={t.category}
-                        onClick={() => {
-                          setSelectedCategory(t.category);
-                          setSelectedTopic(t.snippets[0] || t.category);
-                        }}
-                        className="flex items-center gap-2 px-3 py-2 rounded-lg border border-dashed border-border hover:border-primary/50 hover:bg-accent transition-all text-sm"
-                      >
-                        <span>{CATEGORY_LABELS[t.category] || t.category}</span>
-                        <Badge variant="outline" className="text-xs">{t.count}×</Badge>
-                      </button>
-                    ))}
+                    {openClaw.map((t) => <TopicButton key={t.category} t={t} dashed />)}
                   </div>
                 </div>
               )}
@@ -204,7 +225,7 @@ export default function ContentEngine() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
-            <Sparkles className="w-5 h-5 text-primary" /> Artikel generieren
+            <Sparkles className="w-5 h-5 text-primary" /> Artikel generieren (Solution-Provider)
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
@@ -213,7 +234,7 @@ export default function ContentEngine() {
             onChange={(e) => setSelectedTopic(e.target.value)}
             placeholder="Thema eingeben oder aus Trends wählen…"
           />
-          <div className="flex gap-2 items-center">
+          <div className="flex gap-2 items-center flex-wrap">
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
@@ -267,22 +288,17 @@ export default function ContentEngine() {
                   {d.excerpt && <p className="text-xs text-muted-foreground line-clamp-2">{d.excerpt}</p>}
                   <div className="flex flex-wrap gap-2">
                     {!d.image_url && (
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => generateImage(d.id, d.title)}
-                        disabled={generatingImage === d.id}
-                      >
+                      <Button size="sm" variant="outline" onClick={() => generateImage(d.id, d.title)} disabled={generatingImage === d.id}>
                         {generatingImage === d.id ? <Loader2 className="w-3 h-3 mr-1 animate-spin" /> : <ImageIcon className="w-3 h-3 mr-1" />}
                         Bild generieren
                       </Button>
                     )}
+                    <Button size="sm" variant="outline" onClick={() => generateHook(d.id, d.title)} disabled={generatingHook === d.id}>
+                      {generatingHook === d.id ? <Loader2 className="w-3 h-3 mr-1 animate-spin" /> : <Hash className="w-3 h-3 mr-1" />}
+                      Social Hooks
+                    </Button>
                     {d.status === "draft" && (
-                      <Button
-                        size="sm"
-                        onClick={() => publishPost(d.id)}
-                        disabled={publishing === d.id}
-                      >
+                      <Button size="sm" onClick={() => publishPost(d.id)} disabled={publishing === d.id}>
                         {publishing === d.id ? <Loader2 className="w-3 h-3 mr-1 animate-spin" /> : <Send className="w-3 h-3 mr-1" />}
                         Final Release
                       </Button>
@@ -296,6 +312,15 @@ export default function ContentEngine() {
                       </Button>
                     )}
                   </div>
+                  {/* Hook preview */}
+                  {hookPreview[d.id] && (
+                    <div className="mt-2 p-3 rounded-lg bg-primary/5 border border-primary/10">
+                      <p className="text-xs font-semibold text-primary mb-1 flex items-center gap-1">
+                        <MessageSquare className="w-3 h-3" /> Social Media Hooks
+                      </p>
+                      <p className="text-xs text-muted-foreground whitespace-pre-wrap">{hookPreview[d.id]}</p>
+                    </div>
+                  )}
                   {previewContent === d.content && (
                     <div className="mt-3 p-4 rounded-lg bg-background border border-border text-sm prose prose-sm max-w-none whitespace-pre-wrap">
                       {d.content.slice(0, 2000)}{d.content.length > 2000 ? "…" : ""}

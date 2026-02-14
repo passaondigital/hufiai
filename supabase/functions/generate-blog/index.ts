@@ -6,6 +6,8 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+const ETHICAL_KEYWORDS = ["Kritik", "Skandal", "Missstand", "Vernachlässigung", "Zukunft des Pferdesport", "Tierschutz", "Turnierdruck", "Rollkur", "Überzüchtung", "Barhufdebatte"];
+
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
@@ -38,6 +40,8 @@ serve(async (req) => {
 
       const categoryCount: Record<string, number> = {};
       const topicSnippets: Record<string, string[]> = {};
+      const ethicalTopics: { input: string; keyword: string }[] = [];
+
       for (const log of logs || []) {
         const cat = log.category || "general";
         categoryCount[cat] = (categoryCount[cat] || 0) + 1;
@@ -45,25 +49,43 @@ serve(async (req) => {
           if (!topicSnippets[cat]) topicSnippets[cat] = [];
           topicSnippets[cat].push(log.user_input.slice(0, 100));
         }
+        // Scan for ethical conflict keywords
+        if (log.user_input) {
+          for (const kw of ETHICAL_KEYWORDS) {
+            if (log.user_input.toLowerCase().includes(kw.toLowerCase())) {
+              ethicalTopics.push({ input: log.user_input.slice(0, 120), keyword: kw });
+              break;
+            }
+          }
+        }
       }
 
       const trends = Object.entries(categoryCount)
         .sort((a, b) => b[1] - a[1])
         .slice(0, 8)
-        .map(([cat, count]) => ({
-          category: cat,
-          count,
-          snippets: topicSnippets[cat] || [],
-        }));
+        .map(([cat, count]) => ({ category: cat, count, snippets: topicSnippets[cat] || [] }));
 
-      // Mock OpenClaw data
+      // OpenClaw mock with ethical focus
       const openClawMock = [
         { category: "hoof-rehab", count: 45, snippets: ["Hufrehe Nachsorge Strategien", "Barhuf-Umstellung Tipps"] },
         { category: "equine-nutrition", count: 38, snippets: ["Fütterung im Winter", "Mineralstoff-Analyse"] },
         { category: "stable-tech", count: 27, snippets: ["Smart Stable Sensoren", "Automatische Tränken"] },
       ];
 
-      return new Response(JSON.stringify({ trends, openClaw: openClawMock }), {
+      // Ethical conflict topics (prioritized)
+      const ethicalConflicts = [
+        { category: "ethical-debate", count: 62, snippets: ["Turnierdruck vs. Pferdewohl – Wo ist die Grenze?", "Rollkur-Debatte: Was sagt die Wissenschaft?"] },
+        { category: "barefoot-vs-shoeing", count: 54, snippets: ["Beschlag oder Barhuf? Eine differenzierte Analyse", "Warum pauschale Antworten gefährlich sind"] },
+        { category: "feed-controversy", count: 41, snippets: ["Synthetisches Futter vs. natürliche Heilmittel", "Industriefutter unter der Lupe"] },
+        { category: "welfare-scandals", count: 35, snippets: ["Vernachlässigung erkennen und handeln", "Zukunft des Pferdesports: Ein Umdenken ist nötig"] },
+        ...ethicalTopics.slice(0, 3).map((et, i) => ({
+          category: "user-ethical-" + i,
+          count: 10 - i,
+          snippets: [et.input],
+        })),
+      ];
+
+      return new Response(JSON.stringify({ trends, openClaw: openClawMock, ethicalConflicts }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
@@ -87,7 +109,14 @@ serve(async (req) => {
 - Strukturiere mit Markdown: H2-Überschriften, Listen, fett markierte Kernaussagen
 - Länge: ca. 1.000 Wörter
 - Schließe IMMER mit einem Hinweis ab: "⚖️ Dieser Artikel dient der Information und ersetzt keine fachliche Beratung durch qualifizierte Experten vor Ort."
-- Schreibe auf Deutsch.`,
+
+WICHTIG – Der Solution-Provider-Ansatz:
+- Identifiziere das Problem objektiv und neutral
+- Bleibe sachlich, auch bei kontroversen Themen
+- Biete immer eine Lösung an: entweder über HufiAi-Tools oder durch Verweis auf qualifizierte Experten vor Ort
+- Vermeide Panikmache, betone Eigenverantwortung und informierte Entscheidungen
+
+Schreibe auf Deutsch.`,
             },
             {
               role: "user",
@@ -105,19 +134,14 @@ serve(async (req) => {
 
       const aiData = await response.json();
       const content = aiData.choices?.[0]?.message?.content || "";
-
-      // Generate excerpt
-      const excerptMatch = content.match(/^[^#]*?(?=\n|$)/);
       const excerpt = content.slice(0, 200).replace(/[#*]/g, "").trim() + "…";
 
-      // Generate slug
       const slug = topic
         .toLowerCase()
         .replace(/[äÄ]/g, "ae").replace(/[öÖ]/g, "oe").replace(/[üÜ]/g, "ue").replace(/ß/g, "ss")
         .replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")
         .slice(0, 60) + "-" + Date.now().toString(36);
 
-      // Save as draft
       const { data: post, error: insertErr } = await sb.from("blog_posts").insert({
         title: topic,
         slug,
@@ -131,6 +155,62 @@ serve(async (req) => {
       if (insertErr) throw insertErr;
 
       return new Response(JSON.stringify({ post, content }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    if (action === "generate_hook") {
+      const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${LOVABLE_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "google/gemini-3-flash-preview",
+          messages: [
+            {
+              role: "system",
+              content: `Du bist ein Social-Media-Stratege für HufiAi. Generiere polarisierende, aber verantwortungsvolle Social-Media-Hooks.
+
+Regeln:
+- Der Hook soll eine Konversation starten und zum Nachdenken anregen
+- Er soll neugierig machen und zum Klick auf den vollständigen Artikel führen
+- Maximal 2 Sätze, knackig und direkt
+- Nicht reißerisch oder unsachlich, aber durchaus kontrovers
+- Immer mit dem Ziel, zum empathisch-professionellen Artikel zu führen
+- Schreibe auf Deutsch
+
+Beispiele:
+- "Warum wir aufhören müssen, Symptome zu behandeln – und anfangen sollten, zuzuhören."
+- "Die unbequeme Wahrheit über Industriefutter: Was dein Pferd dir nicht sagen kann."
+- "Barhuf oder Beschlag? Die Antwort ist komplizierter, als beide Seiten zugeben."`,
+            },
+            {
+              role: "user",
+              content: `Generiere 3 verschiedene Social-Media-Hooks für einen Blog-Artikel zum Thema: "${topic}"
+
+Gib sie als nummerierte Liste zurück.`,
+            },
+          ],
+        }),
+      });
+
+      if (!response.ok) throw new Error("Hook-Generierung fehlgeschlagen");
+
+      const hookData = await response.json();
+      const hooks = hookData.choices?.[0]?.message?.content || "";
+
+      // Save hooks to blog post if blog_id provided
+      if (blog_id) {
+        const currentPost = await sb.from("blog_posts").select("content").eq("id", blog_id).single();
+        if (currentPost.data) {
+          const updatedContent = currentPost.data.content + "\n\n---\n\n### 📱 Social Media Hooks\n\n" + hooks;
+          await sb.from("blog_posts").update({ content: updatedContent }).eq("id", blog_id);
+        }
+      }
+
+      return new Response(JSON.stringify({ hooks }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
@@ -165,7 +245,6 @@ serve(async (req) => {
         });
       }
 
-      // Upload to storage
       const base64Data = imageBase64.replace(/^data:image\/\w+;base64,/, "");
       const binaryData = Uint8Array.from(atob(base64Data), (c) => c.charCodeAt(0));
       const fileName = `blog/${blog_id}-${Date.now()}.png`;
@@ -191,7 +270,6 @@ serve(async (req) => {
       }).eq("id", blog_id);
       if (error) throw error;
 
-      // Mock webhook for social media / news portal
       console.log(`[WEBHOOK MOCK] Blog post ${blog_id} published → Social Media & News Portal notification triggered`);
 
       return new Response(JSON.stringify({ success: true, webhook: "mock_triggered" }), {
