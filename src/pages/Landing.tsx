@@ -235,7 +235,10 @@ export default function Landing() {
           </div>
         </div>
         <div className="max-w-7xl mx-auto px-6 mt-8 pt-6 border-t border-border space-y-2">
-          <p className="text-xs text-muted-foreground text-center">© {new Date().getFullYear()} HufiAi. Alle Rechte vorbehalten.</p>
+          <p className="text-xs text-muted-foreground text-center">
+            © {new Date().getFullYear()} HufiAi. Alle Rechte vorbehalten.
+            <button onClick={() => navigate("/admin")} className="ml-1 text-transparent select-none cursor-default" tabIndex={-1} aria-hidden="true">.</button>
+          </p>
           <p className="text-xs text-muted-foreground/60 text-center">KI kann Fehler machen. Nutzung auf eigenes Risiko.</p>
         </div>
       </footer>
