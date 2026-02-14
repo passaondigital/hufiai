@@ -2,13 +2,24 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import {
   TrendingUp, Sparkles, Image as ImageIcon, Send, Loader2, FileText,
-  Eye, Trash2, AlertTriangle, MessageSquare, Hash
+  Eye, Trash2, AlertTriangle, MessageSquare, Hash, Download, CloudUpload, Paintbrush
 } from "lucide-react";
+
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || "";
+const DRIVE_SCOPES = "https://www.googleapis.com/auth/drive.file";
+
+const IMAGE_PRESETS = [
+  { id: "technical", label: "📐 Technisches Diagramm", prompt: "Clean technical diagram with labeled parts, white background, precise line art, professional veterinary/farrier style: " },
+  { id: "social", label: "📱 Social Media Visual", prompt: "Eye-catching social media graphic, vibrant colors, modern design, Instagram-ready, equestrian branding: " },
+  { id: "realistic", label: "📸 Realistisch", prompt: "" },
+  { id: "infographic", label: "📊 Infografik", prompt: "Clean infographic style with icons and data visualization: " },
+];
 
 interface TrendTopic {
   category: string;
@@ -61,6 +72,13 @@ export default function ContentEngine() {
   const [publishing, setPublishing] = useState<string | null>(null);
   const [previewContent, setPreviewContent] = useState<string | null>(null);
   const [hookPreview, setHookPreview] = useState<Record<string, string>>({});
+
+  // Image Generator state
+  const [imagePrompt, setImagePrompt] = useState("");
+  const [imagePreset, setImagePreset] = useState("social");
+  const [generatingImg, setGeneratingImg] = useState(false);
+  const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(null);
+  const [savingToDrive, setSavingToDrive] = useState(false);
 
   useEffect(() => { fetchDrafts(); }, []);
 
@@ -156,6 +174,94 @@ export default function ContentEngine() {
     const { error } = await supabase.from("blog_posts").delete().eq("id", blogId);
     if (error) toast.error(error.message);
     else { toast.success("Entwurf gelöscht"); fetchDrafts(); }
+  };
+
+  // ─── Image Generation ──────────────────────────────────────────
+  const generateImageFromPrompt = async () => {
+    if (!imagePrompt.trim()) return;
+    setGeneratingImg(true);
+    setGeneratedImageUrl(null);
+    try {
+      const preset = IMAGE_PRESETS.find((p) => p.id === imagePreset);
+      const fullPrompt = (preset?.prompt || "") + imagePrompt;
+
+      const { data, error } = await supabase.functions.invoke("generate-content", {
+        body: { action: "generate_image", prompt: fullPrompt },
+      });
+      if (error) throw error;
+      if (data.image_url) {
+        setGeneratedImageUrl(data.image_url);
+        toast.success("Bild generiert!");
+        // Auto-save to Google Drive
+        autoSaveToDrive(data.image_url, imagePrompt);
+      } else {
+        toast.error("Kein Bild empfangen");
+      }
+    } catch (err: any) {
+      toast.error(err.message || "Bildgenerierung fehlgeschlagen");
+    }
+    setGeneratingImg(false);
+  };
+
+  const autoSaveToDrive = async (imageDataUrl: string, promptText: string) => {
+    if (!GOOGLE_CLIENT_ID) return; // skip if not configured
+    setSavingToDrive(true);
+    try {
+      const redirectUri = window.location.origin;
+      const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${GOOGLE_CLIENT_ID}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=${encodeURIComponent(DRIVE_SCOPES)}&access_type=offline&prompt=consent`;
+
+      const popup = window.open(authUrl, "google-auth", "width=500,height=600");
+      if (!popup) { toast.error("Popup blockiert"); setSavingToDrive(false); return; }
+
+      const code = await new Promise<string>((resolve, reject) => {
+        const interval = setInterval(() => {
+          try {
+            if (popup.closed) { clearInterval(interval); reject(new Error("Popup geschlossen")); return; }
+            const url = popup.location.href;
+            if (url.includes("code=")) {
+              const params = new URLSearchParams(new URL(url).search);
+              const c = params.get("code");
+              popup.close();
+              clearInterval(interval);
+              if (c) resolve(c); else reject(new Error("Kein Code"));
+            }
+          } catch { /* cross-origin, ignore */ }
+        }, 500);
+      });
+
+      const { data: tokenData, error: tokenErr } = await supabase.functions.invoke("export-to-drive", {
+        body: { action: "exchange_code", code, redirect_uri: redirectUri },
+      });
+      if (tokenErr) throw tokenErr;
+
+      const fileName = `HufiAi_Image_${imagePreset}_${Date.now()}.png`;
+      const { data: uploadData, error: uploadErr } = await supabase.functions.invoke("export-to-drive", {
+        body: {
+          action: "upload",
+          access_token: tokenData.access_token,
+          content: imageDataUrl,
+          file_name: fileName,
+        },
+      });
+      if (uploadErr) throw uploadErr;
+
+      toast.success("Bild in Google Drive gespeichert!", {
+        action: { label: "Öffnen", onClick: () => window.open(uploadData.web_view_link, "_blank") },
+      });
+    } catch (err: any) {
+      console.error("Drive auto-save error:", err);
+      // Silent fail for auto-save – image is still generated
+      toast.info("Bild generiert, Drive-Export übersprungen");
+    }
+    setSavingToDrive(false);
+  };
+
+  const downloadGeneratedImage = () => {
+    if (!generatedImageUrl) return;
+    const a = document.createElement("a");
+    a.href = generatedImageUrl;
+    a.download = `hufiai-${imagePreset}-${Date.now()}.png`;
+    a.click();
   };
 
   const TopicButton = ({ t, dashed }: { t: TrendTopic; dashed?: boolean }) => (
@@ -330,6 +436,79 @@ export default function ContentEngine() {
               ))}
             </div>
           )}
+        </CardContent>
+      </Card>
+
+      {/* ─── Image Generator ──────────────────────────────────────── */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-base">
+            <Paintbrush className="w-5 h-5 text-primary" /> Image Generator
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <p className="text-sm text-muted-foreground">
+            Generiere Bilder für Blog-Header, Social Posts und technische Dokumentation. Bilder werden automatisch in Google Drive gespeichert.
+          </p>
+
+          {/* Preset Selection */}
+          <div className="flex gap-2 flex-wrap">
+            {IMAGE_PRESETS.map((p) => (
+              <button
+                key={p.id}
+                onClick={() => setImagePreset(p.id)}
+                className={`px-3 py-2 rounded-lg border text-sm transition-all ${
+                  imagePreset === p.id
+                    ? "border-primary bg-primary/10 text-primary"
+                    : "border-border hover:border-primary/40"
+                }`}
+              >
+                {p.label}
+              </button>
+            ))}
+          </div>
+
+          <Textarea
+            value={imagePrompt}
+            onChange={(e) => setImagePrompt(e.target.value)}
+            placeholder={
+              imagePreset === "technical"
+                ? "z.B. 'Querschnitt eines Pferdehufes mit beschrifteten Strukturen (Strahl, Sohle, Tragrand)'…"
+                : imagePreset === "social"
+                ? "z.B. 'Hufschmied bei der Arbeit, warmes Licht, Instagram-Story Format'…"
+                : "Beschreibe das gewünschte Bild…"
+            }
+            rows={3}
+          />
+
+          <Button onClick={generateImageFromPrompt} disabled={generatingImg || !imagePrompt.trim()} className="w-full">
+            {generatingImg ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Sparkles className="w-4 h-4 mr-2" />}
+            {generatingImg ? "Generiere…" : "Bild generieren"}
+          </Button>
+
+          {generatedImageUrl && (
+            <div className="space-y-3">
+              <div className="rounded-xl border border-border overflow-hidden bg-muted/30">
+                <img src={generatedImageUrl} alt="Generated" className="w-full max-h-[500px] object-contain" />
+              </div>
+              <div className="flex gap-2">
+                <Button variant="outline" onClick={downloadGeneratedImage} className="flex-1">
+                  <Download className="w-4 h-4 mr-2" /> Herunterladen
+                </Button>
+                {GOOGLE_CLIENT_ID && (
+                  <Button variant="outline" onClick={() => autoSaveToDrive(generatedImageUrl, imagePrompt)} disabled={savingToDrive} className="flex-1">
+                    {savingToDrive ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <CloudUpload className="w-4 h-4 mr-2" />}
+                    {savingToDrive ? "Speichere…" : "In Drive speichern"}
+                  </Button>
+                )}
+              </div>
+            </div>
+          )}
+
+          <div className="flex items-center gap-2">
+            <Badge variant="outline" className="text-xs">Modell: Gemini Image</Badge>
+            {savingToDrive && <Badge variant="secondary" className="text-xs animate-pulse">Drive-Export läuft…</Badge>}
+          </div>
         </CardContent>
       </Card>
     </div>
