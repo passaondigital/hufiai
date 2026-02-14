@@ -1,8 +1,13 @@
 import AppLayout from "@/components/AppLayout";
 import { Button } from "@/components/ui/button";
-import { Check, Sparkles, Zap, Users, Crown } from "lucide-react";
+import { Check, Sparkles, Zap, Users, Crown, Loader2, ExternalLink } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/lib/auth";
+import { useStripeSubscription, PLAN_PRICES } from "@/hooks/useStripeSubscription";
+import { toast } from "sonner";
 
 const plans = [
   {
@@ -63,6 +68,60 @@ const plans = [
 
 export default function Pricing() {
   const [socialAddon, setSocialAddon] = useState(false);
+  const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
+  const [portalLoading, setPortalLoading] = useState(false);
+  const { user } = useAuth();
+  const { subscribed, plan: activePlan, subscriptionEnd, loading: subLoading, refresh } = useStripeSubscription();
+  const [searchParams] = useSearchParams();
+
+  useEffect(() => {
+    if (searchParams.get("success") === "true") {
+      toast.success("Abo erfolgreich abgeschlossen! Dein Plan wird in wenigen Sekunden aktualisiert.");
+      refresh();
+    }
+    if (searchParams.get("canceled") === "true") {
+      toast.info("Checkout abgebrochen.");
+    }
+  }, [searchParams, refresh]);
+
+  const handleCheckout = async (planKey: string) => {
+    if (!user) {
+      toast.error("Bitte melde dich zuerst an.");
+      return;
+    }
+    const priceId = PLAN_PRICES[planKey];
+    if (!priceId || priceId.startsWith("price_placeholder")) {
+      toast.info("Dieses Abo ist noch nicht verfügbar. Bitte kontaktiere den Support.");
+      return;
+    }
+    setCheckoutLoading(planKey);
+    try {
+      const { data, error } = await supabase.functions.invoke("create-checkout", {
+        body: { priceId },
+      });
+      if (error) throw error;
+      if (data?.url) {
+        window.open(data.url, "_blank");
+      }
+    } catch (err: any) {
+      toast.error(err.message || "Checkout fehlgeschlagen");
+    }
+    setCheckoutLoading(null);
+  };
+
+  const handleManageSubscription = async () => {
+    setPortalLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("customer-portal");
+      if (error) throw error;
+      if (data?.url) {
+        window.open(data.url, "_blank");
+      }
+    } catch (err: any) {
+      toast.error(err.message || "Portal konnte nicht geöffnet werden");
+    }
+    setPortalLoading(false);
+  };
 
   return (
     <AppLayout>
@@ -72,46 +131,89 @@ export default function Pricing() {
           <p className="text-muted-foreground">
             Starte kostenlos – upgrade, wenn du mehr brauchst.
           </p>
+          {subscribed && activePlan && (
+            <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium">
+              <Check className="w-4 h-4" />
+              Aktiver Plan: {plans.find((p) => p.planKey === activePlan)?.name || activePlan}
+              {subscriptionEnd && (
+                <span className="text-muted-foreground">
+                  · bis {new Date(subscriptionEnd).toLocaleDateString("de-DE")}
+                </span>
+              )}
+            </div>
+          )}
         </div>
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 max-w-5xl mx-auto">
-          {plans.map((plan) => (
-            <div
-              key={plan.name}
-              className={`bg-card rounded-2xl border-2 p-6 flex flex-col ${
-                plan.highlight
-                  ? "border-primary shadow-lg relative"
-                  : "border-border"
-              }`}
-            >
-              {plan.highlight && (
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                  <span className="bg-primary text-primary-foreground text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1">
-                    <Sparkles className="w-3 h-3" />Empfohlen
-                  </span>
-                </div>
-              )}
-              <h3 className="text-lg font-bold">{plan.name}</h3>
-              <p className="text-2xl font-bold mt-2 mb-1">
-                {plan.price}
-                {plan.period && <span className="text-sm font-normal text-muted-foreground">{plan.period}</span>}
-              </p>
-              <ul className="space-y-2.5 flex-1 mb-6 mt-4">
-                {plan.features.map((f) => (
-                  <li key={f} className="flex items-center gap-2 text-sm">
-                    <Check className="w-4 h-4 text-primary shrink-0" />
-                    {f}
-                  </li>
-                ))}
-              </ul>
-              <Button
-                variant={plan.highlight ? "default" : "outline"}
-                className="w-full"
+          {plans.map((plan) => {
+            const isActive = activePlan === plan.planKey || (!subscribed && plan.planKey === "free");
+            return (
+              <div
+                key={plan.name}
+                className={`bg-card rounded-2xl border-2 p-6 flex flex-col ${
+                  isActive
+                    ? "border-primary shadow-lg relative ring-2 ring-primary/20"
+                    : plan.highlight
+                    ? "border-primary shadow-lg relative"
+                    : "border-border"
+                }`}
               >
-                {plan.cta}
-              </Button>
-            </div>
-          ))}
+                {isActive && (
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                    <span className="bg-primary text-primary-foreground text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1">
+                      <Check className="w-3 h-3" /> Dein Plan
+                    </span>
+                  </div>
+                )}
+                {!isActive && plan.highlight && (
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                    <span className="bg-primary text-primary-foreground text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1">
+                      <Sparkles className="w-3 h-3" />Empfohlen
+                    </span>
+                  </div>
+                )}
+                <h3 className="text-lg font-bold">{plan.name}</h3>
+                <p className="text-2xl font-bold mt-2 mb-1">
+                  {plan.price}
+                  {plan.period && <span className="text-sm font-normal text-muted-foreground">{plan.period}</span>}
+                </p>
+                <ul className="space-y-2.5 flex-1 mb-6 mt-4">
+                  {plan.features.map((f) => (
+                    <li key={f} className="flex items-center gap-2 text-sm">
+                      <Check className="w-4 h-4 text-primary shrink-0" />
+                      {f}
+                    </li>
+                  ))}
+                </ul>
+                {isActive ? (
+                  subscribed && plan.planKey !== "free" ? (
+                    <Button variant="outline" className="w-full" onClick={handleManageSubscription} disabled={portalLoading}>
+                      {portalLoading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <ExternalLink className="w-4 h-4 mr-2" />}
+                      Abo verwalten
+                    </Button>
+                  ) : (
+                    <Button variant="outline" className="w-full" disabled>
+                      Aktueller Plan
+                    </Button>
+                  )
+                ) : plan.planKey === "free" ? (
+                  <Button variant="outline" className="w-full" disabled>
+                    {plan.cta}
+                  </Button>
+                ) : (
+                  <Button
+                    variant={plan.highlight ? "default" : "outline"}
+                    className="w-full"
+                    onClick={() => handleCheckout(plan.planKey)}
+                    disabled={checkoutLoading === plan.planKey}
+                  >
+                    {checkoutLoading === plan.planKey && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                    {plan.cta}
+                  </Button>
+                )}
+              </div>
+            );
+          })}
         </div>
 
         {/* Social Media Add-on */}
