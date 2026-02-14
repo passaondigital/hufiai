@@ -31,6 +31,8 @@ import UeberHufiai from "./pages/UeberHufiai";
 import EthikSeite from "./pages/EthikSeite";
 import NotFound from "./pages/NotFound";
 import { Loader2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 const queryClient = new QueryClient();
 
@@ -65,6 +67,34 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+function AdminRoute({ children }: { children: React.ReactNode }) {
+  const { user, loading } = useAuth();
+  const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", user.id)
+      .eq("role", "admin")
+      .maybeSingle()
+      .then(({ data }) => setIsAdmin(!!data));
+  }, [user]);
+
+  if (loading || (user && isAdmin === null)) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (!user || !isAdmin) return <Navigate to="/" replace />;
+
+  return <>{children}</>;
+}
+
 function AppRoutes() {
   const { user, loading } = useAuth();
 
@@ -87,7 +117,7 @@ function AppRoutes() {
       <Route path="/horses" element={<ProtectedRoute><MyHorses /></ProtectedRoute>} />
       <Route path="/pricing" element={<ProtectedRoute><Pricing /></ProtectedRoute>} />
       <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
-      <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
+      <Route path="/admin" element={<AdminRoute><Admin /></AdminRoute>} />
       <Route path="/company" element={<ProtectedRoute><CompanySettings /></ProtectedRoute>} />
       <Route path="/content" element={<ProtectedRoute><ContentHub /></ProtectedRoute>} />
       <Route path="/roadmap" element={<ProtectedRoute><Roadmap /></ProtectedRoute>} />
@@ -100,7 +130,7 @@ function AppRoutes() {
       <Route path="/datenschutz" element={<Datenschutz />} />
       <Route path="/experten" element={<ExpertenSuche />} />
       <Route path="/manual" element={<Manual />} />
-      <Route path="/admin/docs" element={<ProtectedRoute><AdminDocs /></ProtectedRoute>} />
+      <Route path="/admin/docs" element={<AdminRoute><AdminDocs /></AdminRoute>} />
       <Route path="/ueber-hufiai" element={<UeberHufiai />} />
       <Route path="/ethik" element={<EthikSeite />} />
       <Route path="*" element={<NotFound />} />
