@@ -13,14 +13,14 @@ export default function Impressum() {
         <h1 className="text-3xl font-bold mb-8">Impressum</h1>
         <div className="prose prose-sm max-w-none space-y-4 text-muted-foreground">
           <h2 className="text-foreground font-semibold text-lg">Angaben gemäß § 5 TMG</h2>
-          <p>[Firmenname eintragen]<br />[Straße und Hausnummer]<br />[PLZ Ort]</p>
+          <p>Pascal Schmid<br />Barhufserviceschmid<br />Laurentiusstrasse 34<br />54497 Morscheid Riedenburg</p>
           <h2 className="text-foreground font-semibold text-lg">Kontakt</h2>
-          <p>Telefon: [Telefonnummer]<br />E-Mail: [E-Mail-Adresse]</p>
-          <h2 className="text-foreground font-semibold text-lg">Verantwortlich für den Inhalt nach § 55 Abs. 2 RStV</h2>
-          <p>[Name]<br />[Adresse]</p>
-          <h2 className="text-foreground font-semibold text-lg">Streitschlichtung</h2>
-          <p>Die Europäische Kommission stellt eine Plattform zur Online-Streitbeilegung (OS) bereit: https://ec.europa.eu/consumers/odr/. Unsere E-Mail-Adresse finden Sie oben im Impressum.</p>
+          <p>Telefon: 015209007017<br />E-Mail: teamhufmanager@gmail.com</p>
+          <h2 className="text-foreground font-semibold text-lg">Gewerbeanmeldung</h2>
+          <p>Die Gewerbeerlaubnis nach § 14 GewO oder § 55c GewO wurde am 15.08.2019 von folgender Stelle erteilt: Gemeinde Morbach.</p>
+          <h2 className="text-foreground font-semibold text-lg">Verbraucherstreitbeilegung/Universalschlichtungsstelle</h2>
           <p>Wir sind nicht bereit oder verpflichtet, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen.</p>
+          <p className="text-xs mt-4">Quelle: e-recht24.de</p>
         </div>
       </div>
     </div>
