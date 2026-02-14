@@ -7,6 +7,7 @@ import {
   LogOut, ChevronLeft, ChevronRight, Plus, Shield,
   ArrowLeftRight, Building2, Map, Megaphone, Crown, Heart, Award, Users, Sparkles
 } from "lucide-react";
+import hufiaiLogo from "@/assets/hufiai-logo.svg";
 
 import { toast } from "sonner";
 
@@ -63,7 +64,7 @@ export default function AppSidebar() {
       <div className="flex items-center justify-between p-4 border-b border-sidebar-border">
         {!collapsed && (
           <div className="flex items-center gap-2">
-            <span className="font-bold text-sidebar-foreground text-lg">HufiAi</span>
+            <img src={hufiaiLogo} alt="HufiAi" className="h-7" />
           </div>
         )}
         <button
