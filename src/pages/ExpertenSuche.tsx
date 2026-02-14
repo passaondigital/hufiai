@@ -42,7 +42,7 @@ interface PublicExpert {
   bio: string | null;
   certificates: string[] | null;
   service_area: string | null;
-  phone: string | null;
+  
   website: string | null;
   company_name: string | null;
   latitude: number | null;
@@ -76,7 +76,7 @@ export default function ExpertenSuche() {
     setLoading(true);
     const { data } = await supabase
       .from("profiles")
-      .select("id, display_name, sub_role, bio, certificates, service_area, phone, website, company_name, latitude, longitude")
+      .select("id, display_name, sub_role, bio, certificates, service_area, website, company_name, latitude, longitude")
       .eq("public_profile", true)
       .in("sub_role", ["hufbearbeiter", "tierarzt", "stallbetreiber"]);
 
@@ -185,11 +185,6 @@ export default function ExpertenSuche() {
                       {expert.service_area && (
                         <p className="text-xs flex items-center gap-1"><MapPin className="w-3 h-3" /> {expert.service_area}</p>
                       )}
-                      {expert.phone && (
-                        <a href={`tel:${expert.phone}`} className="text-xs flex items-center gap-1 text-primary hover:underline">
-                          <Phone className="w-3 h-3" /> {expert.phone}
-                        </a>
-                      )}
                     </div>
                   </Popup>
                 </Marker>
@@ -268,11 +263,6 @@ export default function ExpertenSuche() {
                           <span className="flex items-center gap-1">
                             <MapPin className="w-3 h-3" /> {expert.service_area}
                           </span>
-                        )}
-                        {expert.phone && (
-                          <a href={`tel:${expert.phone}`} className="flex items-center gap-1 hover:text-primary transition-colors">
-                            <Phone className="w-3 h-3" /> {expert.phone}
-                          </a>
                         )}
                         {expert.website && (
                           <a
