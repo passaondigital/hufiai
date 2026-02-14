@@ -188,17 +188,21 @@ export default function VoiceEngine({ selectedModel }: VoiceEngineProps) {
           />
           <div className="flex gap-3 items-center">
             <div className="flex gap-2">
-              {(["female", "male"] as const).map((v) => (
+              {([
+                { id: "female" as const, label: "👩 Die Innovatorin", desc: "Klar, motivierend – perfekt für Tutorials" },
+                { id: "male" as const, label: "👨 Der Mentor", desc: "Tief, ruhig – perfekt für Analysen" },
+              ]).map((v) => (
                 <button
-                  key={v}
-                  onClick={() => setTtsVoice(v)}
-                  className={`px-4 py-2 rounded-lg border text-sm transition-all ${
-                    ttsVoice === v
+                  key={v.id}
+                  onClick={() => setTtsVoice(v.id)}
+                  className={`px-4 py-2 rounded-lg border text-sm transition-all text-left ${
+                    ttsVoice === v.id
                       ? "border-primary bg-primary/10 text-primary"
                       : "border-border hover:border-primary/40"
                   }`}
                 >
-                  {v === "female" ? "👩 Weiblich" : "👨 Männlich"}
+                  <span className="font-medium">{v.label}</span>
+                  <p className="text-xs text-muted-foreground mt-0.5">{v.desc}</p>
                 </button>
               ))}
             </div>
