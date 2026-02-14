@@ -11,8 +11,9 @@ import { toast } from "sonner";
 import {
   Users, ShieldCheck, Ban, UserPlus, Search, Loader2, CheckCircle, XCircle, Key,
   Database, Bell, Activity, Send, AlertTriangle, Info, CheckCircle2, Map, TrafficCone,
-  Crown, Calendar as CalendarIcon, FileText, RotateCcw, Gift, Paperclip, Download
+  Crown, Calendar as CalendarIcon, FileText, RotateCcw, Gift, Paperclip, Download, Sparkles
 } from "lucide-react";
+import ContentEngine from "@/components/admin/ContentEngine";
 import { useNavigate } from "react-router-dom";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue
@@ -55,6 +56,8 @@ const FEATURE_AMPEL = {
     "Mission Control (Admin)", "Danger Zone (Self-Service)", "Personalisierte Begrüßung",
     "Pro-PDF-Export", "Modulares Pricing (DB)", "Content Brain (Datei-Upload)",
     "Upload-Limits (Tier-basiert)", "Training Data Pipeline", "KI-Disclaimer (Legal)",
+    "Experten-Profil & Dashboard", "Experten-Suche", "Ethic Guardrail CTA",
+    "Content Engine (AI Blog)", "Dynamische Dokumentation", "Trust-Branding Seiten",
   ],
   yellow: [
     "Stripe-Integration",
@@ -351,6 +354,7 @@ export default function Admin() {
             <TabsTrigger value="broadcast"><Bell className="w-4 h-4 mr-2" />Broadcast</TabsTrigger>
             <TabsTrigger value="health"><Activity className="w-4 h-4 mr-2" />Health</TabsTrigger>
             <TabsTrigger value="training"><Database className="w-4 h-4 mr-2" />KI-Daten</TabsTrigger>
+            <TabsTrigger value="content"><Sparkles className="w-4 h-4 mr-2" />Content Engine</TabsTrigger>
             <TabsTrigger value="ampel"><TrafficCone className="w-4 h-4 mr-2" />Feature-Ampel</TabsTrigger>
           </TabsList>
 
@@ -846,6 +850,11 @@ export default function Admin() {
                 </div>
               )}
             </div>
+          </TabsContent>
+
+          {/* CONTENT ENGINE TAB */}
+          <TabsContent value="content">
+            <ContentEngine />
           </TabsContent>
 
           {/* FEATURE-AMPEL TAB */}

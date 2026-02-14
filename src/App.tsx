@@ -25,6 +25,10 @@ import Impressum from "./pages/Impressum";
 import AGB from "./pages/AGB";
 import Datenschutz from "./pages/Datenschutz";
 import ExpertenSuche from "./pages/ExpertenSuche";
+import Manual from "./pages/Manual";
+import AdminDocs from "./pages/AdminDocs";
+import UeberHufiai from "./pages/UeberHufiai";
+import EthikSeite from "./pages/EthikSeite";
 import NotFound from "./pages/NotFound";
 import { Loader2 } from "lucide-react";
 
@@ -95,6 +99,10 @@ function AppRoutes() {
       <Route path="/agb" element={<AGB />} />
       <Route path="/datenschutz" element={<Datenschutz />} />
       <Route path="/experten" element={<ExpertenSuche />} />
+      <Route path="/manual" element={<Manual />} />
+      <Route path="/admin/docs" element={<ProtectedRoute><AdminDocs /></ProtectedRoute>} />
+      <Route path="/ueber-hufiai" element={<UeberHufiai />} />
+      <Route path="/ethik" element={<EthikSeite />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
