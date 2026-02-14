@@ -9,6 +9,7 @@ import { Loader2 } from "lucide-react";
 
 import { lovable } from "@/integrations/lovable/index";
 import horseHero from "@/assets/horse-hero.png";
+import hufiaiLogo from "@/assets/hufiai-logo.svg";
 
 export default function Auth() {
   const [isLogin, setIsLogin] = useState(true);
@@ -86,7 +87,7 @@ export default function Auth() {
         <div className="w-full max-w-md animate-fade-in">
           <div className="text-center mb-8">
             <div className="inline-flex items-center gap-2 mb-4">
-              <span className="text-2xl font-bold tracking-tight">HufiAi</span>
+              <img src={hufiaiLogo} alt="HufiAi" className="h-10" />
             </div>
             <p className="text-muted-foreground">
               {isLogin ? "Melde dich bei deinem Konto an" : "Erstelle ein neues Konto"}
