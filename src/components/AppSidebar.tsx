@@ -64,7 +64,7 @@ export default function AppSidebar() {
       <div className="flex items-center justify-between p-4 border-b border-sidebar-border">
         {!collapsed && (
           <div className="flex items-center gap-2">
-            <img src={hufiaiLogo} alt="HufiAi" className="h-11" />
+            <img src={hufiaiLogo} alt="HufiAi" className="h-[4.25rem]" />
           </div>
         )}
         <button
