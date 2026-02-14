@@ -11,9 +11,14 @@ import { toast } from "sonner";
 import {
   Users, ShieldCheck, Ban, UserPlus, Search, Loader2, CheckCircle, XCircle, Key,
   Database, Bell, Activity, Send, AlertTriangle, Info, CheckCircle2, Map, TrafficCone,
-  Crown, Calendar as CalendarIcon, FileText, RotateCcw, Gift, Paperclip, Download, Sparkles
+  Crown, Calendar as CalendarIcon, FileText, RotateCcw, Gift, Paperclip, Download, Sparkles,
+  Cpu, Video, Mic, ImageIcon
 } from "lucide-react";
 import ContentEngine from "@/components/admin/ContentEngine";
+import ModelSwitcher from "@/components/admin/ModelSwitcher";
+import VideoAnalysisLab from "@/components/admin/VideoAnalysisLab";
+import VoiceEngine from "@/components/admin/VoiceEngine";
+import ImageLab from "@/components/admin/ImageLab";
 import { useNavigate } from "react-router-dom";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue
@@ -83,6 +88,7 @@ export default function Admin() {
   const [newName, setNewName] = useState("");
   const [creating, setCreating] = useState(false);
   const [adminNewPassword, setAdminNewPassword] = useState("");
+  const [selectedModel, setSelectedModel] = useState("google/gemini-3-flash-preview");
 
   // Broadcast state
   const [broadcastTitle, setBroadcastTitle] = useState("");
@@ -355,6 +361,10 @@ export default function Admin() {
             <TabsTrigger value="health"><Activity className="w-4 h-4 mr-2" />Health</TabsTrigger>
             <TabsTrigger value="training"><Database className="w-4 h-4 mr-2" />KI-Daten</TabsTrigger>
             <TabsTrigger value="content"><Sparkles className="w-4 h-4 mr-2" />Content Engine</TabsTrigger>
+            <TabsTrigger value="models"><Cpu className="w-4 h-4 mr-2" />Models</TabsTrigger>
+            <TabsTrigger value="video"><Video className="w-4 h-4 mr-2" />Video Lab</TabsTrigger>
+            <TabsTrigger value="voice"><Mic className="w-4 h-4 mr-2" />Voice</TabsTrigger>
+            <TabsTrigger value="image"><ImageIcon className="w-4 h-4 mr-2" />Image Lab</TabsTrigger>
             <TabsTrigger value="ampel"><TrafficCone className="w-4 h-4 mr-2" />Feature-Ampel</TabsTrigger>
           </TabsList>
 
@@ -875,6 +885,26 @@ export default function Admin() {
                 </div>
               </div>
             ))}
+          </TabsContent>
+
+          {/* MODEL SWITCHER TAB */}
+          <TabsContent value="models">
+            <ModelSwitcher selectedModel={selectedModel} onModelChange={setSelectedModel} />
+          </TabsContent>
+
+          {/* VIDEO LAB TAB */}
+          <TabsContent value="video">
+            <VideoAnalysisLab selectedModel={selectedModel} />
+          </TabsContent>
+
+          {/* VOICE ENGINE TAB */}
+          <TabsContent value="voice">
+            <VoiceEngine selectedModel={selectedModel} />
+          </TabsContent>
+
+          {/* IMAGE LAB TAB */}
+          <TabsContent value="image">
+            <ImageLab />
           </TabsContent>
 
         </Tabs>
