@@ -5,6 +5,7 @@ import { Send, Sparkles, Loader2, FileDown, Crown, Paperclip, X, FileText, Image
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import PdfExportDialog from "@/components/PdfExportDialog";
+import EcosystemWidget from "@/components/EcosystemWidget";
 import UpsellModal from "@/components/UpsellModal";
 import { useSubscription } from "@/hooks/useSubscription";
 import ReactMarkdown from "react-markdown";
@@ -520,7 +521,10 @@ export default function ChatInterface() {
                   ? `Stelle mir eine Frage zu ${selectedHorse.name} – ich kenne die Historie.`
                   : "Stelle mir eine Frage rund um Pferde, Hufpflege oder Tiergesundheit."}
             </p>
-            <div className="grid grid-cols-2 gap-3 mt-8 max-w-lg">
+            <div className="mt-6 max-w-lg w-full">
+              <EcosystemWidget />
+            </div>
+            <div className="grid grid-cols-2 gap-3 mt-4 max-w-lg">
               {(profile?.user_type === "gewerbe"
                 ? [
                     { label: "Kundenbericht erstellen", business: true },

@@ -17,3 +17,6 @@ verify_jwt = false
 
 [functions.check-ecosystem]
 verify_jwt = false
+
+[functions.ecosystem-webhook]
+verify_jwt = false
