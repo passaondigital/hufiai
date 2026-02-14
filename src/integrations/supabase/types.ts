@@ -294,6 +294,42 @@ export type Database = {
           },
         ]
       }
+      ecosystem_links: {
+        Row: {
+          app_key: string
+          connected_at: string | null
+          created_at: string
+          data_sharing_enabled: boolean
+          external_id: string | null
+          id: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          app_key: string
+          connected_at?: string | null
+          created_at?: string
+          data_sharing_enabled?: boolean
+          external_id?: string | null
+          id?: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          app_key?: string
+          connected_at?: string | null
+          created_at?: string
+          data_sharing_enabled?: boolean
+          external_id?: string | null
+          id?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       generated_images: {
         Row: {
           created_at: string
