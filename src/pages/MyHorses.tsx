@@ -176,13 +176,13 @@ export default function MyHorses() {
 
   return (
     <AppLayout>
-      <div className="p-6 md:p-8 max-w-5xl mx-auto overflow-y-auto h-full">
-        <div className="flex items-center justify-between mb-6">
+      <div className="p-4 md:p-8 max-w-5xl mx-auto overflow-y-auto h-full">
+        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between mb-6">
           <div>
-            <h1 className="text-2xl font-bold">🐴 Meine Pferde</h1>
+            <h1 className="text-xl md:text-2xl font-bold text-foreground">🐴 Meine Pferde</h1>
             <p className="text-muted-foreground text-sm">Verwalte deine Pferde. HufiAi merkt sich alles für personalisierte Beratung.</p>
           </div>
-          <Button onClick={openNew}>
+          <Button className="w-full md:w-auto min-h-[48px] md:min-h-0" onClick={openNew}>
             <Plus className="w-4 h-4 mr-1" /> Pferd hinzufügen
           </Button>
         </div>
@@ -194,88 +194,92 @@ export default function MyHorses() {
             <div className="text-6xl mb-4">🐴</div>
             <h2 className="text-lg font-semibold mb-2">Noch keine Pferde</h2>
             <p className="text-muted-foreground text-sm mb-4">Füge dein erstes Pferd hinzu, damit HufiAi dich persönlich beraten kann.</p>
-            <Button onClick={openNew}><Plus className="w-4 h-4 mr-1" /> Erstes Pferd hinzufügen</Button>
+            <Button className="w-full md:w-auto min-h-[48px]" onClick={openNew}><Plus className="w-4 h-4 mr-1" /> Erstes Pferd hinzufügen</Button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
             {horses.map((h) => (
               <div key={h.id} className="bg-card rounded-2xl border border-border overflow-hidden hover:shadow-lg transition-shadow">
-                {/* Card header with photo area */}
-                <div className="h-32 bg-gradient-to-br from-primary/10 to-accent flex items-center justify-center relative">
-                  {h.photo_url ? (
-                    <img src={h.photo_url} alt={h.name} className="w-full h-full object-cover" />
-                  ) : (
-                    <span className="text-5xl">🐴</span>
-                  )}
-                  {h.is_primary && (
-                    <div className="absolute top-3 right-3 bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full font-medium flex items-center gap-1">
-                      <Star className="w-3 h-3 fill-current" /> Hauptpferd
+                {/* Card header with photo + name + eqid */}
+                <div className="flex items-center gap-4 p-4 border-b border-border">
+                  <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-primary/10 to-accent flex items-center justify-center overflow-hidden shrink-0">
+                    {h.photo_url ? (
+                      <img src={h.photo_url} alt={h.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <span className="text-3xl">🐴</span>
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-bold text-lg text-foreground truncate">{h.name}</h3>
+                      {h.is_primary && (
+                        <span className="bg-primary text-primary-foreground text-[10px] px-1.5 py-0.5 rounded-full font-medium flex items-center gap-0.5 shrink-0">
+                          <Star className="w-2.5 h-2.5 fill-current" /> Haupt
+                        </span>
+                      )}
                     </div>
-                  )}
+                    <p className="text-sm text-muted-foreground">
+                      {[h.breed, h.age ? `${h.age} J.` : null, h.color].filter(Boolean).join(" · ")}
+                    </p>
+                    {h.horse_id && (
+                      <span className="text-xs font-bold text-primary mt-0.5 inline-block">#{h.horse_id}</span>
+                    )}
+                  </div>
                 </div>
 
-                <div className="p-5">
-                  <div className="flex items-start justify-between mb-3">
-                    <div>
-                      <h3 className="font-bold text-lg">{h.name}</h3>
-                      <p className="text-sm text-muted-foreground">
-                        {[h.breed, h.age ? `${h.age} J.` : null, h.color].filter(Boolean).join(" · ")}
-                      </p>
-                    </div>
-                  </div>
-
+                <div className="p-4 space-y-3">
                   {/* Status badges */}
-                  <div className="flex flex-wrap gap-1.5 mb-3">
+                  <div className="flex flex-wrap gap-1.5">
                     {h.keeping_type && (
-                      <span className="text-xs bg-muted px-2 py-0.5 rounded-full">{KEEPING_LABELS[h.keeping_type] || h.keeping_type}</span>
+                      <span className="text-xs bg-muted text-foreground px-2 py-0.5 rounded-full">{KEEPING_LABELS[h.keeping_type] || h.keeping_type}</span>
                     )}
                     {h.hoof_type && (
                       <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full">{HOOF_LABELS[h.hoof_type] || h.hoof_type}</span>
                     )}
                     {h.last_trim_date && (
-                      <span className="text-xs bg-muted px-2 py-0.5 rounded-full flex items-center gap-1">
-                        <Clock className="w-3 h-3" /> Letzter Beschlag: {new Date(h.last_trim_date).toLocaleDateString("de-DE")}
+                      <span className="text-xs bg-muted text-foreground px-2 py-0.5 rounded-full flex items-center gap-1">
+                        <Clock className="w-3 h-3" /> {new Date(h.last_trim_date).toLocaleDateString("de-DE")}
                       </span>
                     )}
                   </div>
 
                   {h.known_issues && (
-                    <div className="text-xs text-destructive bg-destructive/5 p-2 rounded-lg mb-3">
+                    <div className="text-xs text-destructive bg-destructive/5 p-2 rounded-lg">
                       ⚠ {h.known_issues}
                     </div>
                   )}
 
                   {h.ai_summary && (
-                    <div className="text-xs text-muted-foreground bg-primary/5 p-2 rounded-lg mb-3">
-                      🧠 KI-Zusammenfassung: {h.ai_summary}
+                    <div className="text-xs text-muted-foreground bg-primary/5 p-2 rounded-lg">
+                      🧠 {h.ai_summary}
                     </div>
                   )}
 
-                  {/* Actions */}
-                  <div className="flex items-center gap-1 pt-3 border-t border-border">
-                    <Button variant="ghost" size="sm" className="text-xs h-8" onClick={() => viewHistory(h.id)}>
-                      <MessageSquare className="w-3 h-3 mr-1" />Historie
-                      <ChevronDown className={`w-3 h-3 ml-0.5 transition-transform ${timelineHorseId === h.id ? "rotate-180" : ""}`} />
+                  {/* Mobile-optimized full-width action buttons */}
+                  <div className="flex flex-col gap-2 pt-2 border-t border-border md:flex-row md:flex-wrap">
+                    <Button variant="outline" className="w-full md:w-auto min-h-[48px] md:min-h-0 justify-center" onClick={() => viewHistory(h.id)}>
+                      <MessageSquare className="w-4 h-4 mr-1.5" />Historie
+                      <ChevronDown className={`w-4 h-4 ml-auto md:ml-1 transition-transform ${timelineHorseId === h.id ? "rotate-180" : ""}`} />
                     </Button>
-                    <Button variant="ghost" size="sm" className="text-xs h-8" onClick={() => openEdit(h)}>
-                      <Edit2 className="w-3 h-3 mr-1" />Bearbeiten
+                    <Button variant="outline" className="w-full md:w-auto min-h-[48px] md:min-h-0 justify-center" onClick={() => openEdit(h)}>
+                      <Edit2 className="w-4 h-4 mr-1.5" />Bearbeiten
                     </Button>
-                    <Button variant="ghost" size="sm" className="text-xs h-8" onClick={() => exportHorseJson(h)}>
-                      <Download className="w-3 h-3 mr-1" />JSON
+                    <Button variant="outline" className="w-full md:w-auto min-h-[48px] md:min-h-0 justify-center" onClick={() => exportHorseJson(h)}>
+                      <Download className="w-4 h-4 mr-1.5" />JSON Export
                     </Button>
                     {!h.is_primary && (
-                      <Button variant="ghost" size="sm" className="text-xs h-8" onClick={() => setPrimary(h.id)}>
-                        <Star className="w-3 h-3 mr-1" />Hauptpferd
+                      <Button variant="outline" className="w-full md:w-auto min-h-[48px] md:min-h-0 justify-center" onClick={() => setPrimary(h.id)}>
+                        <Star className="w-4 h-4 mr-1.5" />Als Hauptpferd
                       </Button>
                     )}
-                    <Button variant="ghost" size="sm" className="text-xs h-8 text-destructive ml-auto" onClick={() => deleteHorse(h.id)}>
-                      <Trash2 className="w-3 h-3" />
+                    <Button variant="outline" className="w-full md:w-auto min-h-[48px] md:min-h-0 justify-center text-destructive border-destructive/30 hover:bg-destructive/5" onClick={() => deleteHorse(h.id)}>
+                      <Trash2 className="w-4 h-4 mr-1.5" />Entfernen
                     </Button>
                   </div>
 
                   {/* Timeline */}
                   {timelineHorseId === h.id && (
-                    <div className="mt-3 pt-3 border-t border-border">
+                    <div className="pt-3 border-t border-border">
                       <h4 className="text-xs font-semibold text-muted-foreground mb-2">CHAT-VERLAUF</h4>
                       {historyLoading ? (
                         <div className="flex justify-center py-3"><Loader2 className="w-4 h-4 animate-spin text-primary" /></div>
