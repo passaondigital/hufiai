@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 // Stripe product → plan mapping
 // These are the Stripe product IDs created for HufiAi
 const PRODUCT_TO_PLAN: Record<string, string> = {
-  prod_TyTohMqivbT1AJ: "privat_plus",
+  prod_TyUNeDWvGWGGWl: "privat_plus",
   prod_TyTqpIcDxURUJ4: "gewerbe_pro",
   prod_TyTqCg4deHyNKj: "gewerbe_team",
 };
@@ -62,9 +62,9 @@ export function useStripeSubscription() {
 
 // Plan → Price ID mapping for checkout
 export const PLAN_PRICES: Record<string, string> = {
-  privat_plus: "price_placeholder_privat_plus",
-  gewerbe_pro: "price_placeholder_gewerbe_pro",
-  gewerbe_team: "price_placeholder_gewerbe_team",
+  privat_plus: "price_1T0XarHvMPLLWloqLiEG4Rp9",
+  gewerbe_pro: "price_1T0XQjHvMPLLWloqnmCbmKWn",
+  gewerbe_team: "price_1T0XPeHvMPLLWloqwhawDPi4",
 };
 
 // Note: The price IDs above are placeholders. They need to be replaced
