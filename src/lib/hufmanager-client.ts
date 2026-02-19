@@ -11,7 +11,13 @@ export type HufManagerTable =
   | "hoof_photos"
   | "horse_documents"
   | "services"
-  | "invoices";
+  | "invoices"
+  | "access_grants"
+  | "safe_horses"
+  | "safe_appointments"
+  | "safe_reviews"
+  | "ecosystem_links"
+  | "ecosystem_apps";
 
 interface SelectOptions {
   select?: string;
