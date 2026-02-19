@@ -23,3 +23,6 @@ verify_jwt = false
 
 [functions.hufmanager-proxy]
 verify_jwt = false
+
+[functions.send-partner-invite]
+verify_jwt = false

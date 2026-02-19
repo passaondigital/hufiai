@@ -12,6 +12,7 @@ import { Shield, Heart, User, AlertTriangle, Loader2, Fingerprint, Handshake } f
 import HorseManager from "@/components/HorseManager";
 import EcosystemRoleCard from "@/components/EcosystemRoleCard";
 import PartnerAccessMatrix from "@/components/PartnerAccessMatrix";
+import PartnerSharedDataView from "@/components/PartnerSharedDataView";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
@@ -147,6 +148,7 @@ export default function SettingsPage() {
           <TabsContent value="ecosystem" className="space-y-6">
             <EcosystemRoleCard />
             <PartnerAccessMatrix />
+            <PartnerSharedDataView />
           </TabsContent>
 
           {/* Horses Tab */}
