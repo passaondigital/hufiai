@@ -5,7 +5,7 @@ import { useSubscription } from "@/hooks/useSubscription";
 import {
   MessageSquare, FolderKanban, FileText, CreditCard, Settings,
   LogOut, ChevronLeft, ChevronRight, Plus, Shield,
-  ArrowLeftRight, Building2, Map, Megaphone, Crown, Heart, Award, Users, Sparkles, Link2
+  ArrowLeftRight, Building2, Map, Megaphone, Crown, Heart, Award, Users, Sparkles, Link2, Database
 } from "lucide-react";
 import hufiaiLogo from "@/assets/hufiai-logo.svg";
 
@@ -49,6 +49,7 @@ export default function AppSidebar() {
       { icon: Crown, label: `Founder Coach (${founderFlowDaysLeft}d)`, path: "/founder-coach" },
     ] : []),
     { icon: FileText, label: "Wissensdatenbank", path: "/knowledge" },
+    { icon: Database, label: "HufManager", path: "/hufmanager" },
     { icon: Link2, label: "Ecosystem", path: "/ecosystem" },
     { icon: Heart, label: "Support & Hilfe", path: "/support" },
     { icon: CreditCard, label: "Preise", path: "/pricing" },
