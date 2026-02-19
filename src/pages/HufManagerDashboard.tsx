@@ -4,9 +4,10 @@ import { hufmanagerClient } from "@/lib/hufmanager-client";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Users, Heart, Calendar, FileText, Search } from "lucide-react";
+import { Loader2, Users, Heart, Calendar, FileText, Search, Handshake } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
+import ActivePartnersOverview from "@/components/ActivePartnersOverview";
 
 interface Contact {
   id: string;
@@ -141,7 +142,7 @@ export default function HufManagerDashboard() {
           </div>
 
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid grid-cols-4 w-full max-w-lg">
+            <TabsList className="grid grid-cols-5 w-full max-w-2xl">
               <TabsTrigger value="contacts" className="gap-1.5">
                 <Users className="w-4 h-4" />
                 <span className="hidden sm:inline">Kunden</span>
@@ -157,6 +158,10 @@ export default function HufManagerDashboard() {
               <TabsTrigger value="analyses" className="gap-1.5">
                 <FileText className="w-4 h-4" />
                 <span className="hidden sm:inline">Analysen</span>
+              </TabsTrigger>
+              <TabsTrigger value="partners" className="gap-1.5">
+                <Handshake className="w-4 h-4" />
+                <span className="hidden sm:inline">Partner</span>
               </TabsTrigger>
             </TabsList>
 
@@ -263,6 +268,9 @@ export default function HufManagerDashboard() {
                   </Card>
                 ))}
               </div>
+            </TabsContent>
+            <TabsContent value="partners" className="mt-4">
+              <ActivePartnersOverview />
             </TabsContent>
           </Tabs>
         </div>
