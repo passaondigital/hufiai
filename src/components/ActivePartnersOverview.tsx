@@ -56,22 +56,53 @@ export default function ActivePartnersOverview({ refreshKey }: ActivePartnersOve
     }
   }, [profile?.ecosystem_id]);
 
+  const fetchNotifications = useCallback(async () => {
+    if (!profile?.ecosystem_id) return;
+    const { data } = await supabase
+      .from("notifications")
+      .select("id, title, message, type, created_at")
+      .or("title.ilike.%Einladung angenommen%,title.ilike.%Einladung abgelehnt%")
+      .order("created_at", { ascending: false })
+      .limit(5);
+    setNotifications(data || []);
+  }, [profile?.ecosystem_id]);
+
   useEffect(() => {
     fetchGrants();
-
-    // Fetch partner-related notifications
-    const fetchNotifications = async () => {
-      if (!profile?.ecosystem_id) return;
-      const { data } = await supabase
-        .from("notifications")
-        .select("id, title, message, type, created_at")
-        .or("title.ilike.%Einladung angenommen%,title.ilike.%Einladung abgelehnt%")
-        .order("created_at", { ascending: false })
-        .limit(5);
-      setNotifications(data || []);
-    };
     fetchNotifications();
-  }, [fetchGrants, refreshKey]);
+  }, [fetchGrants, fetchNotifications, refreshKey]);
+
+  // Realtime: listen for new partner notifications
+  useEffect(() => {
+    if (!profile?.ecosystem_id) return;
+
+    const channel = supabase
+      .channel("partner-notifications")
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "notifications",
+        },
+        (payload) => {
+          const row = payload.new as any;
+          if (
+            row.title?.includes("Einladung angenommen") ||
+            row.title?.includes("Einladung abgelehnt")
+          ) {
+            fetchNotifications();
+            fetchGrants();
+            toast(row.title, { description: row.message });
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [profile?.ecosystem_id, fetchNotifications, fetchGrants]);
 
   const toggleActive = async (grantId: string, isActive: boolean) => {
     setToggling(grantId);
