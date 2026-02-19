@@ -8,8 +8,10 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { Shield, Heart, User, AlertTriangle, Loader2 } from "lucide-react";
+import { Shield, Heart, User, AlertTriangle, Loader2, Fingerprint, Handshake } from "lucide-react";
 import HorseManager from "@/components/HorseManager";
+import EcosystemRoleCard from "@/components/EcosystemRoleCard";
+import PartnerAccessMatrix from "@/components/PartnerAccessMatrix";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
@@ -111,8 +113,9 @@ export default function SettingsPage() {
         <h1 className="text-2xl font-bold mb-8">Einstellungen</h1>
 
         <Tabs defaultValue="profile" className="space-y-6">
-          <TabsList>
+          <TabsList className="flex-wrap">
             <TabsTrigger value="profile"><User className="w-4 h-4 mr-2" />Profil</TabsTrigger>
+            <TabsTrigger value="ecosystem"><Fingerprint className="w-4 h-4 mr-2" />Ecosystem</TabsTrigger>
             <TabsTrigger value="horses">🐴 Pferde</TabsTrigger>
             <TabsTrigger value="privacy"><Shield className="w-4 h-4 mr-2" />Datenschutz</TabsTrigger>
             <TabsTrigger value="danger"><AlertTriangle className="w-4 h-4 mr-2" />Danger Zone</TabsTrigger>
@@ -138,6 +141,12 @@ export default function SettingsPage() {
                 <Button onClick={changePassword} disabled={!newPassword}>Passwort ändern</Button>
               </div>
             </div>
+          </TabsContent>
+
+          {/* Ecosystem Tab */}
+          <TabsContent value="ecosystem" className="space-y-6">
+            <EcosystemRoleCard />
+            <PartnerAccessMatrix />
           </TabsContent>
 
           {/* Horses Tab */}

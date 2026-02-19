@@ -23,6 +23,7 @@ interface Profile {
   public_profile: boolean;
   phone: string | null;
   website: string | null;
+  ecosystem_id: string | null;
 }
 
 interface AuthContextType {
