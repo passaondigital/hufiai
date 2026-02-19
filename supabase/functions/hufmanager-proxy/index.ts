@@ -53,7 +53,9 @@ serve(async (req) => {
     const ALLOWED_TABLES = [
       "horses", "profiles", "contacts", "appointments",
       "hoof_analyses", "hoof_entries", "hoof_history", "hoof_photos",
-      "horse_documents", "services", "invoices",
+      "horse_documents", "services", "invoices", "access_grants",
+      "safe_horses", "safe_appointments", "safe_reviews",
+      "ecosystem_links", "ecosystem_apps",
     ];
 
     if (!ALLOWED_TABLES.includes(table)) {
