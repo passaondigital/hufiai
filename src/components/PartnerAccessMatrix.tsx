@@ -10,6 +10,7 @@ import {
   Shield, UserPlus, Trash2, Search, Info,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import PartnerInviteForm from "@/components/PartnerInviteForm";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
@@ -150,11 +151,14 @@ export default function PartnerAccessMatrix() {
         <Handshake className="w-5 h-5 text-primary" />
         <h2 className="font-semibold">Partner-Berechtigungen (#prid)</h2>
       </div>
-      <p className="text-sm text-muted-foreground mb-4">
-        {isProvider
-          ? "Steuere, welche externen Partner (Tierärzte, Therapeuten) auf deine Kundendaten zugreifen dürfen."
-          : "Steuere, welche Dienstleister und Partner auf deine Pferdedaten zugreifen dürfen."}
-      </p>
+      <div className="flex items-center justify-between mb-4">
+        <p className="text-sm text-muted-foreground">
+          {isProvider
+            ? "Steuere, welche externen Partner (Tierärzte, Therapeuten) auf deine Kundendaten zugreifen dürfen."
+            : "Steuere, welche Dienstleister und Partner auf deine Pferdedaten zugreifen dürfen."}
+        </p>
+        <PartnerInviteForm onInvited={fetchGrants} />
+      </div>
 
       {/* Info banner */}
       <div className="flex items-start gap-2 bg-muted/50 rounded-xl p-3 mb-4 border border-border">
