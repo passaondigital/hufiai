@@ -507,6 +507,7 @@ export type Database = {
           company_name: string | null
           created_at: string | null
           display_name: string | null
+          ecosystem_id: string | null
           exclude_from_training: boolean
           id: string
           is_blocked: boolean | null
@@ -532,6 +533,7 @@ export type Database = {
           company_name?: string | null
           created_at?: string | null
           display_name?: string | null
+          ecosystem_id?: string | null
           exclude_from_training?: boolean
           id?: string
           is_blocked?: boolean | null
@@ -557,6 +559,7 @@ export type Database = {
           company_name?: string | null
           created_at?: string | null
           display_name?: string | null
+          ecosystem_id?: string | null
           exclude_from_training?: boolean
           id?: string
           is_blocked?: boolean | null
