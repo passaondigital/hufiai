@@ -17,7 +17,16 @@ export type HufManagerTable =
   | "safe_appointments"
   | "safe_reviews"
   | "ecosystem_links"
-  | "ecosystem_apps";
+  | "ecosystem_apps"
+  | "employee_profiles"
+  | "offers"
+  | "daily_tours"
+  | "work_sessions"
+  | "inventory_items"
+  | "office_documents"
+  | "office_templates"
+  | "provider_documents"
+  | "conversations";
 
 interface SelectOptions {
   select?: string;
