@@ -1,11 +1,12 @@
 import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "@/lib/auth";
 import { hufmanagerClient } from "@/lib/hufmanager-client";
+import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
-import { Loader2, Handshake, Eye, Stethoscope, CalendarCheck, Shield } from "lucide-react";
+import { Loader2, Handshake, Eye, Stethoscope, CalendarCheck, Shield, Bell, CheckCircle2, XCircle } from "lucide-react";
 
 interface AccessGrant {
   id: string;
@@ -19,6 +20,14 @@ interface AccessGrant {
   granted_at?: string;
 }
 
+interface PartnerNotification {
+  id: string;
+  title: string;
+  message: string;
+  type: string;
+  created_at: string;
+}
+
 interface ActivePartnersOverviewProps {
   refreshKey?: number;
 }
@@ -28,6 +37,7 @@ export default function ActivePartnersOverview({ refreshKey }: ActivePartnersOve
   const [loading, setLoading] = useState(true);
   const [grants, setGrants] = useState<AccessGrant[]>([]);
   const [toggling, setToggling] = useState<string | null>(null);
+  const [notifications, setNotifications] = useState<PartnerNotification[]>([]);
 
   const fetchGrants = useCallback(async () => {
     if (!profile?.ecosystem_id) return;
@@ -48,6 +58,19 @@ export default function ActivePartnersOverview({ refreshKey }: ActivePartnersOve
 
   useEffect(() => {
     fetchGrants();
+
+    // Fetch partner-related notifications
+    const fetchNotifications = async () => {
+      if (!profile?.ecosystem_id) return;
+      const { data } = await supabase
+        .from("notifications")
+        .select("id, title, message, type, created_at")
+        .or("title.ilike.%Einladung angenommen%,title.ilike.%Einladung abgelehnt%")
+        .order("created_at", { ascending: false })
+        .limit(5);
+      setNotifications(data || []);
+    };
+    fetchNotifications();
   }, [fetchGrants, refreshKey]);
 
   const toggleActive = async (grantId: string, isActive: boolean) => {
@@ -88,7 +111,41 @@ export default function ActivePartnersOverview({ refreshKey }: ActivePartnersOve
           )}
         </CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="space-y-3">
+        {/* Partner notifications */}
+        {notifications.length > 0 && (
+          <div className="space-y-2 mb-2">
+            {notifications.map((notif) => (
+              <div
+                key={notif.id}
+                className={`flex items-start gap-2 rounded-lg p-3 border text-xs ${
+                  notif.type === "success"
+                    ? "bg-primary/5 border-primary/20"
+                    : "bg-destructive/5 border-destructive/20"
+                }`}
+              >
+                {notif.type === "success" ? (
+                  <CheckCircle2 className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                ) : (
+                  <XCircle className="w-4 h-4 text-destructive shrink-0 mt-0.5" />
+                )}
+                <div className="min-w-0">
+                  <p className="font-medium">{notif.title}</p>
+                  <p className="text-muted-foreground mt-0.5">{notif.message}</p>
+                  <p className="text-muted-foreground/60 mt-1">
+                    {new Date(notif.created_at).toLocaleDateString("de-DE", {
+                      day: "2-digit",
+                      month: "short",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
         {loading ? (
           <div className="flex items-center justify-center py-6">
             <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />

@@ -26,7 +26,7 @@ const logStep = (step: string, details?: unknown) => {
  */
 
 const VALID_APPS = ["hufmanager", "hufiapp", "memberhorse"];
-const VALID_EVENTS = ["connected", "disconnected", "updated"];
+const VALID_EVENTS = ["connected", "disconnected", "updated", "partner_accepted", "partner_rejected"];
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -81,6 +81,58 @@ serve(async (req) => {
       return new Response(
         JSON.stringify({ error: "User not found" }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 404 }
+      );
+    }
+
+    // Handle partner invitation responses
+    if (event === "partner_accepted" || event === "partner_rejected") {
+      const partnerName = data_payload?.partner_name || data_payload?.partner_email || "Ein Partner";
+      const accepted = event === "partner_accepted";
+
+      // Create in-app notification for the inviter
+      const { error: notifError } = await supabaseClient
+        .from("notifications")
+        .insert({
+          title: accepted
+            ? `${partnerName} hat die Einladung angenommen`
+            : `${partnerName} hat die Einladung abgelehnt`,
+          message: accepted
+            ? `${partnerName} ist jetzt als Partner (#prid) in deinem Ökosystem aktiv und kann auf die freigegebenen Daten zugreifen.`
+            : `${partnerName} hat deine Partner-Einladung abgelehnt. Die Zugriffsrechte wurden nicht aktiviert.`,
+          type: accepted ? "success" : "warning",
+          created_by: ecosystem_user_id,
+          is_global: false,
+        });
+
+      if (notifError) {
+        logStep("Notification insert error", notifError);
+      }
+
+      // Update access_grant status if grant_id provided
+      if (data_payload?.grant_id) {
+        const hufmanagerClient = createClient(
+          "https://vnschgjxkzzwzefqlrji.supabase.co",
+          Deno.env.get("HUFMANAGER_SERVICE_ROLE_KEY") ?? "",
+          { auth: { persistSession: false } }
+        );
+
+        await hufmanagerClient
+          .from("access_grants")
+          .update({
+            status: accepted ? "active" : "rejected",
+            is_active: accepted,
+          })
+          .eq("id", data_payload.grant_id);
+      }
+
+      logStep("Partner event processed", { event, partnerName });
+
+      return new Response(
+        JSON.stringify({
+          success: true,
+          message: `Partner ${event} notification created`,
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
