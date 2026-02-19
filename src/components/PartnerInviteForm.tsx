@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useAuth } from "@/lib/auth";
 import { hufmanagerClient } from "@/lib/hufmanager-client";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -52,6 +53,22 @@ export default function PartnerInviteForm({ onInvited }: PartnerInviteFormProps)
         status: "pending",
         app_source: "hufiapp",
       });
+      // Send invitation email via edge function
+      try {
+        await supabase.functions.invoke("send-partner-invite", {
+          body: {
+            partner_email: email.trim(),
+            partner_name: name.trim() || null,
+            permissions: {
+              can_view_basic: canViewBasic,
+              can_view_medical: canViewMedical,
+              can_create_appointments: canCreateAppointments,
+            },
+          },
+        });
+      } catch (emailErr) {
+        console.warn("E-Mail konnte nicht gesendet werden:", emailErr);
+      }
 
       toast.success(`Einladung an ${email} gesendet`);
       setOpen(false);
