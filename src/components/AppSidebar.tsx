@@ -2,10 +2,11 @@ import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/lib/auth";
 import { useSubscription } from "@/hooks/useSubscription";
+import { useUnreadNotifications } from "@/hooks/useUnreadNotifications";
 import {
   MessageSquare, FolderKanban, FileText, CreditCard, Settings,
   LogOut, ChevronLeft, ChevronRight, Plus, Shield,
-  ArrowLeftRight, Building2, Map, Megaphone, Crown, Heart, Award, Users, Sparkles, Link2, Database
+  ArrowLeftRight, Building2, Map, Megaphone, Crown, Heart, Award, Users, Sparkles, Link2, Database, Bell
 } from "lucide-react";
 import hufiaiLogo from "@/assets/hufiai-logo.svg";
 
@@ -15,6 +16,7 @@ export default function AppSidebar() {
   const [collapsed, setCollapsed] = useState(false);
   const { profile, isAdmin, signOut, switchUserType } = useAuth();
   const { isFounderFlowActive, founderFlowDaysLeft, hasGewerbeAccess } = useSubscription();
+  const unreadCount = useUnreadNotifications();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -33,7 +35,7 @@ export default function AppSidebar() {
     }
   };
 
-  const navItems = [
+  const navItems: { icon: any; label: string; path: string; badge?: number }[] = [
     { icon: MessageSquare, label: "Chat", path: "/" },
     { icon: Sparkles, label: "Meine Pferde", path: "/horses" },
     ...(profile?.user_type === "gewerbe" || hasGewerbeAccess ? [
@@ -51,6 +53,7 @@ export default function AppSidebar() {
     { icon: FileText, label: "Wissensdatenbank", path: "/knowledge" },
     { icon: Database, label: "HufManager", path: "/hufmanager" },
     { icon: Link2, label: "Ecosystem", path: "/ecosystem" },
+    { icon: Bell, label: "Benachrichtigungen", path: "/hufmanager", badge: unreadCount },
     { icon: Heart, label: "Support & Hilfe", path: "/support" },
     { icon: CreditCard, label: "Preise", path: "/pricing" },
     { icon: Settings, label: "Einstellungen", path: "/settings" },
@@ -94,13 +97,18 @@ export default function AppSidebar() {
           const active = location.pathname === item.path;
           return (
             <button
-              key={item.path}
+              key={item.path + item.label}
               onClick={() => navigate(item.path)}
-              className={`w-full sidebar-item ${active ? "sidebar-item-active" : "sidebar-item-inactive"}`}
+              className={`w-full sidebar-item ${active ? "sidebar-item-active" : "sidebar-item-inactive"} relative`}
               title={collapsed ? item.label : undefined}
             >
               <item.icon className="w-5 h-5 shrink-0" />
               {!collapsed && item.label}
+              {item.badge && item.badge > 0 ? (
+                <span className="absolute top-1 right-1 min-w-[18px] h-[18px] flex items-center justify-center rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold leading-none px-1">
+                  {item.badge > 99 ? "99+" : item.badge}
+                </span>
+              ) : null}
             </button>
           );
         })}
