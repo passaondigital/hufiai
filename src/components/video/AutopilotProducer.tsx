@@ -1,5 +1,6 @@
 import { useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import JSZip from "jszip";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,7 +12,7 @@ import {
   Rocket, Globe, Loader2, CheckCircle, AlertCircle, Sparkles,
   Database, FileText, Film, Palette, Download, ThumbsUp, ThumbsDown,
   Zap, ScanSearch, BrainCircuit, Clapperboard, BarChart3, Languages,
-  Eye, DollarSign, Clock, Layers, ChevronDown, ChevronUp
+  Eye, DollarSign, Clock, Layers, ChevronDown, ChevronUp, Archive
 } from "lucide-react";
 
 type AutopilotStep = {
@@ -95,6 +96,9 @@ export default function AutopilotProducer({ userId }: { userId: string }) {
   const [showStoryboard, setShowStoryboard] = useState(true);
   const [storyboardConfirmed, setStoryboardConfirmed] = useState(false);
   const [expandedScene, setExpandedScene] = useState<number | null>(null);
+  // Batch download state
+  const [isDownloading, setIsDownloading] = useState(false);
+  const [downloadProgress, setDownloadProgress] = useState(0);
 
   const updateStep = useCallback((stepId: string, status: AutopilotStep["status"], detail?: string) => {
     setSteps(prev => prev.map(s => s.id === stepId ? { ...s, status, detail } : s));
@@ -285,6 +289,73 @@ export default function AutopilotProducer({ userId }: { userId: string }) {
       });
       toast({ title: fb === "up" ? "👍 Gold-Standard markiert" : "👎 Feedback gespeichert" });
     } catch { /* ignore */ }
+  };
+
+  const batchDownload = async () => {
+    setIsDownloading(true);
+    setDownloadProgress(0);
+
+    try {
+      // Fetch completed video jobs from this session
+      const { data: videoJobs, error } = await supabase
+        .from("video_jobs")
+        .select("*")
+        .eq("user_id", userId)
+        .eq("is_hufi_relevant", true)
+        .not("video_url", "is", null)
+        .order("created_at", { ascending: false })
+        .limit(generationJobs.length || 30);
+
+      if (error) throw error;
+
+      const videosWithUrl = (videoJobs || []).filter(v => v.video_url);
+
+      if (videosWithUrl.length === 0) {
+        toast({ title: "Keine Videos verfügbar", description: "Es wurden noch keine fertigen Videos gefunden. Bitte warte bis das Rendering abgeschlossen ist.", variant: "destructive" });
+        setIsDownloading(false);
+        return;
+      }
+
+      const zip = new JSZip();
+      let downloaded = 0;
+
+      for (const video of videosWithUrl) {
+        try {
+          const lang = video.optimized_prompt?.startsWith("[EN]") ? "EN" : "DE";
+          const format = video.optimized_prompt?.includes("reel") ? "Reel_9x16" :
+            video.optimized_prompt?.includes("youtube") ? "YouTube_16x9" :
+            video.optimized_prompt?.includes("square") ? "Square_1x1" : video.aspect_ratio?.replace(":", "x");
+          const fileName = `HufiAi_${lang}_${format}_${video.id.slice(0, 8)}.mp4`;
+
+          const response = await fetch(video.video_url!);
+          if (response.ok) {
+            const blob = await response.blob();
+            zip.file(fileName, blob);
+          }
+        } catch (e) {
+          console.error("Failed to download video:", e);
+        }
+        downloaded++;
+        setDownloadProgress(Math.round((downloaded / videosWithUrl.length) * 100));
+      }
+
+      const zipBlob = await zip.generateAsync({ type: "blob" });
+      const url = URL.createObjectURL(zipBlob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `HufiAi_Autopilot_${new Date().toISOString().slice(0, 10)}.zip`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      toast({ title: "Download gestartet 📦", description: `${videosWithUrl.length} Videos als ZIP-Archiv.` });
+    } catch (e: any) {
+      toast({ title: "Download-Fehler", description: e.message, variant: "destructive" });
+    } finally {
+      setIsDownloading(false);
+      setDownloadProgress(0);
+    }
   };
 
   const completedCount = generationJobs.filter(j => j.status === "completed").length;
@@ -703,6 +774,41 @@ export default function AutopilotProducer({ userId }: { userId: string }) {
                 </div>
               ))}
             </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Batch Download */}
+      {completedCount > 0 && !isRunning && (
+        <Card className="bg-[hsl(var(--sidebar-accent))] border-[hsl(var(--sidebar-border))]">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm text-[hsl(var(--sidebar-foreground))] flex items-center gap-2">
+              <Archive className="w-4 h-4 text-primary" /> Batch-Download
+              <Badge variant="outline" className="ml-auto text-[10px] border-primary/30 text-primary">
+                {completedCount} Videos
+              </Badge>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <p className="text-[11px] text-[hsl(var(--sidebar-muted))]">
+              Lade alle generierten Videos {scriptEn ? "(DE + EN)" : "(DE)"} in allen Formaten als ZIP-Archiv herunter.
+            </p>
+            {isDownloading && (
+              <div className="w-full h-2 rounded-full bg-[hsl(var(--sidebar-background))] overflow-hidden">
+                <div className="h-full rounded-full bg-primary transition-all duration-300" style={{ width: `${downloadProgress}%` }} />
+              </div>
+            )}
+            <Button
+              onClick={batchDownload}
+              disabled={isDownloading}
+              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold gap-2 h-11 rounded-xl"
+            >
+              {isDownloading ? (
+                <><Loader2 className="w-4 h-4 animate-spin" /> Wird gepackt... {downloadProgress}%</>
+              ) : (
+                <><Archive className="w-4 h-4" /> Alle Videos als ZIP herunterladen</>
+              )}
+            </Button>
           </CardContent>
         </Card>
       )}
