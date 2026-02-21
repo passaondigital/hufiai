@@ -32,7 +32,7 @@ serve(async (req) => {
     // Auth
     const authHeader = req.headers.get("Authorization");
     if (!authHeader?.startsWith("Bearer ")) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: corsHeaders });
+      return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
     const supabase = createClient(
@@ -41,12 +41,11 @@ serve(async (req) => {
       { global: { headers: { Authorization: authHeader } } }
     );
 
-    const token = authHeader.replace("Bearer ", "");
-    const { data: claimsData, error: claimsError } = await supabase.auth.getClaims(token);
-    if (claimsError || !claimsData?.claims) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: corsHeaders });
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    if (userError || !user) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
-    const userId = claimsData.claims.sub;
+    const userId = user.id;
 
     const { jobId } = await req.json();
     if (!jobId) throw new Error("jobId is required");
@@ -141,44 +140,49 @@ serve(async (req) => {
       });
     }
 
-    // Poll for result
+    // Poll for result - max 2 minutes within edge function timeout
     let attempts = 0;
-    const maxAttempts = 120; // 10 minutes max
+    const maxAttempts = 24; // 2 minutes max (24 * 5s)
     let completed = false;
 
     while (attempts < maxAttempts && !completed) {
       await new Promise(r => setTimeout(r, 5000)); // 5s between polls
       attempts++;
 
-      const statusResponse = await fetch(`https://queue.fal.run/${endpoint}/requests/${requestId}/status`, {
-        headers: { Authorization: `Key ${FAL_AI_API_KEY}` },
-      });
-
-      if (!statusResponse.ok) continue;
-      const statusData = await statusResponse.json();
-
-      if (statusData.status === "COMPLETED") {
-        // Fetch result
-        const resultResponse = await fetch(`https://queue.fal.run/${endpoint}/requests/${requestId}`, {
+      try {
+        const statusResponse = await fetch(`https://queue.fal.run/${endpoint}/requests/${requestId}/status`, {
           headers: { Authorization: `Key ${FAL_AI_API_KEY}` },
         });
-        const resultData = await resultResponse.json();
-        const videoUrl = resultData.video?.url || resultData.output?.video?.url;
 
-        await supabase.from("video_jobs").update({
-          status: "completed",
-          video_url: videoUrl || null,
-          thumbnail_url: resultData.video?.thumbnail_url || null,
-        }).eq("id", jobId);
-        completed = true;
-      } else if (statusData.status === "FAILED") {
-        await supabase.from("video_jobs").update({ status: "failed" }).eq("id", jobId);
-        completed = true;
+        if (!statusResponse.ok) continue;
+        const statusData = await statusResponse.json();
+
+        if (statusData.status === "COMPLETED") {
+          // Fetch result
+          const resultResponse = await fetch(`https://queue.fal.run/${endpoint}/requests/${requestId}`, {
+            headers: { Authorization: `Key ${FAL_AI_API_KEY}` },
+          });
+          const resultData = await resultResponse.json();
+          const videoUrl = resultData.video?.url || resultData.output?.video?.url;
+
+          await supabase.from("video_jobs").update({
+            status: "completed",
+            video_url: videoUrl || null,
+            thumbnail_url: resultData.video?.thumbnail_url || null,
+          }).eq("id", jobId);
+          completed = true;
+        } else if (statusData.status === "FAILED") {
+          await supabase.from("video_jobs").update({ status: "failed" }).eq("id", jobId);
+          completed = true;
+        }
+      } catch (pollErr) {
+        console.error("Poll error:", pollErr);
       }
     }
 
     if (!completed) {
-      await supabase.from("video_jobs").update({ status: "failed" }).eq("id", jobId);
+      // Still processing - leave as "processing" so client can poll via realtime
+      console.log(`Job ${jobId} still processing after timeout - will complete via Fal.ai`);
     }
 
     return new Response(JSON.stringify({ success: true, requestId }), {

@@ -15,7 +15,7 @@ serve(async (req) => {
 
     const authHeader = req.headers.get("Authorization");
     if (!authHeader?.startsWith("Bearer ")) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: corsHeaders });
+      return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
     const supabase = createClient(
@@ -24,12 +24,11 @@ serve(async (req) => {
       { global: { headers: { Authorization: authHeader } } }
     );
 
-    const token = authHeader.replace("Bearer ", "");
-    const { data: claimsData, error: claimsError } = await supabase.auth.getClaims(token);
-    if (claimsError || !claimsData?.claims) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: corsHeaders });
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    if (userError || !user) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
-    const userId = claimsData.claims.sub;
+    const userId = user.id;
 
     const { jobId, action, settings } = await req.json();
     if (!jobId) throw new Error("jobId is required");
@@ -47,12 +46,34 @@ serve(async (req) => {
 
     let resultUrl = job.video_url;
 
-    if (action === "upscale") {
-      // Use Fal.ai creative upscaler for video frames
-      // Since Fal.ai doesn't have a direct video upscaler, we use the image upscaler approach
-      // For now, use the video URL and attempt upscaling via available endpoints
-      console.log("Starting upscale for job:", jobId);
+    const pollForResult = async (endpoint: string, requestId: string): Promise<string | null> => {
+      let attempts = 0;
+      while (attempts < 24) { // max 2 minutes
+        await new Promise(r => setTimeout(r, 5000));
+        attempts++;
+        try {
+          const statusRes = await fetch(`${endpoint}/requests/${requestId}/status`, {
+            headers: { Authorization: `Key ${FAL_AI_API_KEY}` },
+          });
+          if (!statusRes.ok) continue;
+          const statusData = await statusRes.json();
 
+          if (statusData.status === "COMPLETED") {
+            const resultRes = await fetch(`${endpoint}/requests/${requestId}`, {
+              headers: { Authorization: `Key ${FAL_AI_API_KEY}` },
+            });
+            const resultData = await resultRes.json();
+            return resultData.image?.url || resultData.images?.[0]?.url || null;
+          } else if (statusData.status === "FAILED") {
+            return null;
+          }
+        } catch { /* continue polling */ }
+      }
+      return null;
+    };
+
+    if (action === "upscale") {
+      console.log("Starting upscale for job:", jobId);
       await supabase.from("video_jobs").update({ status: "processing" }).eq("id", jobId);
 
       const upscaleResponse = await fetch("https://queue.fal.run/fal-ai/creative-upscaler", {
@@ -73,40 +94,18 @@ serve(async (req) => {
       if (!upscaleResponse.ok) {
         const errText = await upscaleResponse.text();
         console.error("Fal.ai upscale error:", errText);
+        await supabase.from("video_jobs").update({ status: "failed" }).eq("id", jobId);
         throw new Error("Upscaling failed");
       }
 
       const upscaleData = await upscaleResponse.json();
-      const requestId = upscaleData.request_id;
-
-      if (requestId) {
-        // Poll for result
-        let attempts = 0;
-        while (attempts < 60) {
-          await new Promise(r => setTimeout(r, 3000));
-          attempts++;
-          const statusRes = await fetch(`https://queue.fal.run/fal-ai/creative-upscaler/requests/${requestId}/status`, {
-            headers: { Authorization: `Key ${FAL_AI_API_KEY}` },
-          });
-          if (!statusRes.ok) continue;
-          const statusData = await statusRes.json();
-
-          if (statusData.status === "COMPLETED") {
-            const resultRes = await fetch(`https://queue.fal.run/fal-ai/creative-upscaler/requests/${requestId}`, {
-              headers: { Authorization: `Key ${FAL_AI_API_KEY}` },
-            });
-            const resultData = await resultRes.json();
-            resultUrl = resultData.image?.url || resultUrl;
-            break;
-          } else if (statusData.status === "FAILED") {
-            throw new Error("Upscaling failed on Fal.ai");
-          }
-        }
+      if (upscaleData.request_id) {
+        const polledUrl = await pollForResult("https://queue.fal.run/fal-ai/creative-upscaler", upscaleData.request_id);
+        if (polledUrl) resultUrl = polledUrl;
       } else if (upscaleData.image?.url) {
         resultUrl = upscaleData.image.url;
       }
 
-      // Store upscaled thumbnail
       await supabase.from("video_jobs").update({
         status: "completed",
         thumbnail_url: resultUrl,
@@ -114,10 +113,8 @@ serve(async (req) => {
       }).eq("id", jobId);
 
     } else if (action === "style-transfer") {
-      // Apply style transfer using Fal.ai
       const stylePrompt = settings?.stylePrompt || "";
-      console.log("Starting style transfer for job:", jobId, "style:", stylePrompt);
-
+      console.log("Starting style transfer for job:", jobId);
       await supabase.from("video_jobs").update({ status: "processing" }).eq("id", jobId);
 
       const styleResponse = await fetch("https://queue.fal.run/fal-ai/img2img/turbo", {
@@ -135,35 +132,14 @@ serve(async (req) => {
       });
 
       if (!styleResponse.ok) {
-        const errText = await styleResponse.text();
-        console.error("Fal.ai style transfer error:", errText);
+        await supabase.from("video_jobs").update({ status: "failed" }).eq("id", jobId);
         throw new Error("Style transfer failed");
       }
 
       const styleData = await styleResponse.json();
-      const requestId = styleData.request_id;
-
-      if (requestId) {
-        let attempts = 0;
-        while (attempts < 60) {
-          await new Promise(r => setTimeout(r, 3000));
-          attempts++;
-          const statusRes = await fetch(`https://queue.fal.run/fal-ai/img2img/turbo/requests/${requestId}/status`, {
-            headers: { Authorization: `Key ${FAL_AI_API_KEY}` },
-          });
-          if (!statusRes.ok) continue;
-          const statusData = await statusRes.json();
-          if (statusData.status === "COMPLETED") {
-            const resultRes = await fetch(`https://queue.fal.run/fal-ai/img2img/turbo/requests/${requestId}`, {
-              headers: { Authorization: `Key ${FAL_AI_API_KEY}` },
-            });
-            const resultData = await resultRes.json();
-            resultUrl = resultData.images?.[0]?.url || resultUrl;
-            break;
-          } else if (statusData.status === "FAILED") {
-            throw new Error("Style transfer failed on Fal.ai");
-          }
-        }
+      if (styleData.request_id) {
+        const polledUrl = await pollForResult("https://queue.fal.run/fal-ai/img2img/turbo", styleData.request_id);
+        if (polledUrl) resultUrl = polledUrl;
       } else if (styleData.images?.[0]?.url) {
         resultUrl = styleData.images[0].url;
       }
@@ -174,11 +150,9 @@ serve(async (req) => {
       }).eq("id", jobId);
 
     } else if (action === "color-grade") {
-      // Color grading via Fal.ai image editing
       const { brightness = 100, saturation = 100, contrast = 100 } = settings || {};
-      console.log("Color grading for job:", jobId, { brightness, saturation, contrast });
+      console.log("Color grading for job:", jobId);
 
-      // Build a color grading prompt for the AI
       const colorPrompts: string[] = [];
       if (brightness > 120) colorPrompts.push("brighter, well-lit");
       if (brightness < 80) colorPrompts.push("darker, moody lighting");
@@ -210,33 +184,14 @@ serve(async (req) => {
       });
 
       if (!gradeResponse.ok) {
+        await supabase.from("video_jobs").update({ status: "failed" }).eq("id", jobId);
         throw new Error("Color grading failed");
       }
 
       const gradeData = await gradeResponse.json();
-      const requestId = gradeData.request_id;
-
-      if (requestId) {
-        let attempts = 0;
-        while (attempts < 60) {
-          await new Promise(r => setTimeout(r, 3000));
-          attempts++;
-          const statusRes = await fetch(`https://queue.fal.run/fal-ai/img2img/turbo/requests/${requestId}/status`, {
-            headers: { Authorization: `Key ${FAL_AI_API_KEY}` },
-          });
-          if (!statusRes.ok) continue;
-          const statusData = await statusRes.json();
-          if (statusData.status === "COMPLETED") {
-            const resultRes = await fetch(`https://queue.fal.run/fal-ai/img2img/turbo/requests/${requestId}`, {
-              headers: { Authorization: `Key ${FAL_AI_API_KEY}` },
-            });
-            const resultData = await resultRes.json();
-            resultUrl = resultData.images?.[0]?.url || resultUrl;
-            break;
-          } else if (statusData.status === "FAILED") {
-            throw new Error("Color grading failed on Fal.ai");
-          }
-        }
+      if (gradeData.request_id) {
+        const polledUrl = await pollForResult("https://queue.fal.run/fal-ai/img2img/turbo", gradeData.request_id);
+        if (polledUrl) resultUrl = polledUrl;
       } else if (gradeData.images?.[0]?.url) {
         resultUrl = gradeData.images[0].url;
       }
