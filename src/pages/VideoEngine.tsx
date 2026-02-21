@@ -16,7 +16,7 @@ import { toast } from "@/hooks/use-toast";
 import {
   Video, Upload, Sparkles, Download, ThumbsUp, ThumbsDown,
   ChevronDown, Image, Type, Mic, Layers, Loader2, Play, Settings2, Wand2, Trash2,
-  Palette, SlidersHorizontal, FileOutput, Stamp, Sun, Droplets, Contrast
+  Palette, SlidersHorizontal, FileOutput, Stamp, Sun, Droplets, Contrast, AudioLines, CheckSquare, Square
 } from "lucide-react";
 
 const MODELS = [
@@ -98,6 +98,11 @@ export default function VideoEngine() {
   const [activeTab, setActiveTab] = useState("create");
   const [isProcessing, setIsProcessing] = useState(false);
   const [selectedJobForProcessing, setSelectedJobForProcessing] = useState<string | null>(null);
+  const [lipsyncAudioFile, setLipsyncAudioFile] = useState<File | null>(null);
+  const [isLipsyncing, setIsLipsyncing] = useState(false);
+  const [lipsyncJobId, setLipsyncJobId] = useState<string | null>(null);
+  const [batchSelectedJobs, setBatchSelectedJobs] = useState<string[]>([]);
+  const [isBatchProcessing, setIsBatchProcessing] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -238,6 +243,69 @@ export default function VideoEngine() {
     }
   };
 
+  const uploadLipsyncAudio = async (): Promise<string | null> => {
+    if (!lipsyncAudioFile || !user) return null;
+    const ext = lipsyncAudioFile.name.split('.').pop();
+    const path = `${user.id}/lipsync-audio-${Date.now()}.${ext}`;
+    const { error } = await supabase.storage.from("generated-images").upload(path, lipsyncAudioFile);
+    if (error) throw error;
+    const { data: urlData } = supabase.storage.from("generated-images").getPublicUrl(path);
+    return urlData.publicUrl;
+  };
+
+  const startLipsync = async () => {
+    const jobId = lipsyncJobId || jobs.find(j => j.status === "completed" && j.video_url)?.id;
+    if (!jobId) return toast({ title: "Kein Video ausgewählt", variant: "destructive" });
+    if (!lipsyncAudioFile) return toast({ title: "Bitte eine Audio-Datei hochladen", variant: "destructive" });
+    setIsLipsyncing(true);
+    try {
+      const audioUrl = await uploadLipsyncAudio();
+      if (!audioUrl) throw new Error("Audio upload failed");
+      const { error } = await supabase.functions.invoke("lipsync-video", {
+        body: { jobId, audioUrl },
+      });
+      if (error) throw error;
+      toast({ title: "Lipsync gestartet 🎤", description: "Das Video wird mit deiner Audiodatei synchronisiert..." });
+      setLipsyncAudioFile(null);
+      fetchJobs();
+    } catch (e: any) {
+      toast({ title: "Lipsync fehlgeschlagen", description: e.message, variant: "destructive" });
+    } finally {
+      setIsLipsyncing(false);
+    }
+  };
+
+  const toggleBatchJob = (jobId: string) => {
+    setBatchSelectedJobs(prev =>
+      prev.includes(jobId) ? prev.filter(id => id !== jobId) : [...prev, jobId]
+    );
+  };
+
+  const startBatchProcessing = async (action: string, settings?: Record<string, unknown>) => {
+    if (batchSelectedJobs.length === 0) return toast({ title: "Keine Videos ausgewählt", variant: "destructive" });
+    setIsBatchProcessing(true);
+    let successCount = 0;
+    let failCount = 0;
+    for (const jobId of batchSelectedJobs) {
+      try {
+        const { error } = await supabase.functions.invoke("process-video", {
+          body: { jobId, action, settings },
+        });
+        if (error) throw error;
+        successCount++;
+      } catch {
+        failCount++;
+      }
+    }
+    toast({
+      title: `Batch-Verarbeitung abgeschlossen`,
+      description: `${successCount} erfolgreich, ${failCount} fehlgeschlagen`,
+    });
+    setBatchSelectedJobs([]);
+    setIsBatchProcessing(false);
+    fetchJobs();
+  };
+
   const cssFilter = `brightness(${brightness}%) saturate(${saturation}%) contrast(${contrast}%)`;
 
   return (
@@ -260,12 +328,18 @@ export default function VideoEngine() {
 
           {/* Main Tabs */}
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="bg-[hsl(var(--sidebar-accent))] border border-[hsl(var(--sidebar-border))]">
+            <TabsList className="bg-[hsl(var(--sidebar-accent))] border border-[hsl(var(--sidebar-border))] flex-wrap">
               <TabsTrigger value="create" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-xs gap-1.5">
                 <Play className="w-3.5 h-3.5" /> Erstellen
               </TabsTrigger>
+              <TabsTrigger value="lipsync" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-xs gap-1.5">
+                <AudioLines className="w-3.5 h-3.5" /> Lipsync
+              </TabsTrigger>
               <TabsTrigger value="postprocess" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-xs gap-1.5">
                 <SlidersHorizontal className="w-3.5 h-3.5" /> Post-Processing
+              </TabsTrigger>
+              <TabsTrigger value="batch" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-xs gap-1.5">
+                <Layers className="w-3.5 h-3.5" /> Batch
               </TabsTrigger>
               <TabsTrigger value="export" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-xs gap-1.5">
                 <FileOutput className="w-3.5 h-3.5" /> Export
@@ -499,6 +573,81 @@ export default function VideoEngine() {
               </div>
             </TabsContent>
 
+            {/* LIPSYNC TAB */}
+            <TabsContent value="lipsync">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <Card className="bg-[hsl(var(--sidebar-accent))] border-[hsl(var(--sidebar-border))]">
+                  <CardHeader>
+                    <CardTitle className="text-sm text-[hsl(var(--sidebar-foreground))] flex items-center gap-2">
+                      <AudioLines className="w-4 h-4 text-primary" /> Voice-to-Video (Lipsync)
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <p className="text-xs text-[hsl(var(--sidebar-muted))]">
+                      Synchronisiere eine Audiodatei mit einem generierten Video. Die Lippenbewegungen werden via Fal.ai Sync Lipsync 2.0 automatisch angepasst.
+                    </p>
+
+                    {/* Video Selection */}
+                    <div>
+                      <label className="text-xs font-medium text-[hsl(var(--sidebar-muted))] mb-2 block">Video auswählen</label>
+                      {jobs.filter(j => j.status === "completed" && j.video_url).length > 0 ? (
+                        <Select value={lipsyncJobId || ""} onValueChange={setLipsyncJobId}>
+                          <SelectTrigger className="bg-[hsl(var(--sidebar-background))] border-[hsl(var(--sidebar-border))] text-[hsl(var(--sidebar-foreground))] text-xs">
+                            <SelectValue placeholder="Video auswählen..." />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {jobs.filter(j => j.status === "completed" && j.video_url).map(j => (
+                              <SelectItem key={j.id} value={j.id}>{j.prompt.slice(0, 50)}...</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      ) : (
+                        <p className="text-xs text-[hsl(var(--sidebar-muted))] italic">Generiere zuerst ein Video im "Erstellen" Tab.</p>
+                      )}
+                    </div>
+
+                    {/* Audio Upload */}
+                    <div>
+                      <label className="text-xs font-medium text-[hsl(var(--sidebar-muted))] mb-2 block">Audio-Datei</label>
+                      <label className="flex items-center justify-center gap-2 p-4 rounded-lg border-2 border-dashed border-[hsl(var(--sidebar-border))] hover:border-primary/40 cursor-pointer transition-colors bg-[hsl(var(--sidebar-background))]">
+                        <Mic className="w-5 h-5 text-[hsl(var(--sidebar-muted))]" />
+                        <span className="text-sm text-[hsl(var(--sidebar-muted))]">
+                          {lipsyncAudioFile ? lipsyncAudioFile.name : "Audio hochladen (.mp3, .wav)"}
+                        </span>
+                        <input type="file" className="hidden" accept="audio/*"
+                          onChange={e => setLipsyncAudioFile(e.target.files?.[0] || null)} />
+                      </label>
+                    </div>
+
+                    <Button onClick={startLipsync} disabled={isLipsyncing || !lipsyncAudioFile || jobs.filter(j => j.status === "completed" && j.video_url).length === 0}
+                      className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold gap-2 h-12 rounded-xl">
+                      {isLipsyncing ? <Loader2 className="w-4 h-4 animate-spin" /> : <AudioLines className="w-4 h-4" />}
+                      Lipsync starten
+                    </Button>
+                  </CardContent>
+                </Card>
+
+                {/* Preview */}
+                <Card className="bg-[hsl(var(--sidebar-accent))] border-[hsl(var(--sidebar-border))]">
+                  <CardHeader>
+                    <CardTitle className="text-sm text-[hsl(var(--sidebar-foreground))]">Lipsync Vorschau</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {lipsyncJobId && jobs.find(j => j.id === lipsyncJobId)?.video_url ? (
+                      <div className="rounded-lg overflow-hidden border border-[hsl(var(--sidebar-border))]">
+                        <video src={jobs.find(j => j.id === lipsyncJobId)!.video_url!} controls className="w-full" />
+                      </div>
+                    ) : (
+                      <div className="text-center py-12 text-[hsl(var(--sidebar-muted))]">
+                        <AudioLines className="w-10 h-10 mx-auto mb-2 opacity-30" />
+                        <p className="text-xs">Wähle ein Video aus</p>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
+
             {/* POST-PROCESSING TAB */}
             <TabsContent value="postprocess">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -571,6 +720,81 @@ export default function VideoEngine() {
                   </CardContent>
                 </Card>
               </div>
+            </TabsContent>
+
+            {/* BATCH PROCESSING TAB */}
+            <TabsContent value="batch">
+              <Card className="bg-[hsl(var(--sidebar-accent))] border-[hsl(var(--sidebar-border))]">
+                <CardHeader>
+                  <CardTitle className="text-sm text-[hsl(var(--sidebar-foreground))] flex items-center gap-2">
+                    <Layers className="w-4 h-4 text-primary" /> Batch-Verarbeitung
+                    {batchSelectedJobs.length > 0 && (
+                      <Badge variant="outline" className="text-[10px] border-primary/40 text-primary ml-auto">
+                        {batchSelectedJobs.length} ausgewählt
+                      </Badge>
+                    )}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <p className="text-xs text-[hsl(var(--sidebar-muted))]">
+                    Wähle mehrere Videos aus und wende dieselben Post-Processing-Einstellungen gleichzeitig an.
+                  </p>
+
+                  {/* Video Selection */}
+                  {jobs.filter(j => j.status === "completed" && j.video_url).length === 0 ? (
+                    <div className="text-center py-8 text-[hsl(var(--sidebar-muted))]">
+                      <Layers className="w-10 h-10 mx-auto mb-2 opacity-30" />
+                      <p className="text-xs">Keine fertigen Videos vorhanden</p>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="space-y-2 max-h-[300px] overflow-y-auto">
+                        {jobs.filter(j => j.status === "completed" && j.video_url).map(job => (
+                          <button key={job.id} onClick={() => toggleBatchJob(job.id)}
+                            className={`w-full flex items-center gap-3 p-3 rounded-lg border text-left transition-all ${
+                              batchSelectedJobs.includes(job.id)
+                                ? "border-primary bg-primary/10"
+                                : "border-[hsl(var(--sidebar-border))] bg-[hsl(var(--sidebar-background))] hover:border-primary/40"
+                            }`}>
+                            {batchSelectedJobs.includes(job.id)
+                              ? <CheckSquare className="w-4 h-4 text-primary shrink-0" />
+                              : <Square className="w-4 h-4 text-[hsl(var(--sidebar-muted))] shrink-0" />}
+                            <div className="flex-1 min-w-0">
+                              <p className="text-xs text-[hsl(var(--sidebar-foreground))] truncate">{job.prompt}</p>
+                              <p className="text-[10px] text-[hsl(var(--sidebar-muted))]">
+                                {MODELS.find(m => m.id === job.model)?.label} · {job.aspect_ratio}
+                              </p>
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+
+                      {/* Batch Actions */}
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-2">
+                        <Button size="sm" onClick={() => startBatchProcessing("upscale")}
+                          disabled={isBatchProcessing || batchSelectedJobs.length === 0}
+                          className="bg-primary hover:bg-primary/90 text-xs gap-1.5">
+                          {isBatchProcessing ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}
+                          Alle Upscalen
+                        </Button>
+                        <Button size="sm" onClick={() => startBatchProcessing("color-grade", { brightness, saturation, contrast })}
+                          disabled={isBatchProcessing || batchSelectedJobs.length === 0}
+                          variant="outline" className="text-xs gap-1.5 border-[hsl(var(--sidebar-border))] text-[hsl(var(--sidebar-foreground))]">
+                          {isBatchProcessing ? <Loader2 className="w-3 h-3 animate-spin" /> : <Palette className="w-3 h-3" />}
+                          Farbanpassung
+                        </Button>
+                        <Button size="sm" onClick={() => setBatchSelectedJobs([])}
+                          variant="ghost" className="text-xs text-[hsl(var(--sidebar-muted))]">
+                          Auswahl aufheben
+                        </Button>
+                      </div>
+                      <p className="text-[10px] text-[hsl(var(--sidebar-muted))]">
+                        Farbanpassung nutzt die aktuellen Werte aus dem Post-Processing Tab (Helligkeit: {brightness}%, Sättigung: {saturation}%, Kontrast: {contrast}%).
+                      </p>
+                    </>
+                  )}
+                </CardContent>
+              </Card>
             </TabsContent>
 
             {/* EXPORT TAB */}
