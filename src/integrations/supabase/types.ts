@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      asset_tags: {
+        Row: {
+          asset_id: string
+          asset_type: string
+          created_at: string
+          custom_tags: string[] | null
+          horse_name: string | null
+          id: string
+          project_name: string | null
+          user_id: string
+        }
+        Insert: {
+          asset_id: string
+          asset_type?: string
+          created_at?: string
+          custom_tags?: string[] | null
+          horse_name?: string | null
+          id?: string
+          project_name?: string | null
+          user_id: string
+        }
+        Update: {
+          asset_id?: string
+          asset_type?: string
+          created_at?: string
+          custom_tags?: string[] | null
+          horse_name?: string | null
+          id?: string
+          project_name?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       blog_posts: {
         Row: {
           author_id: string
@@ -112,6 +145,65 @@ export type Database = {
             columns: ["message_id"]
             isOneToOne: false
             referencedRelation: "messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      content_calendar: {
+        Row: {
+          ai_generated: boolean | null
+          aspect_ratio: string | null
+          content_type: string
+          created_at: string
+          description: string | null
+          id: string
+          planned_date: string
+          platform: string
+          prompt_suggestion: string | null
+          status: string
+          title: string
+          updated_at: string
+          user_id: string
+          video_job_id: string | null
+        }
+        Insert: {
+          ai_generated?: boolean | null
+          aspect_ratio?: string | null
+          content_type?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          planned_date: string
+          platform?: string
+          prompt_suggestion?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+          user_id: string
+          video_job_id?: string | null
+        }
+        Update: {
+          ai_generated?: boolean | null
+          aspect_ratio?: string | null
+          content_type?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          planned_date?: string
+          platform?: string
+          prompt_suggestion?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+          video_job_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "content_calendar_video_job_id_fkey"
+            columns: ["video_job_id"]
+            isOneToOne: false
+            referencedRelation: "video_jobs"
             referencedColumns: ["id"]
           },
         ]
@@ -1026,6 +1118,71 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      video_export_analytics: {
+        Row: {
+          comments: number | null
+          created_at: string
+          engagement_rate: number | null
+          export_format: string
+          exported_at: string
+          id: string
+          likes: number | null
+          metrics_updated_at: string | null
+          notes: string | null
+          platform: string
+          shares: number | null
+          updated_at: string
+          user_id: string
+          video_job_id: string | null
+          views: number | null
+          watch_time_seconds: number | null
+        }
+        Insert: {
+          comments?: number | null
+          created_at?: string
+          engagement_rate?: number | null
+          export_format?: string
+          exported_at?: string
+          id?: string
+          likes?: number | null
+          metrics_updated_at?: string | null
+          notes?: string | null
+          platform: string
+          shares?: number | null
+          updated_at?: string
+          user_id: string
+          video_job_id?: string | null
+          views?: number | null
+          watch_time_seconds?: number | null
+        }
+        Update: {
+          comments?: number | null
+          created_at?: string
+          engagement_rate?: number | null
+          export_format?: string
+          exported_at?: string
+          id?: string
+          likes?: number | null
+          metrics_updated_at?: string | null
+          notes?: string | null
+          platform?: string
+          shares?: number | null
+          updated_at?: string
+          user_id?: string
+          video_job_id?: string | null
+          views?: number | null
+          watch_time_seconds?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "video_export_analytics_video_job_id_fkey"
+            columns: ["video_job_id"]
+            isOneToOne: false
+            referencedRelation: "video_jobs"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       video_jobs: {
         Row: {
