@@ -295,6 +295,7 @@ export default function OmniInterface() {
           log_training: shouldLog,
           user_id: shouldLog ? user.id : undefined,
           file_context: shouldLog && fileCtx ? fileCtx.slice(0, 4000) : undefined,
+          mode: resolvedMode,
         }),
       });
 
@@ -364,7 +365,8 @@ export default function OmniInterface() {
       }
 
       if (assistantSoFar) {
-        await supabase.from("messages").insert({ conversation_id: convId, role: "assistant", content: assistantSoFar, model: "google/gemini-3-flash-preview" });
+        const modeModelMap: Record<string, string> = { scout: "google/gemini-2.5-flash", canvas: "google/gemini-3-flash-preview", analyst: "google/gemini-2.5-pro", agent: "google/gemini-3-flash-preview" };
+        await supabase.from("messages").insert({ conversation_id: convId, role: "assistant", content: assistantSoFar, model: modeModelMap[resolvedMode] || "google/gemini-3-flash-preview" });
       }
     } catch (err: any) {
       console.error("Chat error:", err);
