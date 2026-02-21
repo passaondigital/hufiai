@@ -17,10 +17,11 @@ import {
   Video, Upload, Sparkles, Download, ThumbsUp, ThumbsDown,
   ChevronDown, Image, Type, Mic, Layers, Loader2, Play, Settings2, Wand2, Trash2,
   Palette, SlidersHorizontal, FileOutput, Stamp, Sun, Droplets, Contrast, AudioLines, CheckSquare, Square,
-  Film, Globe
+  Film, Globe, Rocket
 } from "lucide-react";
 import VideoTimeline from "@/components/video/VideoTimeline";
 import AgentWorkflow from "@/components/video/AgentWorkflow";
+import AutopilotProducer from "@/components/video/AutopilotProducer";
 
 const MODELS = [
   { id: "wan-2.2", label: "Wan 2.2", desc: "Best Allround", badge: "⭐" },
@@ -341,6 +342,9 @@ export default function VideoEngine() {
               <TabsTrigger value="agent" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-xs gap-1.5">
                 <Globe className="w-3.5 h-3.5" /> Agent
               </TabsTrigger>
+              <TabsTrigger value="autopilot" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-xs gap-1.5">
+                <Rocket className="w-3.5 h-3.5" /> Autopilot
+              </TabsTrigger>
               <TabsTrigger value="lipsync" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-xs gap-1.5">
                 <AudioLines className="w-3.5 h-3.5" /> Lipsync
               </TabsTrigger>
@@ -591,6 +595,19 @@ export default function VideoEngine() {
             <TabsContent value="agent">
               {user ? (
                 <AgentWorkflow userId={user.id} />
+              ) : (
+                <Card className="bg-[hsl(var(--sidebar-accent))] border-[hsl(var(--sidebar-border))]">
+                  <CardContent className="py-12 text-center">
+                    <p className="text-sm text-[hsl(var(--sidebar-muted))]">Bitte melde dich an</p>
+                  </CardContent>
+                </Card>
+              )}
+            </TabsContent>
+
+            {/* AUTOPILOT TAB */}
+            <TabsContent value="autopilot">
+              {user ? (
+                <AutopilotProducer userId={user.id} />
               ) : (
                 <Card className="bg-[hsl(var(--sidebar-accent))] border-[hsl(var(--sidebar-border))]">
                   <CardContent className="py-12 text-center">
