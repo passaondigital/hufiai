@@ -5,6 +5,15 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+// Normalize URL - add protocol if missing
+function normalizeUrl(input: string): string {
+  let url = input.trim();
+  if (!url.startsWith("http://") && !url.startsWith("https://")) {
+    url = `https://${url}`;
+  }
+  return url;
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
@@ -12,18 +21,21 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
-    // Auth
     const authHeader = req.headers.get("Authorization");
     if (!authHeader?.startsWith("Bearer ")) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: corsHeaders });
+      return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
-    const { url, action } = await req.json();
-    if (!url) throw new Error("URL is required");
+    const { url: rawUrl, action } = await req.json();
+    if (!rawUrl) throw new Error("URL is required");
 
-    // Step 1: Scrape the webpage
+    const url = normalizeUrl(rawUrl);
     console.log("Scraping URL:", url);
+
+    // Step 1: Scrape the webpage (single fetch)
     let pageContent = "";
+    let extractedColors: string[] = [];
+
     try {
       const scrapeResponse = await fetch(url, {
         headers: { "User-Agent": "HufiAi-Agent/1.0" },
@@ -31,40 +43,31 @@ serve(async (req) => {
       if (!scrapeResponse.ok) throw new Error(`Fetch failed: ${scrapeResponse.status}`);
       const html = await scrapeResponse.text();
 
-      // Extract text content from HTML (simple approach)
+      // Extract text content
       pageContent = html
         .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, "")
         .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "")
         .replace(/<[^>]+>/g, " ")
         .replace(/\s+/g, " ")
         .trim()
-        .slice(0, 8000); // Limit context
-    } catch (e) {
-      console.error("Scrape error:", e);
-      pageContent = `Webseite konnte nicht geladen werden: ${url}. Erstelle ein generisches Video-Skript basierend auf der URL.`;
-    }
+        .slice(0, 8000);
 
-    // Step 2: Extract dominant colors from HTML (look for CSS colors)
-    let extractedColors: string[] = [];
-    try {
-      const scrapeResponse = await fetch(url, {
-        headers: { "User-Agent": "HufiAi-Agent/1.0" },
-      });
-      const html = await scrapeResponse.text();
+      // Extract colors from the same HTML (no second fetch)
       const colorRegex = /#[0-9a-fA-F]{6}/g;
       const matches = html.match(colorRegex) || [];
-      // Count frequency
       const freq: Record<string, number> = {};
       matches.forEach(c => { freq[c.toUpperCase()] = (freq[c.toUpperCase()] || 0) + 1; });
       extractedColors = Object.entries(freq)
         .sort((a, b) => b[1] - a[1])
         .slice(0, 5)
         .map(([c]) => c);
-    } catch {
+    } catch (e) {
+      console.error("Scrape error:", e);
+      pageContent = `Webseite konnte nicht geladen werden: ${url}. Erstelle ein generisches Video-Skript basierend auf der URL.`;
       extractedColors = ["#333333", "#666666", "#FFFFFF"];
     }
 
-    // Step 3: AI generates video script with scene breakdown
+    // Step 2: AI generates video script
     const systemPrompt = `Du bist ein professioneller Video-Regisseur und Content-Stratege für HufiAi, eine Plattform für Hufbearbeitung und Pferdegesundheit.
 
 Du analysierst Webseiten-Inhalte und erstellst daraus professionelle Video-Skripte.
@@ -153,10 +156,8 @@ Erstelle ein JSON-Objekt mit dieser Struktur:
     const aiData = await aiResponse.json();
     const content = aiData.choices?.[0]?.message?.content || "";
 
-    // Parse JSON from response
     let script;
     try {
-      // Try to extract JSON from potential markdown code blocks
       const jsonMatch = content.match(/```(?:json)?\s*([\s\S]*?)```/) || [null, content];
       script = JSON.parse(jsonMatch[1]!.trim());
     } catch (parseErr) {

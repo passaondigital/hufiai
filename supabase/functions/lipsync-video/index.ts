@@ -15,7 +15,7 @@ serve(async (req) => {
 
     const authHeader = req.headers.get("Authorization");
     if (!authHeader?.startsWith("Bearer ")) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: corsHeaders });
+      return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
     const supabase = createClient(
@@ -24,12 +24,11 @@ serve(async (req) => {
       { global: { headers: { Authorization: authHeader } } }
     );
 
-    const token = authHeader.replace("Bearer ", "");
-    const { data: claimsData, error: claimsError } = await supabase.auth.getClaims(token);
-    if (claimsError || !claimsData?.claims) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: corsHeaders });
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    if (userError || !user) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
-    const userId = claimsData.claims.sub;
+    const userId = user.id;
 
     const { jobId, audioUrl } = await req.json();
     if (!jobId) throw new Error("jobId is required");
@@ -91,42 +90,46 @@ serve(async (req) => {
       throw new Error("No video returned from lipsync");
     }
 
-    // Poll for result
+    // Poll for result - max 2 minutes
     let attempts = 0;
-    const maxAttempts = 120;
+    const maxAttempts = 24;
     let completed = false;
 
     while (attempts < maxAttempts && !completed) {
       await new Promise(r => setTimeout(r, 5000));
       attempts++;
 
-      const statusRes = await fetch(`https://queue.fal.run/fal-ai/sync-lipsync/v2/requests/${requestId}/status`, {
-        headers: { Authorization: `Key ${FAL_AI_API_KEY}` },
-      });
-
-      if (!statusRes.ok) continue;
-      const statusData = await statusRes.json();
-
-      if (statusData.status === "COMPLETED") {
-        const resultRes = await fetch(`https://queue.fal.run/fal-ai/sync-lipsync/v2/requests/${requestId}`, {
+      try {
+        const statusRes = await fetch(`https://queue.fal.run/fal-ai/sync-lipsync/v2/requests/${requestId}/status`, {
           headers: { Authorization: `Key ${FAL_AI_API_KEY}` },
         });
-        const resultData = await resultRes.json();
-        const videoUrl = resultData.video?.url;
 
-        await supabase.from("video_jobs").update({
-          status: "completed",
-          video_url: videoUrl || job.video_url,
-        }).eq("id", jobId);
-        completed = true;
-      } else if (statusData.status === "FAILED") {
-        await supabase.from("video_jobs").update({ status: "failed" }).eq("id", jobId);
-        completed = true;
+        if (!statusRes.ok) continue;
+        const statusData = await statusRes.json();
+
+        if (statusData.status === "COMPLETED") {
+          const resultRes = await fetch(`https://queue.fal.run/fal-ai/sync-lipsync/v2/requests/${requestId}`, {
+            headers: { Authorization: `Key ${FAL_AI_API_KEY}` },
+          });
+          const resultData = await resultRes.json();
+          const videoUrl = resultData.video?.url;
+
+          await supabase.from("video_jobs").update({
+            status: "completed",
+            video_url: videoUrl || job.video_url,
+          }).eq("id", jobId);
+          completed = true;
+        } else if (statusData.status === "FAILED") {
+          await supabase.from("video_jobs").update({ status: "failed" }).eq("id", jobId);
+          completed = true;
+        }
+      } catch (pollErr) {
+        console.error("Poll error:", pollErr);
       }
     }
 
     if (!completed) {
-      await supabase.from("video_jobs").update({ status: "failed" }).eq("id", jobId);
+      console.log(`Lipsync job ${jobId} still processing after timeout`);
     }
 
     return new Response(JSON.stringify({ success: true, requestId }), {

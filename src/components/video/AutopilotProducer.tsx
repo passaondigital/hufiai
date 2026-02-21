@@ -252,7 +252,7 @@ export default function AutopilotProducer({ userId }: { userId: string }) {
       try {
         const coloredPrompt = `${scene.prompt}, color palette: ${scene.color_mood}, accent color: #F47B20 HufiAi orange${autoOverlay && scene.overlay_text ? `, text overlay: "${scene.overlay_text}" in orange #F47B20` : ""}`;
 
-        await supabase.from("video_jobs").insert({
+        const { data: insertData } = await supabase.from("video_jobs").insert({
           user_id: userId,
           prompt: coloredPrompt,
           model: scene.model,
@@ -268,7 +268,14 @@ export default function AutopilotProducer({ userId }: { userId: string }) {
           status: "queued",
           is_hufi_relevant: true,
           optimized_prompt: `[${job.lang.toUpperCase()}] ${job.format}`,
-        });
+        }).select("id").single();
+
+        // Trigger video generation
+        if (insertData?.id) {
+          supabase.functions.invoke("generate-video", {
+            body: { jobId: insertData.id },
+          }).catch(e => console.error("Generate video trigger error:", e));
+        }
 
         setGenerationJobs(prev => prev.map((j, idx) => idx === i ? { ...j, status: "completed" } : j));
       } catch {

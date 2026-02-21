@@ -110,7 +110,7 @@ export default function AgentWorkflow({ userId }: { userId: string }) {
         // Build color-graded prompt
         const coloredPrompt = `${scene.prompt}, color palette: ${scene.color_mood}, accent color: #F47B20 HufiAi orange`;
 
-        const { error: insertError } = await supabase.from("video_jobs").insert({
+        const { data: insertData, error: insertError } = await supabase.from("video_jobs").insert({
           user_id: userId,
           prompt: coloredPrompt,
           model: scene.model,
@@ -123,8 +123,13 @@ export default function AgentWorkflow({ userId }: { userId: string }) {
           format: "mp4",
           preset: scene.style,
           status: "queued",
-        });
+        }).select("id").single();
         if (insertError) throw insertError;
+
+        // Trigger video generation
+        supabase.functions.invoke("generate-video", {
+          body: { jobId: insertData.id },
+        }).catch(e => console.error("Generate video trigger error:", e));
 
         setGenerationStatuses(prev =>
           prev.map((p, idx) => idx === i ? { ...p, status: "completed" } : p)

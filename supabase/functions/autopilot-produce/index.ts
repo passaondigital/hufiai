@@ -12,8 +12,9 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
-    const { url, options } = await req.json();
-    if (!url) throw new Error("URL is required");
+    const { url: rawUrl, options } = await req.json();
+    if (!rawUrl) throw new Error("URL is required");
+    const url = rawUrl.trim().startsWith("http") ? rawUrl.trim() : `https://${rawUrl.trim()}`;
 
     const dualLanguage = options?.dualLanguage ?? false;
 
