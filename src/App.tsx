@@ -31,6 +31,7 @@ import UeberHufiai from "./pages/UeberHufiai";
 import EthikSeite from "./pages/EthikSeite";
 import Ecosystem from "./pages/Ecosystem";
 import HufManagerDashboard from "./pages/HufManagerDashboard";
+import VideoEngine from "./pages/VideoEngine";
 import NotFound from "./pages/NotFound";
 import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -137,6 +138,7 @@ function AppRoutes() {
       <Route path="/ethik" element={<EthikSeite />} />
       <Route path="/ecosystem" element={<ProtectedRoute><Ecosystem /></ProtectedRoute>} />
       <Route path="/hufmanager" element={<ProtectedRoute><HufManagerDashboard /></ProtectedRoute>} />
+      <Route path="/video-engine" element={<ProtectedRoute><VideoEngine /></ProtectedRoute>} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );

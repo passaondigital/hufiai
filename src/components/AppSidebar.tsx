@@ -6,7 +6,7 @@ import { useUnreadNotifications } from "@/hooks/useUnreadNotifications";
 import {
   MessageSquare, FolderKanban, FileText, CreditCard, Settings,
   LogOut, ChevronLeft, ChevronRight, Plus, Shield,
-  ArrowLeftRight, Building2, Map, Megaphone, Crown, Heart, Award, Users, Sparkles, Link2, Database, Bell
+  ArrowLeftRight, Building2, Map, Megaphone, Crown, Heart, Award, Users, Sparkles, Link2, Database, Bell, Video
 } from "lucide-react";
 import hufiaiLogo from "@/assets/hufiai-logo.svg";
 
@@ -53,6 +53,7 @@ export default function AppSidebar() {
     { icon: FileText, label: "Wissensdatenbank", path: "/knowledge" },
     { icon: Database, label: "HufManager", path: "/hufmanager" },
     { icon: Link2, label: "Ecosystem", path: "/ecosystem" },
+    { icon: Video, label: "Video Engine", path: "/video-engine" },
     { icon: Bell, label: "Benachrichtigungen", path: "/hufmanager", badge: unreadCount },
     { icon: Heart, label: "Support & Hilfe", path: "/support" },
     { icon: CreditCard, label: "Preise", path: "/pricing" },
