@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { ArrowRight, Search } from "lucide-react";
+import { ArrowRight, Search, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useI18n } from "@/lib/i18n";
@@ -33,7 +33,7 @@ export default function Landing() {
   const navigate = useNavigate();
   const { t } = useI18n();
   const [posts, setPosts] = useState<BlogPost[]>([]);
-
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   useEffect(() => {
     supabase
       .from("blog_posts")
@@ -51,9 +51,9 @@ export default function Landing() {
     <div className="min-h-screen bg-background">
       {/* Navbar */}
       <nav className="sticky top-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border">
-        <div className="flex items-center justify-between px-6 py-3 max-w-7xl mx-auto">
+        <div className="flex items-center justify-between px-4 md:px-6 py-3 max-w-7xl mx-auto">
           <div className="flex items-center gap-2 cursor-pointer" onClick={() => scrollTo("hero")}>
-            <img src={hufiaiLogo} alt="HufiAi" className="h-[4.5rem]" />
+            <img src={hufiaiLogo} alt="HufiAi" className="h-10 md:h-[4.5rem]" />
           </div>
           <div className="hidden md:flex items-center gap-6 text-sm font-medium text-muted-foreground">
             <button onClick={() => navigate("/ueber-hufiai")} className="hover:text-foreground transition-colors">{t("nav.about")}</button>
@@ -62,30 +62,58 @@ export default function Landing() {
             <button onClick={() => navigate("/experten")} className="hover:text-foreground transition-colors">{t("nav.experts")}</button>
             <button onClick={() => scrollTo("pricing")} className="hover:text-foreground transition-colors">{t("nav.pricing")}</button>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 md:gap-3">
             <LanguageToggle />
-            <Button variant="ghost" onClick={() => navigate("/auth")}>{t("nav.login")}</Button>
-            <Button onClick={() => navigate("/auth")}>
+            <Button variant="ghost" size="sm" className="hidden sm:inline-flex" onClick={() => navigate("/auth")}>{t("nav.login")}</Button>
+            <Button size="sm" onClick={() => navigate("/auth")} className="text-xs md:text-sm">
               {t("nav.cta")} <ArrowRight className="w-4 h-4 ml-1" />
             </Button>
+            {/* Mobile hamburger */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="md:hidden p-2 rounded-lg hover:bg-accent transition-colors"
+            >
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
           </div>
         </div>
+        {/* Mobile dropdown */}
+        {mobileMenuOpen && (
+          <div className="md:hidden border-t border-border bg-background/95 backdrop-blur-lg px-4 py-4 space-y-1 animate-in slide-in-from-top-2 duration-200">
+            {[
+              { label: t("nav.about"), action: () => navigate("/ueber-hufiai") },
+              { label: t("nav.ethics"), action: () => navigate("/ethik") },
+              { label: t("nav.features"), action: () => scrollTo("features") },
+              { label: t("nav.experts"), action: () => navigate("/experten") },
+              { label: t("nav.pricing"), action: () => scrollTo("pricing") },
+              { label: t("nav.login"), action: () => navigate("/auth") },
+            ].map((item) => (
+              <button
+                key={item.label}
+                onClick={() => { item.action(); setMobileMenuOpen(false); }}
+                className="block w-full text-left px-4 py-3 rounded-lg text-sm font-medium text-foreground hover:bg-accent transition-colors"
+              >
+                {item.label}
+              </button>
+            ))}
+          </div>
+        )}
       </nav>
 
       {/* Hero */}
-      <section id="hero" className="relative max-w-7xl mx-auto pt-16 pb-20 px-6 flex flex-col md:flex-row items-center gap-8">
+      <section id="hero" className="relative max-w-7xl mx-auto pt-10 md:pt-16 pb-12 md:pb-20 px-4 md:px-6 flex flex-col md:flex-row items-center gap-6 md:gap-8">
         <div className="flex-1 text-center md:text-left z-10">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6">
             {t("hero.badge")}
           </div>
-          <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight mb-6 leading-tight">
+          <h1 className="text-3xl md:text-5xl lg:text-6xl font-extrabold tracking-tight mb-4 md:mb-6 leading-tight">
             {t("hero.title1")}{" "}
             <span className="text-gradient">{t("hero.title2")}</span>
           </h1>
-          <p className="text-xl text-muted-foreground max-w-xl mb-10">
+          <p className="text-base md:text-xl text-muted-foreground max-w-xl mb-6 md:mb-10">
             {t("hero.subtitle")}
           </p>
-          <div className="flex items-center gap-4 justify-center md:justify-start">
+          <div className="flex flex-col sm:flex-row items-center gap-3 md:gap-4 justify-center md:justify-start">
             <Button size="lg" onClick={() => navigate("/auth")} className="text-base px-8">
               {t("hero.cta")} <ArrowRight className="w-4 h-4 ml-2" />
             </Button>
@@ -169,7 +197,7 @@ export default function Landing() {
 
       {/* Stats */}
       <section className="bg-muted py-16">
-        <div className="max-w-4xl mx-auto grid grid-cols-3 gap-8 text-center">
+        <div className="max-w-4xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-6 md:gap-8 text-center">
           {[
             { value: "100%", label: t("stats.gdpr") },
             { value: "24/7", label: t("stats.available") },
@@ -192,7 +220,7 @@ export default function Landing() {
             </div>
             <p className="text-sm text-muted-foreground max-w-xs">{t("footer.desc")}</p>
           </div>
-          <div className="flex gap-12">
+          <div className="flex flex-col sm:flex-row gap-8 sm:gap-12">
             <div>
               <h4 className="font-semibold text-sm mb-3">{t("footer.product")}</h4>
               <div className="space-y-2 text-sm text-muted-foreground">
