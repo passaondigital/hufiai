@@ -32,7 +32,9 @@ import EthikSeite from "./pages/EthikSeite";
 import Ecosystem from "./pages/Ecosystem";
 import HufManagerDashboard from "./pages/HufManagerDashboard";
 import VideoEngine from "./pages/VideoEngine";
+import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
+import PWAInstallPrompt from "./components/PWAInstallPrompt";
 import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -100,6 +102,14 @@ function AdminRoute({ children }: { children: React.ReactNode }) {
 
 function AppRoutes() {
   const { user, loading } = useAuth();
+  const [showPWA, setShowPWA] = useState(false);
+
+  useEffect(() => {
+    if (user && !localStorage.getItem("hufi_pwa_prompt_dismissed")) {
+      const timer = setTimeout(() => setShowPWA(true), 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [user]);
 
   if (loading) {
     return (
@@ -110,37 +120,41 @@ function AppRoutes() {
   }
 
   return (
-    <Routes>
-      <Route path="/landing" element={user ? <Navigate to="/" replace /> : <Landing />} />
-      <Route path="/auth" element={user ? <Navigate to="/" replace /> : <Auth />} />
-      <Route path="/onboarding" element={user ? <Onboarding /> : <Navigate to="/auth" replace />} />
-      <Route path="/" element={<ProtectedRoute><Chat /></ProtectedRoute>} />
-      <Route path="/projects" element={<ProtectedRoute><Projects /></ProtectedRoute>} />
-      <Route path="/knowledge" element={<ProtectedRoute><Knowledge /></ProtectedRoute>} />
-      <Route path="/horses" element={<ProtectedRoute><MyHorses /></ProtectedRoute>} />
-      <Route path="/pricing" element={<ProtectedRoute><Pricing /></ProtectedRoute>} />
-      <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
-      <Route path="/admin" element={<AdminRoute><Admin /></AdminRoute>} />
-      <Route path="/company" element={<ProtectedRoute><CompanySettings /></ProtectedRoute>} />
-      <Route path="/content" element={<ProtectedRoute><ContentHub /></ProtectedRoute>} />
-      <Route path="/roadmap" element={<ProtectedRoute><Roadmap /></ProtectedRoute>} />
-      <Route path="/founder-coach" element={<ProtectedRoute><FounderCoach /></ProtectedRoute>} />
-      <Route path="/support" element={<ProtectedRoute><Support /></ProtectedRoute>} />
-      <Route path="/pro-profile" element={<ProtectedRoute><ProProfile /></ProtectedRoute>} />
-      <Route path="/expert-dashboard" element={<ProtectedRoute><ExpertDashboard /></ProtectedRoute>} />
-      <Route path="/impressum" element={<Impressum />} />
-      <Route path="/agb" element={<AGB />} />
-      <Route path="/datenschutz" element={<Datenschutz />} />
-      <Route path="/experten" element={<ExpertenSuche />} />
-      <Route path="/manual" element={<Manual />} />
-      <Route path="/admin/docs" element={<AdminRoute><AdminDocs /></AdminRoute>} />
-      <Route path="/ueber-hufiai" element={<UeberHufiai />} />
-      <Route path="/ethik" element={<EthikSeite />} />
-      <Route path="/ecosystem" element={<ProtectedRoute><Ecosystem /></ProtectedRoute>} />
-      <Route path="/hufmanager" element={<ProtectedRoute><HufManagerDashboard /></ProtectedRoute>} />
-      <Route path="/video-engine" element={<ProtectedRoute><VideoEngine /></ProtectedRoute>} />
-      <Route path="*" element={<NotFound />} />
-    </Routes>
+    <>
+      {showPWA && <PWAInstallPrompt onDismiss={() => setShowPWA(false)} />}
+      <Routes>
+        <Route path="/landing" element={user ? <Navigate to="/" replace /> : <Landing />} />
+        <Route path="/auth" element={user ? <Navigate to="/" replace /> : <Auth />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/onboarding" element={user ? <Onboarding /> : <Navigate to="/auth" replace />} />
+        <Route path="/" element={<ProtectedRoute><Chat /></ProtectedRoute>} />
+        <Route path="/projects" element={<ProtectedRoute><Projects /></ProtectedRoute>} />
+        <Route path="/knowledge" element={<ProtectedRoute><Knowledge /></ProtectedRoute>} />
+        <Route path="/horses" element={<ProtectedRoute><MyHorses /></ProtectedRoute>} />
+        <Route path="/pricing" element={<ProtectedRoute><Pricing /></ProtectedRoute>} />
+        <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
+        <Route path="/admin" element={<AdminRoute><Admin /></AdminRoute>} />
+        <Route path="/company" element={<ProtectedRoute><CompanySettings /></ProtectedRoute>} />
+        <Route path="/content" element={<ProtectedRoute><ContentHub /></ProtectedRoute>} />
+        <Route path="/roadmap" element={<ProtectedRoute><Roadmap /></ProtectedRoute>} />
+        <Route path="/founder-coach" element={<ProtectedRoute><FounderCoach /></ProtectedRoute>} />
+        <Route path="/support" element={<ProtectedRoute><Support /></ProtectedRoute>} />
+        <Route path="/pro-profile" element={<ProtectedRoute><ProProfile /></ProtectedRoute>} />
+        <Route path="/expert-dashboard" element={<ProtectedRoute><ExpertDashboard /></ProtectedRoute>} />
+        <Route path="/impressum" element={<Impressum />} />
+        <Route path="/agb" element={<AGB />} />
+        <Route path="/datenschutz" element={<Datenschutz />} />
+        <Route path="/experten" element={<ExpertenSuche />} />
+        <Route path="/manual" element={<Manual />} />
+        <Route path="/admin/docs" element={<AdminRoute><AdminDocs /></AdminRoute>} />
+        <Route path="/ueber-hufiai" element={<UeberHufiai />} />
+        <Route path="/ethik" element={<EthikSeite />} />
+        <Route path="/ecosystem" element={<ProtectedRoute><Ecosystem /></ProtectedRoute>} />
+        <Route path="/hufmanager" element={<ProtectedRoute><HufManagerDashboard /></ProtectedRoute>} />
+        <Route path="/video-engine" element={<ProtectedRoute><VideoEngine /></ProtectedRoute>} />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </>
   );
 }
 
