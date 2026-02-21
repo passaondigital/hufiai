@@ -44,7 +44,8 @@ serve(async (req) => {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e) {
-    return new Response(JSON.stringify({ error: e.message }), {
+    console.error("admin-create-user error:", e);
+    return new Response(JSON.stringify({ error: "Benutzer konnte nicht erstellt werden" }), {
       status: 400,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
