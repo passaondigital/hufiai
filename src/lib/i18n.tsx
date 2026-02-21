@@ -1,0 +1,238 @@
+import { createContext, useContext, useState, useCallback, ReactNode } from "react";
+
+export type Lang = "de" | "en";
+
+type Translations = Record<string, Record<Lang, string>>;
+
+const translations: Translations = {
+  // Navbar
+  "nav.about": { de: "Über HufiAi", en: "About HufiAi" },
+  "nav.ethics": { de: "Ethik", en: "Ethics" },
+  "nav.features": { de: "Funktionen", en: "Features" },
+  "nav.experts": { de: "Experten", en: "Experts" },
+  "nav.pricing": { de: "Preise", en: "Pricing" },
+  "nav.login": { de: "Anmelden", en: "Sign In" },
+  "nav.cta": { de: "Kostenlos starten", en: "Start Free" },
+
+  // Hero
+  "hero.badge": { de: "KI für die Pferdebranche", en: "AI for the Equine Industry" },
+  "hero.title1": { de: "Dein KI-Assistent für die", en: "Your AI Assistant for the" },
+  "hero.title2": { de: "Pferdebranche", en: "Equine Industry" },
+  "hero.subtitle": {
+    de: "HufiAi unterstützt Pferdebesitzer, Hufschmiede, Tierärzte und Betriebe mit modernster KI – DSGVO-konform und speziell für die Equine-Branche entwickelt.",
+    en: "HufiAi supports horse owners, farriers, veterinarians and businesses with cutting-edge AI – GDPR-compliant and purpose-built for the equine industry.",
+  },
+  "hero.cta": { de: "Jetzt starten", en: "Get Started" },
+  "hero.cta2": { de: "Mehr erfahren", en: "Learn More" },
+
+  // Trust Bar
+  "trust.gdpr": { de: "DSGVO-konform", en: "GDPR Compliant" },
+  "trust.eu": { de: "EU-Server", en: "EU Servers" },
+  "trust.available": { de: "24/7 verfügbar", en: "24/7 Available" },
+  "trust.multiLLM": { de: "Multi-LLM KI", en: "Multi-LLM AI" },
+
+  // Why HufiAi
+  "why.title": { de: "Warum HufiAi?", en: "Why HufiAi?" },
+  "why.subtitle": {
+    de: "KI, der du vertrauen kannst – entwickelt von Pferdemenschen für Pferdemenschen.",
+    en: "AI you can trust – built by horse people, for horse people.",
+  },
+  "why.trust.title": { de: "Kein Risiko, kein Hokuspokus", en: "No Risk, No Magic Tricks" },
+  "why.trust.desc": {
+    de: "HufiAi ersetzt keinen Experten. Es gibt dir Werkzeuge, die dein Wissen erweitern und deinen Alltag erleichtern – transparent und nachvollziehbar.",
+    en: "HufiAi doesn't replace experts. It gives you tools that expand your knowledge and simplify your daily work – transparent and traceable.",
+  },
+  "why.data.title": { de: "Deine Daten gehören dir", en: "Your Data Belongs to You" },
+  "why.data.desc": {
+    de: "Alle Daten liegen auf EU-Servern, sind verschlüsselt und werden niemals verkauft. Du bestimmst, was geteilt wird.",
+    en: "All data is stored on EU servers, encrypted, and never sold. You decide what gets shared.",
+  },
+  "why.easy.title": { de: "Einfach wie WhatsApp", en: "Simple as WhatsApp" },
+  "why.easy.desc": {
+    de: "Keine Schulung nötig. Stelle deine Frage, lade ein Foto hoch oder diktiere – HufiAi versteht dich sofort.",
+    en: "No training needed. Ask a question, upload a photo, or dictate – HufiAi understands you instantly.",
+  },
+
+  // Features
+  "features.title": { de: "Was du mit HufiAi erreichst", en: "What You Can Achieve with HufiAi" },
+  "features.subtitle": {
+    de: "Von der ersten Frage bis zum professionellen Video – eine Plattform für alles.",
+    en: "From your first question to professional video – one platform for everything.",
+  },
+  "features.chat.title": { de: "Intelligenter KI-Chat", en: "Intelligent AI Chat" },
+  "features.chat.desc": {
+    de: "Fragen zu Hufpflege, Fütterung, Stallbau und mehr – sofort beantwortet mit fundiertem Fachwissen.",
+    en: "Questions about hoof care, feeding, stable building and more – answered instantly with expert knowledge.",
+  },
+  "features.video.title": { de: "KI Video Engine", en: "AI Video Engine" },
+  "features.video.desc": {
+    de: "Erstelle professionelle Marketing-Videos mit KI. Autopilot-Modus, Multi-Modell-Unterstützung und Batch-Export.",
+    en: "Create professional marketing videos with AI. Autopilot mode, multi-model support and batch export.",
+  },
+  "features.hufmanager.title": { de: "Huf-Manager", en: "Hoof Manager" },
+  "features.hufmanager.desc": {
+    de: "Dokumentiere Hufgesundheit, verwalte Pferdeprofile und teile Daten sicher mit Tierärzten und Hufschmieden.",
+    en: "Document hoof health, manage horse profiles and securely share data with vets and farriers.",
+  },
+  "features.ecosystem.title": { de: "Ecosystem & Netzwerk", en: "Ecosystem & Network" },
+  "features.ecosystem.desc": {
+    de: "Vernetze dich mit zertifizierten Experten, teile Pferdeprofile und finde Dienstleister in deiner Nähe.",
+    en: "Connect with certified experts, share horse profiles and find service providers near you.",
+  },
+  "features.knowledge.title": { de: "Wissensdatenbank", en: "Knowledge Base" },
+  "features.knowledge.desc": {
+    de: "Lade eigene Dokumente hoch und lass die KI mit deinem Fachwissen arbeiten – maßgeschneiderte Antworten.",
+    en: "Upload your own documents and let AI work with your expertise – tailored answers.",
+  },
+  "features.content.title": { de: "Content-Zentrale", en: "Content Hub" },
+  "features.content.desc": {
+    de: "Generiere Social-Media-Posts, Blogartikel und Marketingtexte – perfekt auf die Pferdebranche zugeschnitten.",
+    en: "Generate social media posts, blog articles and marketing texts – perfectly tailored to the equine industry.",
+  },
+
+  // Use Cases
+  "usecases.title": { de: "Wähle deine Situation", en: "Choose Your Situation" },
+  "usecases.subtitle": { de: "So hilft dir HufiAi im Alltag.", en: "How HufiAi helps you every day." },
+  "usecases.private": { de: "Pferdebesitzer", en: "Horse Owner" },
+  "usecases.business": { de: "Profi / Gewerbe", en: "Professional" },
+
+  "usecases.p1.q": { de: "Mein Pferd hat einen Hufspalt", en: "My horse has a hoof crack" },
+  "usecases.p1.a": {
+    de: "HufiAi analysiert das Problem, erklärt mögliche Ursachen und gibt dir einen Aktionsplan mit Pflege-Tipps.",
+    en: "HufiAi analyzes the problem, explains possible causes and gives you an action plan with care tips.",
+  },
+  "usecases.p2.q": { de: "Welches Futter bei Hufrehe?", en: "What feed for laminitis?" },
+  "usecases.p2.a": {
+    de: "Du erhältst eine sofortige, fachlich fundierte Einschätzung mit Ernährungsplan und Tierarzt-Hinweisen.",
+    en: "You receive an immediate, professionally founded assessment with a nutrition plan and vet recommendations.",
+  },
+  "usecases.p3.q": { de: "Stallbau-Planung für einen Offenstall", en: "Planning an open stable build" },
+  "usecases.p3.a": {
+    de: "Schritt-für-Schritt-Beratung zu Boden, Entwässerung, Abmessungen und Materialien.",
+    en: "Step-by-step guidance on flooring, drainage, dimensions and materials.",
+  },
+  "usecases.b1.q": { de: "10 Beschläge heute dokumentieren", en: "Document 10 shoeings today" },
+  "usecases.b1.a": {
+    de: "Strukturierte Eingabe, automatische Fallakte und professioneller PDF-Export mit deinem Firmenlogo.",
+    en: "Structured input, automatic case files and professional PDF export with your company logo.",
+  },
+  "usecases.b2.q": { de: "Kunden-Report für Tierarzt erstellen", en: "Create client report for vet" },
+  "usecases.b2.a": {
+    de: "HufiAi generiert einen druckreifen Bericht mit Befund, Empfehlung und Verlaufsdokumentation.",
+    en: "HufiAi generates a print-ready report with findings, recommendations and progress documentation.",
+  },
+  "usecases.b3.q": { de: "Marketing-Video für meine Schmiede", en: "Marketing video for my forge" },
+  "usecases.b3.a": {
+    de: "Der Autopilot erstellt professionelle Videos – automatisch, in DE & EN, mit deinem Branding.",
+    en: "Autopilot creates professional videos – automatically, in DE & EN, with your branding.",
+  },
+
+  // Comparison
+  "compare.title": { de: "Tarife im Vergleich", en: "Plan Comparison" },
+  "compare.subtitle": { de: "Finde den passenden Plan für deine Bedürfnisse.", en: "Find the right plan for your needs." },
+  "compare.feature": { de: "Feature", en: "Feature" },
+
+  // Expert CTA
+  "expert.title": { de: "Finde einen Experten in deiner Nähe", en: "Find an Expert Near You" },
+  "expert.desc": {
+    de: "Zertifizierte Hufbearbeiter, Tierärzte und Stallbetreiber – geprüft und bereit, dir und deinem Pferd zu helfen.",
+    en: "Certified farriers, veterinarians and stable operators – verified and ready to help you and your horse.",
+  },
+  "expert.cta": { de: "Experten suchen", en: "Find Experts" },
+
+  // Stats
+  "stats.gdpr": { de: "DSGVO-konform", en: "GDPR Compliant" },
+  "stats.available": { de: "Verfügbar", en: "Available" },
+  "stats.models": { de: "KI-Modelle", en: "AI Models" },
+
+  // Footer
+  "footer.desc": {
+    de: "KI-gestützte Lösungen für die gesamte Pferdebranche. DSGVO-konform, in der EU gehostet.",
+    en: "AI-powered solutions for the entire equine industry. GDPR-compliant, hosted in the EU.",
+  },
+  "footer.product": { de: "Produkt", en: "Product" },
+  "footer.features": { de: "Funktionen", en: "Features" },
+  "footer.findExperts": { de: "Experten finden", en: "Find Experts" },
+  "footer.manual": { de: "Handbuch", en: "Manual" },
+  "footer.pricing": { de: "Preise", en: "Pricing" },
+  "footer.company": { de: "Unternehmen", en: "Company" },
+  "footer.about": { de: "Über HufiAi", en: "About HufiAi" },
+  "footer.ethics": { de: "Ethik & Verantwortung", en: "Ethics & Responsibility" },
+  "footer.legal": { de: "Rechtliches", en: "Legal" },
+  "footer.imprint": { de: "Impressum", en: "Imprint" },
+  "footer.terms": { de: "AGB", en: "Terms" },
+  "footer.privacy": { de: "Datenschutz", en: "Privacy" },
+  "footer.rights": { de: "Alle Rechte vorbehalten.", en: "All rights reserved." },
+  "footer.aiDisclaimer": { de: "kann Fehler machen. Nutzung auf eigenes Risiko.", en: "can make mistakes. Use at your own risk." },
+
+  // Blog
+  "blog.title": { de: "Blog & Neuigkeiten", en: "Blog & News" },
+  "blog.subtitle": { de: "Wissenswertes rund um die Pferdebranche und KI.", en: "Insights on the equine industry and AI." },
+
+  // Video Engine Feature Detail
+  "videoShowcase.title": { de: "Video Engine im Detail", en: "Video Engine in Detail" },
+  "videoShowcase.subtitle": {
+    de: "Professionelle Videos auf Knopfdruck – mit KI-Autopilot, Storyboard-Vorschau und Batch-Export.",
+    en: "Professional videos at the push of a button – with AI autopilot, storyboard preview and batch export.",
+  },
+  "videoShowcase.autopilot": { de: "Autopilot-Produzent", en: "Autopilot Producer" },
+  "videoShowcase.autopilot.desc": {
+    de: "Gib eine URL ein – HufiAi scrapt den Inhalt, erstellt ein Skript und produziert ein fertiges Video. Automatisch.",
+    en: "Enter a URL – HufiAi scrapes the content, creates a script and produces a finished video. Automatically.",
+  },
+  "videoShowcase.storyboard": { de: "Storyboard-Vorschau", en: "Storyboard Preview" },
+  "videoShowcase.storyboard.desc": {
+    de: "Sieh dir jede Szene vorab an, prüfe die Kosten und gib erst dann das Rendering frei.",
+    en: "Preview every scene, check costs and only then approve rendering.",
+  },
+  "videoShowcase.batch": { de: "Batch-Download", en: "Batch Download" },
+  "videoShowcase.batch.desc": {
+    de: "Exportiere alle Videos als ZIP – in DE & EN, allen Formaten, mit einem Klick.",
+    en: "Export all videos as ZIP – in DE & EN, all formats, with one click.",
+  },
+  "videoShowcase.models": { de: "Multi-Modell-KI", en: "Multi-Model AI" },
+  "videoShowcase.models.desc": {
+    de: "Wähle aus 5+ KI-Modellen das beste für deinen Einsatzzweck: Realismus, Biomechanik oder 3D.",
+    en: "Choose from 5+ AI models for your use case: realism, biomechanics or 3D.",
+  },
+};
+
+interface I18nContextType {
+  lang: Lang;
+  setLang: (lang: Lang) => void;
+  t: (key: string) => string;
+}
+
+const I18nContext = createContext<I18nContextType>({
+  lang: "de",
+  setLang: () => {},
+  t: (key) => key,
+});
+
+export function I18nProvider({ children }: { children: ReactNode }) {
+  const [lang, setLang] = useState<Lang>(() => {
+    const stored = localStorage.getItem("hufi_lang");
+    if (stored === "en" || stored === "de") return stored;
+    return navigator.language.startsWith("en") ? "en" : "de";
+  });
+
+  const changeLang = useCallback((newLang: Lang) => {
+    setLang(newLang);
+    localStorage.setItem("hufi_lang", newLang);
+  }, []);
+
+  const t = useCallback(
+    (key: string) => translations[key]?.[lang] ?? key,
+    [lang]
+  );
+
+  return (
+    <I18nContext.Provider value={{ lang, setLang: changeLang, t }}>
+      {children}
+    </I18nContext.Provider>
+  );
+}
+
+export function useI18n() {
+  return useContext(I18nContext);
+}

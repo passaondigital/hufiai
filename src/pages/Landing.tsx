@@ -1,15 +1,22 @@
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import CookieBanner from "@/components/CookieBanner";
+import { ArrowRight, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Shield, MessageSquare, Cpu, ArrowRight, Users, FileText, Building2, Search } from "lucide-react";
-
 import { supabase } from "@/integrations/supabase/client";
+import { useI18n } from "@/lib/i18n";
+
 import horseHero from "@/assets/horse-hero.png";
 import hufiaiLogo from "@/assets/hufiai-logo.svg";
-import ComparisonTable from "@/components/landing/ComparisonTable";
+
+import LanguageToggle from "@/components/landing/LanguageToggle";
+import TrustBar from "@/components/landing/TrustBar";
+import WhySection from "@/components/landing/WhySection";
+import FeaturesGrid from "@/components/landing/FeaturesGrid";
+import VideoShowcase from "@/components/landing/VideoShowcase";
 import UseCaseSection from "@/components/landing/UseCaseSection";
+import ComparisonTable from "@/components/landing/ComparisonTable";
 import TrustFooter from "@/components/landing/TrustFooter";
+import CookieBanner from "@/components/CookieBanner";
 
 interface BlogPost {
   id: string;
@@ -24,6 +31,7 @@ interface BlogPost {
 
 export default function Landing() {
   const navigate = useNavigate();
+  const { t } = useI18n();
   const [posts, setPosts] = useState<BlogPost[]>([]);
 
   useEffect(() => {
@@ -48,16 +56,17 @@ export default function Landing() {
             <img src={hufiaiLogo} alt="HufiAi" className="h-[4.5rem]" />
           </div>
           <div className="hidden md:flex items-center gap-6 text-sm font-medium text-muted-foreground">
-            <button onClick={() => navigate("/ueber-hufiai")} className="hover:text-foreground transition-colors">Über HufiAi</button>
-            <button onClick={() => navigate("/ethik")} className="hover:text-foreground transition-colors">Ethik</button>
-            <button onClick={() => scrollTo("features")} className="hover:text-foreground transition-colors">Funktionen</button>
-            <button onClick={() => navigate("/experten")} className="hover:text-foreground transition-colors">Experten</button>
-            <button onClick={() => scrollTo("pricing")} className="hover:text-foreground transition-colors">Preise</button>
+            <button onClick={() => navigate("/ueber-hufiai")} className="hover:text-foreground transition-colors">{t("nav.about")}</button>
+            <button onClick={() => navigate("/ethik")} className="hover:text-foreground transition-colors">{t("nav.ethics")}</button>
+            <button onClick={() => scrollTo("features")} className="hover:text-foreground transition-colors">{t("nav.features")}</button>
+            <button onClick={() => navigate("/experten")} className="hover:text-foreground transition-colors">{t("nav.experts")}</button>
+            <button onClick={() => scrollTo("pricing")} className="hover:text-foreground transition-colors">{t("nav.pricing")}</button>
           </div>
           <div className="flex items-center gap-3">
-            <Button variant="ghost" onClick={() => navigate("/auth")}>Anmelden</Button>
+            <LanguageToggle />
+            <Button variant="ghost" onClick={() => navigate("/auth")}>{t("nav.login")}</Button>
             <Button onClick={() => navigate("/auth")}>
-              Kostenlos starten <ArrowRight className="w-4 h-4 ml-1" />
+              {t("nav.cta")} <ArrowRight className="w-4 h-4 ml-1" />
             </Button>
           </div>
         </div>
@@ -67,21 +76,21 @@ export default function Landing() {
       <section id="hero" className="relative max-w-7xl mx-auto pt-16 pb-20 px-6 flex flex-col md:flex-row items-center gap-8">
         <div className="flex-1 text-center md:text-left z-10">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6">
-            KI für die Pferdebranche
+            {t("hero.badge")}
           </div>
           <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight mb-6 leading-tight">
-            Dein KI-Assistent für die{" "}
-            <span className="text-gradient">Pferdebranche</span>
+            {t("hero.title1")}{" "}
+            <span className="text-gradient">{t("hero.title2")}</span>
           </h1>
           <p className="text-xl text-muted-foreground max-w-xl mb-10">
-            HufiAi unterstützt Pferdebesitzer, Hufschmiede, Tierärzte und Betriebe mit modernster KI – DSGVO-konform und speziell für die Equine-Branche entwickelt.
+            {t("hero.subtitle")}
           </p>
           <div className="flex items-center gap-4 justify-center md:justify-start">
             <Button size="lg" onClick={() => navigate("/auth")} className="text-base px-8">
-              Jetzt starten <ArrowRight className="w-4 h-4 ml-2" />
+              {t("hero.cta")} <ArrowRight className="w-4 h-4 ml-2" />
             </Button>
             <Button size="lg" variant="outline" onClick={() => scrollTo("features")} className="text-base px-8">
-              Mehr erfahren
+              {t("hero.cta2")}
             </Button>
           </div>
         </div>
@@ -90,38 +99,27 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Features */}
-      <section id="features" className="max-w-6xl mx-auto py-20 px-6">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl font-bold mb-4">Alles was du brauchst</h2>
-          <p className="text-muted-foreground">Für Privatpersonen und Gewerbetreibende gleichermaßen.</p>
-        </div>
-        <div className="grid md:grid-cols-3 gap-8">
-          {[
-            { icon: MessageSquare, title: "Intelligenter Chat", desc: "Stelle Fragen zu Hufpflege, Fütterung, Stallbau und mehr. Die KI lernt mit jeder Interaktion." },
-            { icon: Cpu, title: "Multi-LLM Unterstützung", desc: "Wähle zwischen verschiedenen KI-Modellen für die beste Antwortqualität." },
-            { icon: Shield, title: "DSGVO-konform", desc: "Alle Daten werden in der EU gespeichert. Volle Kontrolle über deine Daten." },
-            { icon: Building2, title: "Gewerbe-Modus", desc: "Erweiterte Funktionen für Betriebe: Projekte, Teamverwaltung, Dokumentenmanagement." },
-            { icon: FileText, title: "Wissensdatenbank", desc: "Lade eigene Dokumente hoch und lass die KI mit deinem Fachwissen arbeiten." },
-            { icon: Users, title: "B2C & B2B", desc: "Ob privater Pferdebesitzer oder professioneller Dienstleister – HufiAi passt sich an." },
-          ].map((f) => (
-            <div key={f.title} className="bg-card rounded-2xl border border-border p-7 hover:shadow-lg hover:border-primary/30 transition-all group">
-              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
-                <f.icon className="w-6 h-6 text-primary" />
-              </div>
-              <h3 className="font-semibold text-lg mb-2">{f.title}</h3>
-              <p className="text-sm text-muted-foreground leading-relaxed">{f.desc}</p>
-            </div>
-          ))}
-        </div>
-      </section>
+      {/* Trust Bar */}
+      <TrustBar />
+
+      {/* Why HufiAi */}
+      <WhySection />
+
+      {/* Features Grid */}
+      <FeaturesGrid />
+
+      {/* Video Engine Showcase */}
+      <VideoShowcase />
+
+      {/* Use Cases */}
+      <UseCaseSection />
 
       {/* Blog */}
       {posts.length > 0 && (
         <section id="blog" className="max-w-6xl mx-auto py-20 px-6">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold mb-4">Blog & Neuigkeiten</h2>
-            <p className="text-muted-foreground">Wissenswertes rund um die Pferdebranche und KI.</p>
+            <h2 className="text-3xl font-bold mb-4">{t("blog.title")}</h2>
+            <p className="text-muted-foreground">{t("blog.subtitle")}</p>
           </div>
           <div className="grid md:grid-cols-3 gap-8">
             {posts.map((post) => (
@@ -150,21 +148,16 @@ export default function Landing() {
       {/* Comparison */}
       <ComparisonTable />
 
-      {/* Use Cases */}
-      <UseCaseSection />
-
       {/* Expert Search CTA */}
       <section className="max-w-4xl mx-auto py-16 px-6 text-center">
         <div className="bg-card rounded-2xl border border-border p-10 space-y-4">
           <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto">
             <Search className="w-7 h-7 text-primary" />
           </div>
-          <h2 className="text-2xl font-bold">Finde einen Experten in deiner Nähe</h2>
-          <p className="text-muted-foreground max-w-lg mx-auto">
-            Zertifizierte Hufbearbeiter, Tierärzte und Stallbetreiber – geprüft und bereit, dir und deinem Pferd zu helfen.
-          </p>
+          <h2 className="text-2xl font-bold">{t("expert.title")}</h2>
+          <p className="text-muted-foreground max-w-lg mx-auto">{t("expert.desc")}</p>
           <Button size="lg" onClick={() => navigate("/experten")} className="mt-2">
-            Experten suchen <ArrowRight className="w-4 h-4 ml-2" />
+            {t("expert.cta")} <ArrowRight className="w-4 h-4 ml-2" />
           </Button>
         </div>
       </section>
@@ -172,16 +165,15 @@ export default function Landing() {
       {/* Trust & AI for Good */}
       <TrustFooter />
 
-      {/* Cookie Banner */}
       <CookieBanner />
 
       {/* Stats */}
       <section className="bg-muted py-16">
         <div className="max-w-4xl mx-auto grid grid-cols-3 gap-8 text-center">
           {[
-            { value: "100%", label: "DSGVO-konform" },
-            { value: "24/7", label: "Verfügbar" },
-            { value: "Multi-LLM", label: "KI-Modelle" },
+            { value: "100%", label: t("stats.gdpr") },
+            { value: "24/7", label: t("stats.available") },
+            { value: "Multi-LLM", label: t("stats.models") },
           ].map((s) => (
             <div key={s.label}>
               <p className="text-3xl font-extrabold">{s.value}</p>
@@ -198,40 +190,38 @@ export default function Landing() {
             <div className="flex items-center gap-2 mb-3">
               <img src={hufiaiLogo} alt="HufiAi" className="h-[4.5rem]" />
             </div>
-            <p className="text-sm text-muted-foreground max-w-xs">
-              KI-gestützte Lösungen für die gesamte Pferdebranche. DSGVO-konform, in der EU gehostet.
-            </p>
+            <p className="text-sm text-muted-foreground max-w-xs">{t("footer.desc")}</p>
           </div>
           <div className="flex gap-12">
             <div>
-              <h4 className="font-semibold text-sm mb-3">Produkt</h4>
+              <h4 className="font-semibold text-sm mb-3">{t("footer.product")}</h4>
               <div className="space-y-2 text-sm text-muted-foreground">
-                <button onClick={() => scrollTo("features")} className="block hover:text-foreground transition-colors">Funktionen</button>
-                <button onClick={() => navigate("/experten")} className="block hover:text-foreground transition-colors">Experten finden</button>
-                <button onClick={() => navigate("/manual")} className="block hover:text-foreground transition-colors">Handbuch</button>
-                <button onClick={() => navigate("/pricing")} className="block hover:text-foreground transition-colors">Preise</button>
+                <button onClick={() => scrollTo("features")} className="block hover:text-foreground transition-colors">{t("footer.features")}</button>
+                <button onClick={() => navigate("/experten")} className="block hover:text-foreground transition-colors">{t("footer.findExperts")}</button>
+                <button onClick={() => navigate("/manual")} className="block hover:text-foreground transition-colors">{t("footer.manual")}</button>
+                <button onClick={() => navigate("/pricing")} className="block hover:text-foreground transition-colors">{t("footer.pricing")}</button>
               </div>
             </div>
             <div>
-              <h4 className="font-semibold text-sm mb-3">Unternehmen</h4>
+              <h4 className="font-semibold text-sm mb-3">{t("footer.company")}</h4>
               <div className="space-y-2 text-sm text-muted-foreground">
-                <button onClick={() => navigate("/ueber-hufiai")} className="block hover:text-foreground transition-colors">Über HufiAi</button>
-                <button onClick={() => navigate("/ethik")} className="block hover:text-foreground transition-colors">Ethik & Verantwortung</button>
+                <button onClick={() => navigate("/ueber-hufiai")} className="block hover:text-foreground transition-colors">{t("footer.about")}</button>
+                <button onClick={() => navigate("/ethik")} className="block hover:text-foreground transition-colors">{t("footer.ethics")}</button>
               </div>
             </div>
             <div>
-              <h4 className="font-semibold text-sm mb-3">Rechtliches</h4>
+              <h4 className="font-semibold text-sm mb-3">{t("footer.legal")}</h4>
               <div className="space-y-2 text-sm text-muted-foreground">
-                <button onClick={() => navigate("/impressum")} className="block hover:text-foreground transition-colors">Impressum</button>
-                <button onClick={() => navigate("/agb")} className="block hover:text-foreground transition-colors">AGB</button>
-                <button onClick={() => navigate("/datenschutz")} className="block hover:text-foreground transition-colors">Datenschutz</button>
+                <button onClick={() => navigate("/impressum")} className="block hover:text-foreground transition-colors">{t("footer.imprint")}</button>
+                <button onClick={() => navigate("/agb")} className="block hover:text-foreground transition-colors">{t("footer.terms")}</button>
+                <button onClick={() => navigate("/datenschutz")} className="block hover:text-foreground transition-colors">{t("footer.privacy")}</button>
               </div>
             </div>
           </div>
         </div>
         <div className="max-w-7xl mx-auto px-6 mt-8 pt-6 border-t border-border space-y-2">
-          <p className="text-xs text-muted-foreground text-center">© {new Date().getFullYear()} HufiAi. Alle Rechte vorbehalten.</p>
-          <p className="text-xs text-muted-foreground/60 text-center"><a href="/admin" className="text-muted-foreground/60 hover:text-muted-foreground/60 no-underline cursor-text" tabIndex={-1} aria-hidden="true">KI</a> kann Fehler machen. Nutzung auf eigenes Risiko.</p>
+          <p className="text-xs text-muted-foreground text-center">© {new Date().getFullYear()} HufiAi. {t("footer.rights")}</p>
+          <p className="text-xs text-muted-foreground/60 text-center"><a href="/admin" className="text-muted-foreground/60 hover:text-muted-foreground/60 no-underline cursor-text" tabIndex={-1} aria-hidden="true">KI</a> {t("footer.aiDisclaimer")}</p>
         </div>
       </footer>
     </div>
