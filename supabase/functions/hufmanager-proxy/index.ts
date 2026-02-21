@@ -157,7 +157,7 @@ async function resolveAccess(
     const providerFilters = ROLE_TABLE_FILTERS.provider;
     const filterColumn = providerFilters[table];
     if (!filterColumn) {
-      return { error: `Tabelle '${table}' ist für Mitarbeiter nicht zugänglich`, status: 403 };
+      return { error: "Zugriff verweigert", status: 403 };
     }
 
     return {
@@ -173,7 +173,7 @@ async function resolveAccess(
     const businessFilters = ROLE_TABLE_FILTERS.business;
     const filterColumn = businessFilters[table];
     if (!filterColumn) {
-      return { error: `Tabelle '${table}' ist für Business-Accounts nicht zugänglich`, status: 403 };
+      return { error: "Zugriff verweigert", status: 403 };
     }
 
     // For org-level tables filter by organization_id, for others by profile id
@@ -190,7 +190,7 @@ async function resolveAccess(
   const roleFilters = ROLE_TABLE_FILTERS[role];
   const filterColumn = roleFilters[table];
   if (!filterColumn) {
-    return { error: `Tabelle '${table}' ist für die Rolle '${role}' nicht zugänglich`, status: 403 };
+    return { error: "Zugriff verweigert", status: 403 };
   }
 
   return {
@@ -388,14 +388,14 @@ serve(async (req) => {
       }
 
       default:
-        return new Response(JSON.stringify({ error: `Unknown action '${action}'` }), {
+      return new Response(JSON.stringify({ error: "Ungültige Aktion" }), {
           status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
     }
 
     if (result.error) {
       console.error("HufManager proxy error:", result.error);
-      return new Response(JSON.stringify({ error: result.error.message }), {
+      return new Response(JSON.stringify({ error: "Datenbankoperation fehlgeschlagen" }), {
         status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
@@ -406,7 +406,7 @@ serve(async (req) => {
 
   } catch (e) {
     console.error("hufmanager-proxy error:", e);
-    return new Response(JSON.stringify({ error: e.message || "Unknown error" }), {
+    return new Response(JSON.stringify({ error: "Interner Serverfehler" }), {
       status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
