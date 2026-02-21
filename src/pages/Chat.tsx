@@ -1,10 +1,10 @@
 import AppLayout from "@/components/AppLayout";
-import ChatInterface from "@/components/ChatInterface";
+import OmniInterface from "@/components/OmniInterface";
 
 export default function Chat() {
   return (
-    <AppLayout>
-      <ChatInterface />
+    <AppLayout omniMode>
+      <OmniInterface />
     </AppLayout>
   );
 }
