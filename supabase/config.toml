@@ -38,3 +38,6 @@ verify_jwt = false
 
 [functions.lipsync-video]
 verify_jwt = false
+
+[functions.web-to-video]
+verify_jwt = false
