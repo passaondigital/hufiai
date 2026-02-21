@@ -12,6 +12,7 @@ import {
   BarChart3, TrendingUp, Users, Eye, Heart, Plus, Trash2, Loader2,
   Instagram, Youtube, Sparkles, RefreshCw, ExternalLink, Search, Globe, Link2
 } from "lucide-react";
+import InstagramConnect from "@/components/InstagramConnect";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from "recharts";
 
 type SocialAccount = {
@@ -300,7 +301,22 @@ Antworte auf Deutsch, strukturiert mit Markdown-Überschriften.`
         </TabsContent>
 
         {/* ACCOUNTS TAB */}
-        <TabsContent value="accounts" className="mt-4">
+        <TabsContent value="accounts" className="mt-4 space-y-4">
+          {/* Instagram OAuth Connect */}
+          <Card className="bg-[hsl(var(--sidebar-accent))] border-[hsl(var(--sidebar-border))]">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm text-[hsl(var(--sidebar-foreground))] flex items-center gap-2">
+                <Instagram className="w-4 h-4 text-pink-500" /> Instagram API-Verbindung
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-xs text-[hsl(var(--sidebar-muted))] mb-3">
+                Verbinde dein Instagram Business-Konto für automatischen Import von Follower-, Reichweiten- und Engagement-Daten.
+              </p>
+              <InstagramConnect />
+            </CardContent>
+          </Card>
+
           <Card className="bg-[hsl(var(--sidebar-accent))] border-[hsl(var(--sidebar-border))]">
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
