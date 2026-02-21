@@ -17,7 +17,7 @@ import {
   Video, Upload, Sparkles, Download, ThumbsUp, ThumbsDown,
   ChevronDown, Image, Type, Mic, Layers, Loader2, Play, Settings2, Wand2, Trash2,
   Palette, SlidersHorizontal, FileOutput, Stamp, Sun, Droplets, Contrast, AudioLines, CheckSquare, Square,
-  Film, Globe, Rocket, BarChart3, Bookmark, Share2
+  Film, Globe, Rocket, BarChart3, Bookmark, Share2, Calendar, Edit2
 } from "lucide-react";
 import VideoTimeline from "@/components/video/VideoTimeline";
 import AgentWorkflow from "@/components/video/AgentWorkflow";
@@ -25,6 +25,9 @@ import AutopilotProducer from "@/components/video/AutopilotProducer";
 import SocialAnalytics from "@/components/video/SocialAnalytics";
 import ContentTemplates from "@/components/video/ContentTemplates";
 import MultiFormatExport from "@/components/video/MultiFormatExport";
+import ContentCalendar from "@/components/video/ContentCalendar";
+import MediaEditor from "@/components/video/MediaEditor";
+import AssetLibraryEnhanced from "@/components/video/AssetLibraryEnhanced";
 
 const MODELS = [
   { id: "wan-2.2", label: "Wan 2.2", desc: "Best Allround", badge: "⭐" },
@@ -108,6 +111,8 @@ export default function VideoEngine() {
   const [lipsyncJobId, setLipsyncJobId] = useState<string | null>(null);
   const [batchSelectedJobs, setBatchSelectedJobs] = useState<string[]>([]);
   const [isBatchProcessing, setIsBatchProcessing] = useState(false);
+  const [editorMediaUrl, setEditorMediaUrl] = useState<string | null>(null);
+  const [editorMediaType, setEditorMediaType] = useState<"video" | "image">("video");
 
   useEffect(() => {
     if (!user) return;
@@ -338,6 +343,15 @@ export default function VideoEngine() {
                 </TabsTrigger>
                 <TabsTrigger value="export" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-xs gap-1.5">
                   <Share2 className="w-3.5 h-3.5" /> Export
+                </TabsTrigger>
+                <TabsTrigger value="calendar" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-xs gap-1.5">
+                  <Calendar className="w-3.5 h-3.5" /> Kalender
+                </TabsTrigger>
+                <TabsTrigger value="assets" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-xs gap-1.5">
+                  <Layers className="w-3.5 h-3.5" /> Assets
+                </TabsTrigger>
+                <TabsTrigger value="editor" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-xs gap-1.5">
+                  <Edit2 className="w-3.5 h-3.5" /> Editor
                 </TabsTrigger>
               </TabsList>
 
@@ -754,6 +768,53 @@ export default function VideoEngine() {
                     <CardContent className="py-12 text-center"><p className="text-sm text-[hsl(var(--sidebar-muted))]">Bitte melde dich an</p></CardContent>
                   </Card>
                 )}
+              </TabsContent>
+
+              {/* CALENDAR TAB */}
+              <TabsContent value="calendar">
+                {user ? (
+                  <ContentCalendar
+                    userId={user.id}
+                    onCreateVideo={(promptSuggestion, ar) => {
+                      setPrompt(promptSuggestion);
+                      setAspectRatio(ar);
+                      setActiveTab("create");
+                    }}
+                  />
+                ) : (
+                  <Card className="bg-[hsl(var(--sidebar-accent))] border-[hsl(var(--sidebar-border))]">
+                    <CardContent className="py-12 text-center"><p className="text-sm text-[hsl(var(--sidebar-muted))]">Bitte melde dich an</p></CardContent>
+                  </Card>
+                )}
+              </TabsContent>
+
+              {/* ASSETS TAB */}
+              <TabsContent value="assets">
+                {user ? <AssetLibraryEnhanced userId={user.id} /> : (
+                  <Card className="bg-[hsl(var(--sidebar-accent))] border-[hsl(var(--sidebar-border))]">
+                    <CardContent className="py-12 text-center"><p className="text-sm text-[hsl(var(--sidebar-muted))]">Bitte melde dich an</p></CardContent>
+                  </Card>
+                )}
+              </TabsContent>
+
+              {/* EDITOR TAB */}
+              <TabsContent value="editor">
+                {(() => {
+                  const editableJob = jobs.find(j => j.status === "completed" && j.video_url);
+                  const mediaUrl = editorMediaUrl || editableJob?.video_url;
+                  if (!mediaUrl) {
+                    return (
+                      <Card className="bg-[hsl(var(--sidebar-accent))] border-[hsl(var(--sidebar-border))]">
+                        <CardContent className="py-12 text-center">
+                          <Edit2 className="w-10 h-10 mx-auto mb-2 text-[hsl(var(--sidebar-muted))] opacity-30" />
+                          <p className="text-xs text-[hsl(var(--sidebar-muted))]">Kein Medium zum Bearbeiten vorhanden</p>
+                          <p className="text-[10px] text-[hsl(var(--sidebar-muted))] mt-1">Generiere zuerst ein Video oder Bild</p>
+                        </CardContent>
+                      </Card>
+                    );
+                  }
+                  return <MediaEditor mediaUrl={mediaUrl} mediaType={editorMediaType} />;
+                })()}
               </TabsContent>
             </Tabs>
           </div>

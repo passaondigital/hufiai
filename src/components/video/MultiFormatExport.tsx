@@ -92,6 +92,18 @@ export default function MultiFormatExport({ jobs, userId }: { jobs: VideoJob[]; 
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
 
+      // Track export analytics
+      const analyticsInserts = toExport.flatMap(job => {
+        const platforms = includeAllFormats ? ["reels", "youtube", "post", "story"] : [job.aspect_ratio === "9:16" ? "reels" : "youtube"];
+        return platforms.map(platform => ({
+          user_id: userId,
+          video_job_id: job.id,
+          platform,
+          export_format: job.aspect_ratio,
+        }));
+      });
+      try { await supabase.from("video_export_analytics").insert(analyticsInserts); } catch (err) { console.error(err); }
+
       toast({ title: "Export abgeschlossen 📦", description: `${toExport.length} Videos exportiert` });
     } catch (e: any) {
       toast({ title: "Export fehlgeschlagen", description: e.message, variant: "destructive" });
