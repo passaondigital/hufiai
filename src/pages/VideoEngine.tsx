@@ -290,7 +290,7 @@ export default function VideoEngine() {
 
   return (
     <AppLayout>
-      <div className="h-screen flex flex-col bg-[hsl(var(--sidebar-background))] text-[hsl(var(--sidebar-foreground))]">
+      <div className="h-full flex flex-col bg-[hsl(var(--sidebar-background))] text-[hsl(var(--sidebar-foreground))] min-h-0">
         {/* Fixed Header */}
         <div className="shrink-0 px-4 pt-4 pb-2 border-b border-[hsl(var(--sidebar-border))]">
           <div className="max-w-7xl mx-auto flex items-center justify-between">
@@ -308,7 +308,7 @@ export default function VideoEngine() {
         </div>
 
         {/* Scrollable Content */}
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 overflow-y-auto min-h-0">
           <div className="max-w-7xl mx-auto px-4 py-4 space-y-4">
             <Tabs value={activeTab} onValueChange={setActiveTab}>
               <TabsList className="bg-[hsl(var(--sidebar-accent))] border border-[hsl(var(--sidebar-border))] flex flex-wrap h-auto gap-1 p-1">
