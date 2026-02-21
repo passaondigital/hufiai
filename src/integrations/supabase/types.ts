@@ -175,6 +175,54 @@ export type Database = {
           },
         ]
       }
+      content_templates: {
+        Row: {
+          aspect_ratio: string | null
+          category: string
+          created_at: string
+          created_by: string | null
+          description: string | null
+          duration: number | null
+          id: string
+          is_system: boolean
+          prompt_template: string | null
+          style: string | null
+          template_type: string
+          thumbnail_url: string | null
+          title: string
+        }
+        Insert: {
+          aspect_ratio?: string | null
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          duration?: number | null
+          id?: string
+          is_system?: boolean
+          prompt_template?: string | null
+          style?: string | null
+          template_type?: string
+          thumbnail_url?: string | null
+          title: string
+        }
+        Update: {
+          aspect_ratio?: string | null
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          duration?: number | null
+          id?: string
+          is_system?: boolean
+          prompt_template?: string | null
+          style?: string | null
+          template_type?: string
+          thumbnail_url?: string | null
+          title?: string
+        }
+        Relationships: []
+      }
       content_usage: {
         Row: {
           created_at: string
@@ -641,6 +689,98 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      social_accounts: {
+        Row: {
+          account_name: string
+          account_url: string | null
+          avg_engagement: number | null
+          avg_views: number | null
+          created_at: string
+          followers: number | null
+          id: string
+          last_synced_at: string | null
+          platform: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          account_name: string
+          account_url?: string | null
+          avg_engagement?: number | null
+          avg_views?: number | null
+          created_at?: string
+          followers?: number | null
+          id?: string
+          last_synced_at?: string | null
+          platform: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          account_name?: string
+          account_url?: string | null
+          avg_engagement?: number | null
+          avg_views?: number | null
+          created_at?: string
+          followers?: number | null
+          id?: string
+          last_synced_at?: string | null
+          platform?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      social_metrics: {
+        Row: {
+          account_id: string | null
+          created_at: string
+          engagement_rate: number | null
+          followers: number | null
+          id: string
+          impressions: number | null
+          metric_date: string
+          posts_count: number | null
+          reach: number | null
+          top_post_url: string | null
+          user_id: string
+        }
+        Insert: {
+          account_id?: string | null
+          created_at?: string
+          engagement_rate?: number | null
+          followers?: number | null
+          id?: string
+          impressions?: number | null
+          metric_date?: string
+          posts_count?: number | null
+          reach?: number | null
+          top_post_url?: string | null
+          user_id: string
+        }
+        Update: {
+          account_id?: string | null
+          created_at?: string
+          engagement_rate?: number | null
+          followers?: number | null
+          id?: string
+          impressions?: number | null
+          metric_date?: string
+          posts_count?: number | null
+          reach?: number | null
+          top_post_url?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "social_metrics_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "social_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       system_documentation: {
         Row: {
