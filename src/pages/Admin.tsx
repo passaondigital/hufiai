@@ -19,6 +19,7 @@ import ModelSwitcher from "@/components/admin/ModelSwitcher";
 import VideoAnalysisLab from "@/components/admin/VideoAnalysisLab";
 import VoiceEngine from "@/components/admin/VoiceEngine";
 import ImageLab from "@/components/admin/ImageLab";
+import VideoTrainingTab from "@/components/admin/VideoTrainingTab";
 import { useNavigate } from "react-router-dom";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue
@@ -365,6 +366,7 @@ export default function Admin() {
             <TabsTrigger value="video"><Video className="w-4 h-4 mr-2" />Video Lab</TabsTrigger>
             <TabsTrigger value="voice"><Mic className="w-4 h-4 mr-2" />Voice</TabsTrigger>
             <TabsTrigger value="image"><ImageIcon className="w-4 h-4 mr-2" />Image Lab</TabsTrigger>
+            <TabsTrigger value="video-training"><Video className="w-4 h-4 mr-2" />Video Training</TabsTrigger>
             <TabsTrigger value="ampel"><TrafficCone className="w-4 h-4 mr-2" />Feature-Ampel</TabsTrigger>
           </TabsList>
 
@@ -895,6 +897,11 @@ export default function Admin() {
           {/* VIDEO LAB TAB */}
           <TabsContent value="video">
             <VideoAnalysisLab selectedModel={selectedModel} />
+          </TabsContent>
+
+          {/* VIDEO TRAINING TAB */}
+          <TabsContent value="video-training">
+            <VideoTrainingTab />
           </TabsContent>
 
           {/* VOICE ENGINE TAB */}
