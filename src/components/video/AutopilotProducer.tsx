@@ -1,15 +1,16 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/hooks/use-toast";
 import {
   Rocket, Globe, Loader2, CheckCircle, AlertCircle, Sparkles,
-  Database, FileText, Film, Palette, Download, ThumbsUp,
-  Zap, ScanSearch, BrainCircuit, Clapperboard, BarChart3
+  Database, FileText, Film, Palette, Download, ThumbsUp, ThumbsDown,
+  Zap, ScanSearch, BrainCircuit, Clapperboard, BarChart3, Languages
 } from "lucide-react";
 
 type AutopilotStep = {
@@ -52,6 +53,7 @@ type GenerationJob = {
   sceneIndex: number;
   format: string;
   aspectRatio: string;
+  lang: "de" | "en";
   status: "pending" | "generating" | "completed" | "failed";
 };
 
@@ -60,6 +62,7 @@ const INITIAL_STEPS: AutopilotStep[] = [
   { id: "scan", label: "Daten werden gescannt...", description: "Pferdedaten, Analysen und Protokolle werden extrahiert", icon: ScanSearch, status: "idle" },
   { id: "analyze", label: "Daten werden analysiert...", description: "KI analysiert Inhalte und erstellt Content-Strategie", icon: BrainCircuit, status: "idle" },
   { id: "script", label: "Skripte werden erstellt...", description: "Video-Skripte für 3 Formate werden generiert", icon: FileText, status: "idle" },
+  { id: "translate", label: "EN-Übersetzung...", description: "Skripte werden für den internationalen Markt übersetzt", icon: Languages, status: "idle" },
   { id: "render", label: "Rendering läuft...", description: "Videos werden in allen Formaten generiert", icon: Clapperboard, status: "idle" },
   { id: "export", label: "Export & Branding...", description: "HufiAi-Overlay und HD-Export", icon: Download, status: "idle" },
 ];
@@ -68,12 +71,16 @@ export default function AutopilotProducer({ userId }: { userId: string }) {
   const [targetUrl, setTargetUrl] = useState("");
   const [isRunning, setIsRunning] = useState(false);
   const [steps, setSteps] = useState<AutopilotStep[]>(INITIAL_STEPS);
-  const [script, setScript] = useState<AutopilotScript | null>(null);
+  const [scriptDe, setScriptDe] = useState<AutopilotScript | null>(null);
+  const [scriptEn, setScriptEn] = useState<AutopilotScript | null>(null);
   const [generationJobs, setGenerationJobs] = useState<GenerationJob[]>([]);
   const [hdExport, setHdExport] = useState(true);
   const [autoOverlay, setAutoOverlay] = useState(true);
+  const [dualLanguage, setDualLanguage] = useState(true);
   const [currentStepIndex, setCurrentStepIndex] = useState(-1);
   const [completedRuns, setCompletedRuns] = useState(0);
+  const [scriptLang, setScriptLang] = useState<"de" | "en">("de");
+  const [feedbackGiven, setFeedbackGiven] = useState<Record<string, "up" | "down">>({});
 
   const updateStep = useCallback((stepId: string, status: AutopilotStep["status"], detail?: string) => {
     setSteps(prev => prev.map(s => s.id === stepId ? { ...s, status, detail } : s));
@@ -84,21 +91,24 @@ export default function AutopilotProducer({ userId }: { userId: string }) {
     const step = INITIAL_STEPS[index];
     if (step) {
       updateStep(step.id, "active");
-      // Simulate realistic timing for non-AI steps
       await new Promise(r => setTimeout(r, 800 + Math.random() * 600));
     }
   }, [updateStep]);
 
+  const activeScript = scriptLang === "en" && scriptEn ? scriptEn : scriptDe;
+
   const startAutopilot = async () => {
     if (!targetUrl.trim()) return toast({ title: "Bitte gib eine Ziel-URL ein", variant: "destructive" });
-    
+
     setIsRunning(true);
-    setScript(null);
+    setScriptDe(null);
+    setScriptEn(null);
     setGenerationJobs([]);
     setSteps(INITIAL_STEPS);
+    setFeedbackGiven({});
 
     try {
-      // Step 1: Login / Access
+      // Step 1: Login
       await advanceStep(0);
       updateStep("login", "completed", `Verbindung zu ${new URL(targetUrl).hostname} hergestellt`);
 
@@ -106,47 +116,55 @@ export default function AutopilotProducer({ userId }: { userId: string }) {
       await advanceStep(1);
       updateStep("scan", "completed", "Seiteninhalte und Farbpalette extrahiert");
 
-      // Step 3: Analyze - This is the real AI call
+      // Step 3: Analyze
       await advanceStep(2);
-      
+
       const { data, error } = await supabase.functions.invoke("autopilot-produce", {
-        body: {
-          url: targetUrl,
-          options: { hdExport, autoOverlay },
-        },
+        body: { url: targetUrl, options: { hdExport, autoOverlay, dualLanguage } },
       });
       if (error) throw error;
       if (!data?.script) throw new Error("Kein Skript vom Agent erhalten");
 
       updateStep("analyze", "completed", `${data.script.data_insights?.length || 0} Daten-Insights erkannt`);
-      setScript(data.script);
+      setScriptDe(data.script);
 
       // Step 4: Script
       await advanceStep(3);
-      updateStep("script", "completed", `${data.script.scenes.length} Szenen × 3 Formate = ${data.script.scenes.length * 3} Videos`);
+      updateStep("script", "completed", `${data.script.scenes.length} Szenen × 3 Formate`);
 
-      // Step 5: Render
+      // Step 5: Translate
       await advanceStep(4);
-      await generateAllVideos(data.script);
+      if (data.dualLanguage && data.scriptEn) {
+        setScriptEn(data.scriptEn);
+        updateStep("translate", "completed", "DE + EN Versionen erstellt");
+      } else if (dualLanguage) {
+        updateStep("translate", "completed", "Nur DE (Übersetzung übersprungen)");
+      } else {
+        updateStep("translate", "completed", "Nur DE-Modus");
+      }
+
+      // Step 6: Render
+      await advanceStep(5);
+      await generateAllVideos(data.script, data.scriptEn);
       updateStep("render", "completed", "Alle Video-Jobs gestartet");
 
-      // Step 6: Export
-      await advanceStep(5);
+      // Step 7: Export
+      await advanceStep(6);
       updateStep("export", "completed", hdExport ? "HD-Export vorbereitet" : "Standard-Export");
 
       setCompletedRuns(prev => prev + 1);
-      toast({ title: "Autopilot abgeschlossen 🚀", description: "Alle Videos wurden erstellt. Keine Handarbeit nötig." });
+      toast({ title: "Autopilot abgeschlossen 🚀", description: "Alle Videos wurden erstellt." });
 
       // Log to training data
       try {
         await supabase.from("training_data_logs").insert({
           user_id: userId,
           user_input: `Autopilot: ${targetUrl}`,
-          ai_output: JSON.stringify(data.script),
+          ai_output: JSON.stringify({ de: data.script, en: data.scriptEn }),
           source: "autopilot_agent",
           category: "video_production",
         });
-      } catch { /* ignore logging errors */ }
+      } catch { /* ignore */ }
 
     } catch (e: any) {
       const failedStep = steps.find(s => s.status === "active");
@@ -157,31 +175,36 @@ export default function AutopilotProducer({ userId }: { userId: string }) {
     }
   };
 
-  const generateAllVideos = async (scriptData: AutopilotScript) => {
+  const generateAllVideos = async (deScript: AutopilotScript, enScript?: AutopilotScript | null) => {
     const formats = [
       { key: "reel", aspectRatio: "9:16" },
       { key: "youtube", aspectRatio: "16:9" },
       { key: "square", aspectRatio: "1:1" },
     ];
+    const languages: Array<{ lang: "de" | "en"; script: AutopilotScript }> = [{ lang: "de", script: deScript }];
+    if (enScript) languages.push({ lang: "en", script: enScript });
 
     const jobs: GenerationJob[] = [];
-    scriptData.scenes.forEach((_, idx) => {
-      formats.forEach(fmt => {
-        jobs.push({ sceneIndex: idx, format: fmt.key, aspectRatio: fmt.aspectRatio, status: "pending" });
+    languages.forEach(({ lang, script }) => {
+      script.scenes.forEach((_, idx) => {
+        formats.forEach(fmt => {
+          jobs.push({ sceneIndex: idx, format: fmt.key, aspectRatio: fmt.aspectRatio, lang, status: "pending" });
+        });
       });
     });
     setGenerationJobs(jobs);
 
     for (let i = 0; i < jobs.length; i++) {
       const job = jobs[i];
-      const scene = scriptData.scenes[job.sceneIndex];
+      const langScript = job.lang === "en" && enScript ? enScript : deScript;
+      const scene = langScript.scenes[job.sceneIndex];
 
       setGenerationJobs(prev => prev.map((j, idx) => idx === i ? { ...j, status: "generating" } : j));
 
       try {
         const coloredPrompt = `${scene.prompt}, color palette: ${scene.color_mood}, accent color: #F47B20 HufiAi orange${autoOverlay && scene.overlay_text ? `, text overlay: "${scene.overlay_text}" in orange #F47B20` : ""}`;
 
-        const { error: insertError } = await supabase.from("video_jobs").insert({
+        await supabase.from("video_jobs").insert({
           user_id: userId,
           prompt: coloredPrompt,
           model: scene.model,
@@ -196,14 +219,28 @@ export default function AutopilotProducer({ userId }: { userId: string }) {
           hd_upscaling: hdExport,
           status: "queued",
           is_hufi_relevant: true,
+          optimized_prompt: `[${job.lang.toUpperCase()}] ${job.format}`,
         });
-        if (insertError) throw insertError;
 
         setGenerationJobs(prev => prev.map((j, idx) => idx === i ? { ...j, status: "completed" } : j));
       } catch {
         setGenerationJobs(prev => prev.map((j, idx) => idx === i ? { ...j, status: "failed" } : j));
       }
     }
+  };
+
+  const giveFeedback = async (runKey: string, fb: "up" | "down") => {
+    setFeedbackGiven(prev => ({ ...prev, [runKey]: fb }));
+    try {
+      await supabase.from("training_data_logs").insert({
+        user_id: userId,
+        user_input: `Feedback: ${fb} | ${runKey}`,
+        ai_output: JSON.stringify({ feedback: fb, script: activeScript }),
+        source: fb === "up" ? "gold_standard" : "negative_feedback",
+        category: "video_training",
+      });
+      toast({ title: fb === "up" ? "👍 Gold-Standard markiert" : "👎 Feedback gespeichert" });
+    } catch { /* ignore */ }
   };
 
   const completedCount = generationJobs.filter(j => j.status === "completed").length;
@@ -237,24 +274,17 @@ export default function AutopilotProducer({ userId }: { userId: string }) {
       <Card className="bg-[hsl(var(--sidebar-accent))] border-[hsl(var(--sidebar-border))]">
         <CardHeader className="pb-3">
           <CardTitle className="text-sm text-[hsl(var(--sidebar-foreground))] flex items-center gap-2">
-            <Globe className="w-4 h-4 text-primary" /> Ziel-URL
+            <Globe className="w-4 h-4 text-primary" /> Ziel-URL & Optionen
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <p className="text-xs text-[hsl(var(--sidebar-muted))]">
-            Der Agent liest die Ziel-URL, scannt Dashboard-Daten, analysiert Inhalte und erstellt automatisch professionelle Videos in 3 Formaten.
-          </p>
-
-          <div className="flex gap-2">
-            <Input
-              value={targetUrl}
-              onChange={e => setTargetUrl(e.target.value)}
-              placeholder="https://app.hufmanager.de/demo"
-              className="bg-[hsl(var(--sidebar-background))] border-[hsl(var(--sidebar-border))] text-[hsl(var(--sidebar-foreground))] text-sm"
-              disabled={isRunning}
-            />
-          </div>
-
+          <Input
+            value={targetUrl}
+            onChange={e => setTargetUrl(e.target.value)}
+            placeholder="https://app.hufmanager.de/demo"
+            className="bg-[hsl(var(--sidebar-background))] border-[hsl(var(--sidebar-border))] text-[hsl(var(--sidebar-foreground))] text-sm"
+            disabled={isRunning}
+          />
           <div className="flex flex-wrap gap-4">
             <div className="flex items-center gap-2">
               <Switch checked={hdExport} onCheckedChange={setHdExport} disabled={isRunning} />
@@ -263,6 +293,12 @@ export default function AutopilotProducer({ userId }: { userId: string }) {
             <div className="flex items-center gap-2">
               <Switch checked={autoOverlay} onCheckedChange={setAutoOverlay} disabled={isRunning} />
               <label className="text-xs text-[hsl(var(--sidebar-foreground))]">Dynamic Overlays</label>
+            </div>
+            <div className="flex items-center gap-2">
+              <Switch checked={dualLanguage} onCheckedChange={setDualLanguage} disabled={isRunning} />
+              <label className="text-xs text-[hsl(var(--sidebar-foreground))] flex items-center gap-1">
+                <Languages className="w-3.5 h-3.5 text-primary" /> Dual-Export DE/EN
+              </label>
             </div>
           </div>
         </CardContent>
@@ -276,21 +312,15 @@ export default function AutopilotProducer({ userId }: { userId: string }) {
         className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-base gap-2 h-16 rounded-xl shadow-lg shadow-primary/20 transition-all"
       >
         {isRunning ? (
-          <>
-            <Loader2 className="w-5 h-5 animate-spin" />
-            Autopilot läuft...
-          </>
+          <><Loader2 className="w-5 h-5 animate-spin" /> Autopilot läuft...</>
         ) : (
-          <>
-            <Rocket className="w-5 h-5" />
-            Autopilot starten
-          </>
+          <><Rocket className="w-5 h-5" /> Autopilot starten {dualLanguage ? "(DE + EN)" : "(DE)"}</>
         )}
       </Button>
 
       {/* Pipeline Status */}
       {(isRunning || steps.some(s => s.status !== "idle")) && (
-        <Card className="bg-[hsl(var(--sidebar-accent))] border-[hsl(var(--sidebar-border))] overflow-hidden">
+        <Card className="bg-[hsl(var(--sidebar-accent))] border-[hsl(var(--sidebar-border))]">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm text-[hsl(var(--sidebar-foreground))] flex items-center gap-2">
               <Zap className="w-4 h-4 text-primary" /> Agent-Pipeline
@@ -302,7 +332,7 @@ export default function AutopilotProducer({ userId }: { userId: string }) {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-1">
-            {steps.map((step, idx) => {
+            {steps.map((step) => {
               const Icon = step.icon;
               const isActive = step.status === "active";
               const isCompleted = step.status === "completed";
@@ -335,17 +365,11 @@ export default function AutopilotProducer({ userId }: { userId: string }) {
                       isCompleted ? "text-green-400" :
                       isFailed ? "text-destructive" :
                       "text-[hsl(var(--sidebar-muted))]"
-                    }`}>
-                      {step.label}
-                    </p>
+                    }`}>{step.label}</p>
                     <p className="text-[10px] text-[hsl(var(--sidebar-muted))] truncate">
                       {step.detail || step.description}
                     </p>
                   </div>
-                  {/* Connection line */}
-                  {idx < steps.length - 1 && (
-                    <div className="absolute left-[2.15rem] translate-y-[1.75rem] w-px h-2 bg-[hsl(var(--sidebar-border))]" />
-                  )}
                 </div>
               );
             })}
@@ -353,20 +377,33 @@ export default function AutopilotProducer({ userId }: { userId: string }) {
         </Card>
       )}
 
-      {/* Script Results */}
-      {script && (
+      {/* Script Results with DE/EN tabs */}
+      {scriptDe && (
         <>
+          {scriptEn && (
+            <Tabs value={scriptLang} onValueChange={(v) => setScriptLang(v as "de" | "en")} className="w-full">
+              <TabsList className="bg-[hsl(var(--sidebar-accent))] border border-[hsl(var(--sidebar-border))]">
+                <TabsTrigger value="de" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-xs gap-1">
+                  🇩🇪 Deutsch
+                </TabsTrigger>
+                <TabsTrigger value="en" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-xs gap-1">
+                  🇬🇧 English
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
+          )}
+
           {/* Data Insights */}
-          {script.data_insights && script.data_insights.length > 0 && (
+          {activeScript?.data_insights && activeScript.data_insights.length > 0 && (
             <Card className="bg-[hsl(var(--sidebar-accent))] border-[hsl(var(--sidebar-border))]">
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm text-[hsl(var(--sidebar-foreground))] flex items-center gap-2">
-                  <BarChart3 className="w-4 h-4 text-primary" /> Erkannte Daten-Insights
+                  <BarChart3 className="w-4 h-4 text-primary" /> {scriptLang === "en" ? "Data Insights" : "Erkannte Daten-Insights"}
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  {script.data_insights.map((insight, i) => (
+                  {activeScript.data_insights.map((insight, i) => (
                     <div key={i} className="flex items-start gap-2 p-2 rounded-lg bg-[hsl(var(--sidebar-background))] border border-[hsl(var(--sidebar-border))]">
                       <Database className="w-3.5 h-3.5 text-primary mt-0.5 shrink-0" />
                       <span className="text-[11px] text-[hsl(var(--sidebar-foreground))]">{insight}</span>
@@ -386,7 +423,7 @@ export default function AutopilotProducer({ userId }: { userId: string }) {
             </CardHeader>
             <CardContent>
               <div className="flex items-center gap-3 flex-wrap">
-                {script.brand_colors.map((color, i) => (
+                {activeScript?.brand_colors?.map((color, i) => (
                   <div key={i} className="flex items-center gap-1.5">
                     <div className="w-7 h-7 rounded-lg border border-[hsl(var(--sidebar-border))] shadow-sm" style={{ backgroundColor: color }} />
                     <span className="text-[9px] text-[hsl(var(--sidebar-muted))] font-mono">{color}</span>
@@ -404,21 +441,21 @@ export default function AutopilotProducer({ userId }: { userId: string }) {
           <Card className="bg-[hsl(var(--sidebar-accent))] border-[hsl(var(--sidebar-border))]">
             <CardHeader className="pb-3">
               <CardTitle className="text-sm text-[hsl(var(--sidebar-foreground))] flex items-center gap-2">
-                <Film className="w-4 h-4 text-primary" /> {script.title}
+                <Film className="w-4 h-4 text-primary" /> {activeScript?.title}
                 <Badge variant="outline" className="text-[10px] border-primary/40 text-primary ml-auto">
-                  {script.scenes.length} Szenen × 3 Formate
+                  {activeScript?.scenes.length} Szenen × 3 Formate
                 </Badge>
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              <p className="text-xs text-[hsl(var(--sidebar-muted))]">{script.summary}</p>
+              <p className="text-xs text-[hsl(var(--sidebar-muted))]">{activeScript?.summary}</p>
 
-              {script.scenes.map((scene, idx) => (
+              {activeScript?.scenes.map((scene, idx) => (
                 <div key={idx} className="p-3 rounded-lg border border-[hsl(var(--sidebar-border))] bg-[hsl(var(--sidebar-background))] space-y-2">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <Badge className="bg-primary/20 text-primary text-[10px] border-0">
-                        Szene {scene.scene_number}
+                        {scriptLang === "en" ? "Scene" : "Szene"} {scene.scene_number}
                       </Badge>
                       <span className="text-xs font-semibold text-[hsl(var(--sidebar-foreground))]">{scene.title}</span>
                     </div>
@@ -456,7 +493,7 @@ export default function AutopilotProducer({ userId }: { userId: string }) {
             </CardContent>
           </Card>
 
-          {/* Multi-Format Overview */}
+          {/* Format Multiplier */}
           <Card className="bg-[hsl(var(--sidebar-accent))] border-[hsl(var(--sidebar-border))]">
             <CardHeader className="pb-3">
               <CardTitle className="text-sm text-[hsl(var(--sidebar-foreground))] flex items-center gap-2">
@@ -466,18 +503,17 @@ export default function AutopilotProducer({ userId }: { userId: string }) {
             <CardContent>
               <div className="grid grid-cols-3 gap-3">
                 {[
-                  { key: "reel", label: "Reel", ratio: "9:16", icon: "📱", target: "Instagram/TikTok", desc: "Schnelle Schnitte, Untertitel" },
-                  { key: "youtube", label: "YouTube", ratio: "16:9", icon: "🎬", target: "YouTube/Website", desc: "Erklärender Stil, Details" },
-                  { key: "square", label: "Square", ratio: "1:1", icon: "📐", target: "Blog/LinkedIn", desc: "Infografiken, kurze Clips" },
+                  { key: "reel", label: "Reel", ratio: "9:16", icon: "📱", target: "Instagram/TikTok" },
+                  { key: "youtube", label: "YouTube", ratio: "16:9", icon: "🎬", target: "YouTube/Website" },
+                  { key: "square", label: "Square", ratio: "1:1", icon: "📐", target: "Blog/LinkedIn" },
                 ].map(fmt => (
                   <div key={fmt.key} className="p-3 rounded-lg border border-[hsl(var(--sidebar-border))] bg-[hsl(var(--sidebar-background))] text-center space-y-1">
                     <div className="text-xl">{fmt.icon}</div>
                     <div className="text-xs font-semibold text-[hsl(var(--sidebar-foreground))]">{fmt.label}</div>
                     <div className="text-[10px] text-[hsl(var(--sidebar-muted))]">{fmt.ratio}</div>
                     <div className="text-[9px] text-primary">{fmt.target}</div>
-                    <div className="text-[9px] text-[hsl(var(--sidebar-muted))]">{fmt.desc}</div>
                     <div className="text-[10px] font-medium text-[hsl(var(--sidebar-foreground))]">
-                      {script.scenes.length} Videos
+                      {(activeScript?.scenes.length || 0) * (scriptEn ? 2 : 1)} Videos
                     </div>
                   </div>
                 ))}
@@ -499,14 +535,12 @@ export default function AutopilotProducer({ userId }: { userId: string }) {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            {/* Progress Bar */}
             <div className="w-full h-2 rounded-full bg-[hsl(var(--sidebar-background))] mb-4 overflow-hidden">
               <div
                 className="h-full rounded-full bg-primary transition-all duration-500"
                 style={{ width: `${progressPercent}%` }}
               />
             </div>
-
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
               {generationJobs.map((job, idx) => (
                 <div key={idx} className={`flex items-center gap-2 p-2 rounded-lg border text-xs ${
@@ -520,7 +554,7 @@ export default function AutopilotProducer({ userId }: { userId: string }) {
                    job.status === "failed" ? <AlertCircle className="w-3 h-3 text-destructive" /> :
                    <div className="w-3 h-3 rounded-full bg-[hsl(var(--sidebar-muted))]/30" />}
                   <span className="text-[hsl(var(--sidebar-foreground))]">
-                    Sz.{job.sceneIndex + 1} · {job.format} ({job.aspectRatio})
+                    {job.lang === "en" ? "🇬🇧" : "🇩🇪"} Sz.{job.sceneIndex + 1} · {job.format} ({job.aspectRatio})
                   </span>
                 </div>
               ))}
@@ -529,18 +563,40 @@ export default function AutopilotProducer({ userId }: { userId: string }) {
         </Card>
       )}
 
-      {/* Gold Standard Hint */}
+      {/* Training Feedback */}
       {completedCount > 0 && !isRunning && (
-        <div className="p-4 rounded-xl border border-primary/20 bg-primary/5 flex items-start gap-3">
-          <ThumbsUp className="w-5 h-5 text-primary mt-0.5 shrink-0" />
-          <div>
-            <p className="text-xs font-semibold text-[hsl(var(--sidebar-foreground))]">Training-Feedback</p>
+        <Card className="bg-[hsl(var(--sidebar-accent))] border-[hsl(var(--sidebar-border))]">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm text-[hsl(var(--sidebar-foreground))] flex items-center gap-2">
+              <ThumbsUp className="w-4 h-4 text-primary" /> Training-Feedback
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
             <p className="text-[11px] text-[hsl(var(--sidebar-muted))]">
-              Bewerte die generierten Videos in der Timeline mit 👍 „Perfekt", um sie als Gold-Standard für das Training des HufiAi-Modells zu markieren.
-              Jeder Autopilot-Durchlauf wird automatisch in der Datenbank protokolliert.
+              Bewerte diesen Autopilot-Durchlauf. „Perfekt"-Bewertungen werden als Gold-Standard für das HufiAi-Modell-Training markiert.
             </p>
-          </div>
-        </div>
+            <div className="flex gap-3">
+              <Button
+                size="sm"
+                variant={feedbackGiven["run"] === "up" ? "default" : "outline"}
+                className={feedbackGiven["run"] === "up" ? "bg-green-600 hover:bg-green-700 text-white" : "border-[hsl(var(--sidebar-border))] text-[hsl(var(--sidebar-foreground))]"}
+                onClick={() => giveFeedback("run", "up")}
+                disabled={!!feedbackGiven["run"]}
+              >
+                <ThumbsUp className="w-4 h-4 mr-1" /> Perfekt (Gold-Standard)
+              </Button>
+              <Button
+                size="sm"
+                variant={feedbackGiven["run"] === "down" ? "default" : "outline"}
+                className={feedbackGiven["run"] === "down" ? "bg-destructive hover:bg-destructive/90 text-white" : "border-[hsl(var(--sidebar-border))] text-[hsl(var(--sidebar-foreground))]"}
+                onClick={() => giveFeedback("run", "down")}
+                disabled={!!feedbackGiven["run"]}
+              >
+                <ThumbsDown className="w-4 h-4 mr-1" /> Verbesserungsbedarf
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       )}
     </div>
   );

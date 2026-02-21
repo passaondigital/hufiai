@@ -15,7 +15,9 @@ serve(async (req) => {
     const { url, options } = await req.json();
     if (!url) throw new Error("URL is required");
 
-    console.log("Autopilot: Scanning URL:", url);
+    const dualLanguage = options?.dualLanguage ?? false;
+
+    console.log("Autopilot: Scanning URL:", url, "dualLanguage:", dualLanguage);
 
     // Step 1: Scrape the target URL
     let pageContent = "";
@@ -28,7 +30,6 @@ serve(async (req) => {
       if (!scrapeResponse.ok) throw new Error(`Fetch failed: ${scrapeResponse.status}`);
       const html = await scrapeResponse.text();
 
-      // Extract text
       pageContent = html
         .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, "")
         .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "")
@@ -37,7 +38,6 @@ serve(async (req) => {
         .trim()
         .slice(0, 10000);
 
-      // Extract colors
       const colorRegex = /#[0-9a-fA-F]{6}/g;
       const matches = html.match(colorRegex) || [];
       const freq: Record<string, number> = {};
@@ -46,23 +46,13 @@ serve(async (req) => {
         .sort((a, b) => b[1] - a[1])
         .slice(0, 5)
         .map(([c]) => c);
-
-      // Look for data patterns (tables, numbers, horse-related terms)
-      const dataPatterns = {
-        hasHorseData: /pferd|horse|huf|hoof|galopp|trab|schritt/i.test(pageContent),
-        hasAnalysis: /analyse|analysis|winkel|angle|grad|degree/i.test(pageContent),
-        hasProtocol: /protokoll|protocol|bericht|report|befund/i.test(pageContent),
-        hasNumbers: /\d+[,.]?\d*\s*(°|grad|mm|cm|%)/i.test(pageContent),
-      };
-
-      console.log("Data patterns found:", dataPatterns);
     } catch (e) {
       console.error("Scrape error:", e);
       pageContent = `Webseite ${url} - Erstelle ein professionelles Video basierend auf Hufbearbeitung und Pferdegesundheit.`;
       extractedColors = ["#333333", "#666666", "#FFFFFF"];
     }
 
-    // Step 2: AI generates the autopilot script
+    // Step 2: AI generates the autopilot script (German)
     const systemPrompt = `Du bist der HufiAi Autopilot-Produzent – ein autonomer Content-Agent für professionelle Video-Produktion im Bereich Hufbearbeitung und Pferdegesundheit.
 
 Du analysierst Webseiten-Daten (Dashboards, Kundenportale, Analyse-Tools) und erstellst daraus ein vollständiges Video-Produktionsskript.
@@ -96,7 +86,7 @@ Erstelle ein JSON-Objekt:
 {
   "title": "Produktions-Titel",
   "summary": "Was der Agent aus den Daten erkannt hat",
-  "data_insights": ["Erkanntes Datenelement 1", "Erkanntes Datenelement 2", ...],
+  "data_insights": ["Erkanntes Datenelement 1", "Erkanntes Datenelement 2"],
   "brand_colors": ["#farbe1", "#farbe2"],
   "dominant_color": "#hauptfarbe",
   "scenes": [
@@ -171,7 +161,58 @@ Erstelle ein JSON-Objekt:
 
     console.log("Autopilot: Script generated with", script.scenes?.length, "scenes");
 
-    return new Response(JSON.stringify({ success: true, script, extractedColors }), {
+    // Step 3: If dual-language requested, translate to English
+    let scriptEn = null;
+    if (dualLanguage) {
+      console.log("Autopilot: Translating to English...");
+      const translatePrompt = `Translate the following German video production script to English. Adapt culturally for an international audience (e.g. convert cm to inches where relevant, use English equestrian terminology). Keep the exact same JSON structure. Return ONLY a JSON object, no markdown.
+
+German script:
+${JSON.stringify(script)}`;
+
+      try {
+        const translateResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${LOVABLE_API_KEY}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            model: "google/gemini-3-flash-preview",
+            messages: [
+              { role: "system", content: "You are a professional translator specializing in equestrian content. Translate German to English with cultural adaptations. Return ONLY valid JSON." },
+              { role: "user", content: translatePrompt },
+            ],
+            temperature: 0.3,
+          }),
+        });
+
+        if (translateResponse.ok) {
+          const translateData = await translateResponse.json();
+          const enContent = translateData.choices?.[0]?.message?.content || "";
+          try {
+            const enJsonMatch = enContent.match(/```(?:json)?\s*([\s\S]*?)```/) || [null, enContent];
+            scriptEn = JSON.parse(enJsonMatch[1]!.trim());
+            if (!scriptEn.brand_colors?.includes("#F47B20")) {
+              scriptEn.brand_colors = [...(scriptEn.brand_colors || []), "#F47B20"];
+            }
+            console.log("Autopilot: English translation complete");
+          } catch {
+            console.error("English translation parse error");
+          }
+        }
+      } catch (e) {
+        console.error("Translation error:", e);
+      }
+    }
+
+    return new Response(JSON.stringify({
+      success: true,
+      script,
+      scriptEn,
+      extractedColors,
+      dualLanguage: dualLanguage && scriptEn !== null,
+    }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e) {
