@@ -887,6 +887,87 @@ export type Database = {
         }
         Relationships: []
       }
+      video_jobs: {
+        Row: {
+          aspect_ratio: string
+          coherence: number
+          created_at: string
+          duration: number
+          feedback: string | null
+          format: string
+          hd_upscaling: boolean
+          id: string
+          input_file_url: string | null
+          input_type: string
+          is_hufi_relevant: boolean
+          model: string
+          motion_intensity: number
+          negative_prompt: string | null
+          optimized_prompt: string | null
+          preset: string | null
+          prompt: string
+          seed: number | null
+          status: string
+          stylization: number
+          thumbnail_url: string | null
+          updated_at: string
+          user_id: string
+          video_url: string | null
+        }
+        Insert: {
+          aspect_ratio?: string
+          coherence?: number
+          created_at?: string
+          duration?: number
+          feedback?: string | null
+          format?: string
+          hd_upscaling?: boolean
+          id?: string
+          input_file_url?: string | null
+          input_type?: string
+          is_hufi_relevant?: boolean
+          model?: string
+          motion_intensity?: number
+          negative_prompt?: string | null
+          optimized_prompt?: string | null
+          preset?: string | null
+          prompt: string
+          seed?: number | null
+          status?: string
+          stylization?: number
+          thumbnail_url?: string | null
+          updated_at?: string
+          user_id: string
+          video_url?: string | null
+        }
+        Update: {
+          aspect_ratio?: string
+          coherence?: number
+          created_at?: string
+          duration?: number
+          feedback?: string | null
+          format?: string
+          hd_upscaling?: boolean
+          id?: string
+          input_file_url?: string | null
+          input_type?: string
+          is_hufi_relevant?: boolean
+          model?: string
+          motion_intensity?: number
+          negative_prompt?: string | null
+          optimized_prompt?: string | null
+          preset?: string | null
+          prompt?: string
+          seed?: number | null
+          status?: string
+          stylization?: number
+          thumbnail_url?: string | null
+          updated_at?: string
+          user_id?: string
+          video_url?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
