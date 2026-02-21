@@ -5,12 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/hooks/use-toast";
 import {
   Rocket, Globe, Loader2, CheckCircle, AlertCircle, Sparkles,
   Database, FileText, Film, Palette, Download, ThumbsUp, ThumbsDown,
-  Zap, ScanSearch, BrainCircuit, Clapperboard, BarChart3, Languages
+  Zap, ScanSearch, BrainCircuit, Clapperboard, BarChart3, Languages,
+  Eye, DollarSign, Clock, Layers, ChevronDown, ChevronUp
 } from "lucide-react";
 
 type AutopilotStep = {
@@ -57,6 +58,15 @@ type GenerationJob = {
   status: "pending" | "generating" | "completed" | "failed";
 };
 
+// Cost estimation per model (credits)
+const MODEL_COSTS: Record<string, number> = {
+  "wan-2.2": 3,
+  "hunyuan-video": 5,
+  "skyreels-v1": 2,
+  "open-sora-2": 4,
+  "mochi-1": 2,
+};
+
 const INITIAL_STEPS: AutopilotStep[] = [
   { id: "login", label: "Agent loggt sich ein...", description: "Ziel-URL wird aufgerufen und Inhalte geladen", icon: Globe, status: "idle" },
   { id: "scan", label: "Daten werden gescannt...", description: "Pferdedaten, Analysen und Protokolle werden extrahiert", icon: ScanSearch, status: "idle" },
@@ -81,6 +91,10 @@ export default function AutopilotProducer({ userId }: { userId: string }) {
   const [completedRuns, setCompletedRuns] = useState(0);
   const [scriptLang, setScriptLang] = useState<"de" | "en">("de");
   const [feedbackGiven, setFeedbackGiven] = useState<Record<string, "up" | "down">>({});
+  // Storyboard preview state
+  const [showStoryboard, setShowStoryboard] = useState(true);
+  const [storyboardConfirmed, setStoryboardConfirmed] = useState(false);
+  const [expandedScene, setExpandedScene] = useState<number | null>(null);
 
   const updateStep = useCallback((stepId: string, status: AutopilotStep["status"], detail?: string) => {
     setSteps(prev => prev.map(s => s.id === stepId ? { ...s, status, detail } : s));
@@ -97,6 +111,18 @@ export default function AutopilotProducer({ userId }: { userId: string }) {
 
   const activeScript = scriptLang === "en" && scriptEn ? scriptEn : scriptDe;
 
+  // Cost calculation
+  const calculateCosts = (script: AutopilotScript | null, hasEn: boolean) => {
+    if (!script) return { perScene: [] as number[], totalCredits: 0, totalVideos: 0, totalDuration: 0 };
+    const langMultiplier = hasEn ? 2 : 1;
+    const formatCount = 3; // reel, youtube, square
+    const perScene = script.scenes.map(s => (MODEL_COSTS[s.model] || 3) * formatCount * langMultiplier);
+    const totalCredits = perScene.reduce((a, b) => a + b, 0);
+    const totalVideos = script.scenes.length * formatCount * langMultiplier;
+    const totalDuration = script.scenes.reduce((a, s) => a + s.duration, 0);
+    return { perScene, totalCredits, totalVideos, totalDuration };
+  };
+
   const startAutopilot = async () => {
     if (!targetUrl.trim()) return toast({ title: "Bitte gib eine Ziel-URL ein", variant: "destructive" });
 
@@ -106,6 +132,8 @@ export default function AutopilotProducer({ userId }: { userId: string }) {
     setGenerationJobs([]);
     setSteps(INITIAL_STEPS);
     setFeedbackGiven({});
+    setStoryboardConfirmed(false);
+    setShowStoryboard(true);
 
     try {
       // Step 1: Login
@@ -143,9 +171,26 @@ export default function AutopilotProducer({ userId }: { userId: string }) {
         updateStep("translate", "completed", "Nur DE-Modus");
       }
 
+      // PAUSE HERE — wait for storyboard confirmation
+      setIsRunning(false); // allow user to review
+
+    } catch (e: any) {
+      const failedStep = steps.find(s => s.status === "active");
+      if (failedStep) updateStep(failedStep.id, "failed", e.message);
+      toast({ title: "Autopilot-Fehler", description: e.message, variant: "destructive" });
+      setIsRunning(false);
+    }
+  };
+
+  const confirmAndRender = async () => {
+    if (!scriptDe) return;
+    setStoryboardConfirmed(true);
+    setIsRunning(true);
+
+    try {
       // Step 6: Render
       await advanceStep(5);
-      await generateAllVideos(data.script, data.scriptEn);
+      await generateAllVideos(scriptDe, scriptEn);
       updateStep("render", "completed", "Alle Video-Jobs gestartet");
 
       // Step 7: Export
@@ -160,16 +205,15 @@ export default function AutopilotProducer({ userId }: { userId: string }) {
         await supabase.from("training_data_logs").insert({
           user_id: userId,
           user_input: `Autopilot: ${targetUrl}`,
-          ai_output: JSON.stringify({ de: data.script, en: data.scriptEn }),
+          ai_output: JSON.stringify({ de: scriptDe, en: scriptEn }),
           source: "autopilot_agent",
           category: "video_production",
         });
       } catch { /* ignore */ }
-
     } catch (e: any) {
       const failedStep = steps.find(s => s.status === "active");
       if (failedStep) updateStep(failedStep.id, "failed", e.message);
-      toast({ title: "Autopilot-Fehler", description: e.message, variant: "destructive" });
+      toast({ title: "Rendering-Fehler", description: e.message, variant: "destructive" });
     } finally {
       setIsRunning(false);
     }
@@ -246,6 +290,8 @@ export default function AutopilotProducer({ userId }: { userId: string }) {
   const completedCount = generationJobs.filter(j => j.status === "completed").length;
   const totalCount = generationJobs.length;
   const progressPercent = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+  const costs = calculateCosts(scriptDe, !!scriptEn);
+  const isAwaitingConfirmation = scriptDe && !storyboardConfirmed && !isRunning;
 
   return (
     <div className="space-y-6">
@@ -305,18 +351,20 @@ export default function AutopilotProducer({ userId }: { userId: string }) {
       </Card>
 
       {/* Start Button */}
-      <Button
-        onClick={startAutopilot}
-        disabled={isRunning}
-        size="lg"
-        className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-base gap-2 h-16 rounded-xl shadow-lg shadow-primary/20 transition-all"
-      >
-        {isRunning ? (
-          <><Loader2 className="w-5 h-5 animate-spin" /> Autopilot läuft...</>
-        ) : (
-          <><Rocket className="w-5 h-5" /> Autopilot starten {dualLanguage ? "(DE + EN)" : "(DE)"}</>
-        )}
-      </Button>
+      {!isAwaitingConfirmation && (
+        <Button
+          onClick={startAutopilot}
+          disabled={isRunning}
+          size="lg"
+          className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-base gap-2 h-16 rounded-xl shadow-lg shadow-primary/20 transition-all"
+        >
+          {isRunning ? (
+            <><Loader2 className="w-5 h-5 animate-spin" /> Autopilot läuft...</>
+          ) : (
+            <><Rocket className="w-5 h-5" /> Autopilot starten {dualLanguage ? "(DE + EN)" : "(DE)"}</>
+          )}
+        </Button>
+      )}
 
       {/* Pipeline Status */}
       {(isRunning || steps.some(s => s.status !== "idle")) && (
@@ -377,8 +425,211 @@ export default function AutopilotProducer({ userId }: { userId: string }) {
         </Card>
       )}
 
-      {/* Script Results with DE/EN tabs */}
-      {scriptDe && (
+      {/* ===== STORYBOARD PREVIEW ===== */}
+      {scriptDe && !storyboardConfirmed && (
+        <Card className="bg-[hsl(var(--sidebar-accent))] border-2 border-primary/50 shadow-lg shadow-primary/10">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm text-[hsl(var(--sidebar-foreground))] flex items-center gap-2">
+              <Eye className="w-4 h-4 text-primary" /> Storyboard-Preview
+              <Badge className="ml-auto bg-primary/20 text-primary text-[10px] border-0">
+                Vor Rendering prüfen
+              </Badge>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {/* Cost Summary Bar */}
+            <div className="grid grid-cols-3 gap-3">
+              <div className="p-3 rounded-xl bg-[hsl(var(--sidebar-background))] border border-[hsl(var(--sidebar-border))] text-center">
+                <DollarSign className="w-5 h-5 text-primary mx-auto mb-1" />
+                <div className="text-lg font-bold text-[hsl(var(--sidebar-foreground))]">{costs.totalCredits}</div>
+                <div className="text-[10px] text-[hsl(var(--sidebar-muted))]">Geschätzte Credits</div>
+              </div>
+              <div className="p-3 rounded-xl bg-[hsl(var(--sidebar-background))] border border-[hsl(var(--sidebar-border))] text-center">
+                <Layers className="w-5 h-5 text-primary mx-auto mb-1" />
+                <div className="text-lg font-bold text-[hsl(var(--sidebar-foreground))]">{costs.totalVideos}</div>
+                <div className="text-[10px] text-[hsl(var(--sidebar-muted))]">Videos gesamt</div>
+              </div>
+              <div className="p-3 rounded-xl bg-[hsl(var(--sidebar-background))] border border-[hsl(var(--sidebar-border))] text-center">
+                <Clock className="w-5 h-5 text-primary mx-auto mb-1" />
+                <div className="text-lg font-bold text-[hsl(var(--sidebar-foreground))]">{costs.totalDuration}s</div>
+                <div className="text-[10px] text-[hsl(var(--sidebar-muted))]">Gesamtdauer</div>
+              </div>
+            </div>
+
+            {/* DE/EN Toggle for preview */}
+            {scriptEn && (
+              <Tabs value={scriptLang} onValueChange={(v) => setScriptLang(v as "de" | "en")} className="w-full">
+                <TabsList className="bg-[hsl(var(--sidebar-background))] border border-[hsl(var(--sidebar-border))]">
+                  <TabsTrigger value="de" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-xs gap-1">
+                    🇩🇪 Deutsch
+                  </TabsTrigger>
+                  <TabsTrigger value="en" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-xs gap-1">
+                    🇬🇧 English
+                  </TabsTrigger>
+                </TabsList>
+              </Tabs>
+            )}
+
+            {/* Visual Scene Timeline */}
+            <div className="space-y-2">
+              <h4 className="text-xs font-semibold text-[hsl(var(--sidebar-foreground))] flex items-center gap-1.5">
+                <Film className="w-3.5 h-3.5 text-primary" /> {activeScript?.title}
+              </h4>
+
+              {/* Timeline bar */}
+              <div className="flex gap-1 h-2 rounded-full overflow-hidden bg-[hsl(var(--sidebar-background))]">
+                {activeScript?.scenes.map((scene, i) => (
+                  <div
+                    key={i}
+                    className="h-full rounded-full transition-all cursor-pointer hover:opacity-80"
+                    style={{
+                      flex: scene.duration,
+                      backgroundColor: scene.model === "hunyuan-video" ? "#8B5CF6" :
+                        scene.model === "wan-2.2" ? "#F47B20" :
+                        scene.model === "skyreels-v1" ? "#06B6D4" :
+                        scene.model === "open-sora-2" ? "#10B981" : "#EC4899",
+                    }}
+                    onClick={() => setExpandedScene(expandedScene === i ? null : i)}
+                    title={`Szene ${i + 1}: ${scene.title} (${scene.duration}s)`}
+                  />
+                ))}
+              </div>
+
+              {/* Scene cards */}
+              {activeScript?.scenes.map((scene, idx) => {
+                const isExpanded = expandedScene === idx;
+                const sceneCost = costs.perScene[idx] || 0;
+                const modelColor = scene.model === "hunyuan-video" ? "text-violet-400" :
+                  scene.model === "wan-2.2" ? "text-primary" :
+                  scene.model === "skyreels-v1" ? "text-cyan-400" :
+                  scene.model === "open-sora-2" ? "text-emerald-400" : "text-pink-400";
+
+                return (
+                  <div
+                    key={idx}
+                    className={`rounded-xl border transition-all duration-300 overflow-hidden ${
+                      isExpanded
+                        ? "border-primary/40 bg-[hsl(var(--sidebar-background))] shadow-md shadow-primary/5"
+                        : "border-[hsl(var(--sidebar-border))] bg-[hsl(var(--sidebar-background))] hover:border-primary/20"
+                    }`}
+                  >
+                    <button
+                      onClick={() => setExpandedScene(isExpanded ? null : idx)}
+                      className="w-full flex items-center gap-3 p-3 text-left"
+                    >
+                      {/* Scene number pill */}
+                      <div className="w-8 h-8 rounded-lg bg-primary/15 flex items-center justify-center shrink-0">
+                        <span className="text-xs font-bold text-primary">{scene.scene_number}</span>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-semibold text-[hsl(var(--sidebar-foreground))] truncate">{scene.title}</p>
+                        <div className="flex items-center gap-2 mt-0.5">
+                          <span className={`text-[10px] font-medium ${modelColor}`}>
+                            {scene.model === "hunyuan-video" ? "🔬 HunyuanVideo" :
+                             scene.model === "wan-2.2" ? "⭐ Wan 2.2" :
+                             scene.model === "skyreels-v1" ? "🎬 SkyReels" :
+                             scene.model === "open-sora-2" ? "🎞️ Open-Sora" : "⚡ Mochi"}
+                          </span>
+                          <span className="text-[10px] text-[hsl(var(--sidebar-muted))]">·</span>
+                          <span className="text-[10px] text-[hsl(var(--sidebar-muted))]">{scene.duration}s</span>
+                          <span className="text-[10px] text-[hsl(var(--sidebar-muted))]">·</span>
+                          <span className="text-[10px] text-[hsl(var(--sidebar-muted))]">{scene.style}</span>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 shrink-0">
+                        <Badge variant="outline" className="text-[9px] border-primary/30 text-primary">
+                          ~{sceneCost} Cr.
+                        </Badge>
+                        {isExpanded ? <ChevronUp className="w-3.5 h-3.5 text-[hsl(var(--sidebar-muted))]" /> : <ChevronDown className="w-3.5 h-3.5 text-[hsl(var(--sidebar-muted))]" />}
+                      </div>
+                    </button>
+
+                    {isExpanded && (
+                      <div className="px-3 pb-3 space-y-2 border-t border-[hsl(var(--sidebar-border))]">
+                        <p className="text-[11px] text-[hsl(var(--sidebar-muted))] pt-2">{scene.prompt}</p>
+
+                        {scene.overlay_text && (
+                          <div className="flex items-center gap-1.5 px-2 py-1 rounded bg-primary/10 border border-primary/20">
+                            <Sparkles className="w-3 h-3 text-primary" />
+                            <span className="text-[10px] text-primary font-medium">Overlay: {scene.overlay_text}</span>
+                          </div>
+                        )}
+
+                        {scene.data_source && (
+                          <div className="flex items-center gap-1.5 px-2 py-1 rounded bg-[hsl(var(--sidebar-accent))]">
+                            <Database className="w-3 h-3 text-[hsl(var(--sidebar-muted))]" />
+                            <span className="text-[10px] text-[hsl(var(--sidebar-muted))]">Quelle: {scene.data_source}</span>
+                          </div>
+                        )}
+
+                        <p className="text-[10px] text-[hsl(var(--sidebar-muted))] italic">🤖 {scene.model_reason}</p>
+
+                        {/* Format preview for this scene */}
+                        <div className="flex gap-2 pt-1">
+                          {["9:16", "16:9", "1:1"].map(ratio => (
+                            <div key={ratio} className="flex-1 rounded-lg border border-[hsl(var(--sidebar-border))] bg-[hsl(var(--sidebar-accent))] p-1.5 text-center">
+                              <div className={`mx-auto mb-1 border border-[hsl(var(--sidebar-border))] bg-[hsl(var(--sidebar-background))] rounded ${
+                                ratio === "9:16" ? "w-4 h-7" : ratio === "16:9" ? "w-7 h-4" : "w-5 h-5"
+                              }`} />
+                              <span className="text-[9px] text-[hsl(var(--sidebar-muted))]">{ratio}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Data Insights */}
+            {activeScript?.data_insights && activeScript.data_insights.length > 0 && (
+              <div className="space-y-1.5">
+                <h4 className="text-xs font-semibold text-[hsl(var(--sidebar-foreground))] flex items-center gap-1.5">
+                  <BarChart3 className="w-3.5 h-3.5 text-primary" /> Erkannte Daten-Insights
+                </h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+                  {activeScript.data_insights.map((insight, i) => (
+                    <div key={i} className="flex items-start gap-1.5 p-1.5 rounded-lg bg-[hsl(var(--sidebar-background))] border border-[hsl(var(--sidebar-border))]">
+                      <Database className="w-3 h-3 text-primary mt-0.5 shrink-0" />
+                      <span className="text-[10px] text-[hsl(var(--sidebar-foreground))]">{insight}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Brand Colors */}
+            <div className="flex items-center gap-2 flex-wrap">
+              <Palette className="w-3.5 h-3.5 text-primary" />
+              {activeScript?.brand_colors?.map((color, i) => (
+                <div key={i} className="w-6 h-6 rounded-md border border-[hsl(var(--sidebar-border))]" style={{ backgroundColor: color }} title={color} />
+              ))}
+              <div className="w-6 h-6 rounded-md border-2 border-primary" style={{ backgroundColor: "#F47B20" }} title="#F47B20" />
+            </div>
+
+            {/* Confirm / Cancel Buttons */}
+            <div className="flex gap-3 pt-2">
+              <Button
+                onClick={confirmAndRender}
+                className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground font-bold gap-2 h-12 rounded-xl shadow-lg shadow-primary/20"
+              >
+                <Clapperboard className="w-4 h-4" /> Rendering starten ({costs.totalVideos} Videos, ~{costs.totalCredits} Credits)
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => { setScriptDe(null); setScriptEn(null); setSteps(INITIAL_STEPS); }}
+                className="border-[hsl(var(--sidebar-border))] text-[hsl(var(--sidebar-foreground))] h-12 rounded-xl"
+              >
+                Abbrechen
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Post-confirmation: show results */}
+      {scriptDe && storyboardConfirmed && (
         <>
           {scriptEn && (
             <Tabs value={scriptLang} onValueChange={(v) => setScriptLang(v as "de" | "en")} className="w-full">
@@ -393,51 +644,7 @@ export default function AutopilotProducer({ userId }: { userId: string }) {
             </Tabs>
           )}
 
-          {/* Data Insights */}
-          {activeScript?.data_insights && activeScript.data_insights.length > 0 && (
-            <Card className="bg-[hsl(var(--sidebar-accent))] border-[hsl(var(--sidebar-border))]">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm text-[hsl(var(--sidebar-foreground))] flex items-center gap-2">
-                  <BarChart3 className="w-4 h-4 text-primary" /> {scriptLang === "en" ? "Data Insights" : "Erkannte Daten-Insights"}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  {activeScript.data_insights.map((insight, i) => (
-                    <div key={i} className="flex items-start gap-2 p-2 rounded-lg bg-[hsl(var(--sidebar-background))] border border-[hsl(var(--sidebar-border))]">
-                      <Database className="w-3.5 h-3.5 text-primary mt-0.5 shrink-0" />
-                      <span className="text-[11px] text-[hsl(var(--sidebar-foreground))]">{insight}</span>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Brand Colors */}
-          <Card className="bg-[hsl(var(--sidebar-accent))] border-[hsl(var(--sidebar-border))]">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm text-[hsl(var(--sidebar-foreground))] flex items-center gap-2">
-                <Palette className="w-4 h-4 text-primary" /> Kontextuelles Branding
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center gap-3 flex-wrap">
-                {activeScript?.brand_colors?.map((color, i) => (
-                  <div key={i} className="flex items-center gap-1.5">
-                    <div className="w-7 h-7 rounded-lg border border-[hsl(var(--sidebar-border))] shadow-sm" style={{ backgroundColor: color }} />
-                    <span className="text-[9px] text-[hsl(var(--sidebar-muted))] font-mono">{color}</span>
-                  </div>
-                ))}
-                <div className="flex items-center gap-1.5 ml-3 pl-3 border-l border-[hsl(var(--sidebar-border))]">
-                  <div className="w-7 h-7 rounded-lg border-2 border-primary shadow-sm" style={{ backgroundColor: "#F47B20" }} />
-                  <span className="text-[9px] text-primary font-mono font-bold">#F47B20</span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Scenes */}
+          {/* Scenes (compact post-confirmation) */}
           <Card className="bg-[hsl(var(--sidebar-accent))] border-[hsl(var(--sidebar-border))]">
             <CardHeader className="pb-3">
               <CardTitle className="text-sm text-[hsl(var(--sidebar-foreground))] flex items-center gap-2">
@@ -447,77 +654,14 @@ export default function AutopilotProducer({ userId }: { userId: string }) {
                 </Badge>
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3">
-              <p className="text-xs text-[hsl(var(--sidebar-muted))]">{activeScript?.summary}</p>
-
+            <CardContent className="space-y-2">
               {activeScript?.scenes.map((scene, idx) => (
-                <div key={idx} className="p-3 rounded-lg border border-[hsl(var(--sidebar-border))] bg-[hsl(var(--sidebar-background))] space-y-2">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Badge className="bg-primary/20 text-primary text-[10px] border-0">
-                        {scriptLang === "en" ? "Scene" : "Szene"} {scene.scene_number}
-                      </Badge>
-                      <span className="text-xs font-semibold text-[hsl(var(--sidebar-foreground))]">{scene.title}</span>
-                    </div>
-                    <Badge variant="outline" className="text-[9px] border-[hsl(var(--sidebar-border))]">
-                      {scene.duration}s
-                    </Badge>
-                  </div>
-
-                  <p className="text-[11px] text-[hsl(var(--sidebar-muted))]">{scene.prompt}</p>
-
-                  {scene.overlay_text && (
-                    <div className="flex items-center gap-1.5 px-2 py-1 rounded bg-primary/10 border border-primary/20">
-                      <Sparkles className="w-3 h-3 text-primary" />
-                      <span className="text-[10px] text-primary font-medium">Overlay: {scene.overlay_text}</span>
-                    </div>
-                  )}
-
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <Badge variant="outline" className="text-[9px] border-primary/30 text-primary">
-                      {scene.model === "hunyuan-video" ? "🔬 HunyuanVideo" :
-                       scene.model === "wan-2.2" ? "⭐ Wan 2.2" :
-                       scene.model === "skyreels-v1" ? "🎬 SkyReels" :
-                       scene.model === "open-sora-2" ? "🎞️ Open-Sora" : "⚡ Mochi"}
-                    </Badge>
-                    <Badge variant="outline" className="text-[9px] border-[hsl(var(--sidebar-border))]">
-                      {scene.style}
-                    </Badge>
-                  </div>
-
-                  <p className="text-[10px] text-[hsl(var(--sidebar-muted))] italic">
-                    🤖 {scene.model_reason}
-                  </p>
+                <div key={idx} className="flex items-center gap-2 p-2 rounded-lg border border-[hsl(var(--sidebar-border))] bg-[hsl(var(--sidebar-background))]">
+                  <Badge className="bg-primary/20 text-primary text-[10px] border-0 shrink-0">Sz. {scene.scene_number}</Badge>
+                  <span className="text-xs text-[hsl(var(--sidebar-foreground))] truncate flex-1">{scene.title}</span>
+                  <Badge variant="outline" className="text-[9px] border-[hsl(var(--sidebar-border))] shrink-0">{scene.duration}s</Badge>
                 </div>
               ))}
-            </CardContent>
-          </Card>
-
-          {/* Format Multiplier */}
-          <Card className="bg-[hsl(var(--sidebar-accent))] border-[hsl(var(--sidebar-border))]">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm text-[hsl(var(--sidebar-foreground))] flex items-center gap-2">
-                <Clapperboard className="w-4 h-4 text-primary" /> Format-Multiplikator
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-3 gap-3">
-                {[
-                  { key: "reel", label: "Reel", ratio: "9:16", icon: "📱", target: "Instagram/TikTok" },
-                  { key: "youtube", label: "YouTube", ratio: "16:9", icon: "🎬", target: "YouTube/Website" },
-                  { key: "square", label: "Square", ratio: "1:1", icon: "📐", target: "Blog/LinkedIn" },
-                ].map(fmt => (
-                  <div key={fmt.key} className="p-3 rounded-lg border border-[hsl(var(--sidebar-border))] bg-[hsl(var(--sidebar-background))] text-center space-y-1">
-                    <div className="text-xl">{fmt.icon}</div>
-                    <div className="text-xs font-semibold text-[hsl(var(--sidebar-foreground))]">{fmt.label}</div>
-                    <div className="text-[10px] text-[hsl(var(--sidebar-muted))]">{fmt.ratio}</div>
-                    <div className="text-[9px] text-primary">{fmt.target}</div>
-                    <div className="text-[10px] font-medium text-[hsl(var(--sidebar-foreground))]">
-                      {(activeScript?.scenes.length || 0) * (scriptEn ? 2 : 1)} Videos
-                    </div>
-                  </div>
-                ))}
-              </div>
             </CardContent>
           </Card>
         </>
