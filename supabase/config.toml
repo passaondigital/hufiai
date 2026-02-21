@@ -47,3 +47,6 @@ verify_jwt = false
 
 [functions.nightly-video-agent]
 verify_jwt = false
+
+[functions.instagram-oauth]
+verify_jwt = false
