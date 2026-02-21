@@ -96,6 +96,8 @@ export default function VideoEngine() {
   const [contrast, setContrast] = useState(100);
   const [brandingOverlay, setBrandingOverlay] = useState(false);
   const [activeTab, setActiveTab] = useState("create");
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [selectedJobForProcessing, setSelectedJobForProcessing] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -216,6 +218,24 @@ export default function VideoEngine() {
     a.href = videoUrl;
     a.download = `hufi-video.${targetFormat}`;
     a.click();
+  };
+
+  const processVideo = async (action: string, settings?: Record<string, unknown>) => {
+    const jobId = selectedJobForProcessing || jobs.find(j => j.status === "completed" && j.video_url)?.id;
+    if (!jobId) return toast({ title: "Kein Video zum Verarbeiten vorhanden", variant: "destructive" });
+    setIsProcessing(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("process-video", {
+        body: { jobId, action, settings },
+      });
+      if (error) throw error;
+      toast({ title: action === "upscale" ? "Upscaling gestartet ✨" : action === "color-grade" ? "Farbanpassung gestartet 🎨" : "Style Transfer gestartet 🎬", description: "Das Ergebnis wird in Kürze verfügbar sein." });
+      fetchJobs();
+    } catch (e: any) {
+      toast({ title: "Verarbeitung fehlgeschlagen", description: e.message, variant: "destructive" });
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   const cssFilter = `brightness(${brightness}%) saturate(${saturation}%) contrast(${contrast}%)`;
@@ -511,8 +531,14 @@ export default function VideoEngine() {
                       className="text-xs border-[hsl(var(--sidebar-border))] text-[hsl(var(--sidebar-muted))]">
                       Zurücksetzen
                     </Button>
+                    <Button size="sm" onClick={() => processVideo("color-grade", { brightness, saturation, contrast })}
+                      disabled={isProcessing || !jobs.some(j => j.status === "completed" && j.video_url)}
+                      className="bg-primary hover:bg-primary/90 text-xs gap-1.5">
+                      {isProcessing ? <Loader2 className="w-3 h-3 animate-spin" /> : <Wand2 className="w-3 h-3" />}
+                      Serverseitig anwenden (Fal.ai)
+                    </Button>
                     <p className="text-[10px] text-[hsl(var(--sidebar-muted))]">
-                      Die Farbanpassungen werden als CSS-Filter auf die Videovorschau angewendet. Bei Export werden sie serverseitig via FFmpeg gerendert.
+                      CSS-Filter für Vorschau. Klicke "Serverseitig anwenden" um die Anpassungen via Fal.ai dauerhaft auf das Thumbnail zu rendern.
                     </p>
                   </CardContent>
                 </Card>
@@ -584,14 +610,33 @@ export default function VideoEngine() {
                     </div>
                   )}
 
-                  <div className="p-3 rounded-lg border border-primary/20 bg-primary/5 space-y-2">
+                  <div className="p-3 rounded-lg border border-primary/20 bg-primary/5 space-y-3">
                     <div className="flex items-center gap-2">
                       <Sparkles className="w-4 h-4 text-primary" />
-                      <span className="text-xs font-semibold text-[hsl(var(--sidebar-foreground))]">HD Upscaling</span>
+                      <span className="text-xs font-semibold text-[hsl(var(--sidebar-foreground))]">HD Upscaling (Fal.ai)</span>
                     </div>
                     <p className="text-[10px] text-[hsl(var(--sidebar-muted))]">
-                      Aktiviere HD Upscaling in den erweiterten Einstellungen, um dein Video nach der Generierung automatisch auf 1080p+ hochzuskalieren (via Fal.ai ESRGAN).
+                      Wähle ein fertiges Video und skaliere das Thumbnail auf höhere Auflösung via Fal.ai Creative Upscaler.
                     </p>
+                    {jobs.filter(j => j.status === "completed" && j.video_url).length > 0 && (
+                      <div className="flex items-center gap-2">
+                        <Select value={selectedJobForProcessing || ""} onValueChange={setSelectedJobForProcessing}>
+                          <SelectTrigger className="flex-1 bg-[hsl(var(--sidebar-background))] border-[hsl(var(--sidebar-border))] text-[hsl(var(--sidebar-foreground))] text-xs">
+                            <SelectValue placeholder="Video auswählen..." />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {jobs.filter(j => j.status === "completed" && j.video_url).map(j => (
+                              <SelectItem key={j.id} value={j.id}>{j.prompt.slice(0, 40)}...</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <Button size="sm" onClick={() => processVideo("upscale")} disabled={isProcessing}
+                          className="bg-primary hover:bg-primary/90 text-xs gap-1.5">
+                          {isProcessing ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}
+                          Upscale
+                        </Button>
+                      </div>
+                    )}
                   </div>
 
                   <div className="p-3 rounded-lg border border-primary/20 bg-primary/5 space-y-2">
