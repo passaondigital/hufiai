@@ -369,6 +369,7 @@ export default function Admin() {
             <TabsTrigger value="image"><ImageIcon className="w-4 h-4 mr-2" />Image Lab</TabsTrigger>
             <TabsTrigger value="video-training"><Video className="w-4 h-4 mr-2" />Video Training</TabsTrigger>
             <TabsTrigger value="ampel"><TrafficCone className="w-4 h-4 mr-2" />Feature-Ampel</TabsTrigger>
+            <TabsTrigger value="costs"><DollarSign className="w-4 h-4 mr-2" />API-Kosten</TabsTrigger>
           </TabsList>
 
           {/* USERS TAB */}
