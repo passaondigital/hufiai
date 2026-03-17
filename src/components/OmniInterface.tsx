@@ -530,6 +530,7 @@ export default function OmniInterface() {
   };
 
 
+  return (
     <div className="flex h-full w-full">
       {/* Left: History sidebar (hidden on mobile) */}
       {!isMobile && (
