@@ -495,6 +495,19 @@ export default function OmniInterface() {
 
         {/* OmniBox */}
         <div className="border-t border-border p-4">
+          {/* Provider toggle */}
+          <div className="flex items-center justify-end gap-2 mb-2 max-w-3xl mx-auto">
+            <button
+              onClick={() => setProvider(p => p === "lovable" ? "claude" : "lovable")}
+              className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium transition-all border ${
+                provider === "claude"
+                  ? "border-amber-500/50 bg-amber-500/10 text-amber-600"
+                  : "border-border bg-muted/50 text-muted-foreground hover:border-primary/30"
+              }`}
+            >
+              {provider === "claude" ? "🧠 Claude" : "⚡ Lovable AI"}
+            </button>
+          </div>
           <OmniBox
             input={input}
             onInputChange={setInput}
