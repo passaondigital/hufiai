@@ -397,6 +397,11 @@ serve(async (req) => {
                 const parsed = JSON.parse(line.slice(6));
                 const content = parsed.choices?.[0]?.delta?.content;
                 if (content) fullResponse += content;
+                // Capture usage from final chunk (OpenAI-compatible format)
+                if (parsed.usage) {
+                  totalInputTokens = parsed.usage.prompt_tokens || totalInputTokens;
+                  totalOutputTokens = parsed.usage.completion_tokens || totalOutputTokens;
+                }
               } catch { /* partial JSON, ignore */ }
             }
           }
