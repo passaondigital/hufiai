@@ -25,6 +25,7 @@ interface Message {
   role: "user" | "assistant";
   content: string;
   attachments?: AttachmentPreview[];
+  versions?: MessageVersion[];
 }
 
 interface AttachmentPreview {
