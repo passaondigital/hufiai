@@ -381,6 +381,8 @@ serve(async (req) => {
     const reader = outputStream.getReader();
     const decoder = new TextDecoder();
     let fullResponse = "";
+    let totalInputTokens = 0;
+    let totalOutputTokens = 0;
 
     (async () => {
       try {
