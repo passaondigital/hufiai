@@ -22,6 +22,12 @@ interface PendingFile {
   extractedText?: string;
 }
 
+interface FavoritePrompt {
+  id: string;
+  title: string;
+  prompt: string;
+}
+
 interface OmniBoxProps {
   input: string;
   onInputChange: (val: string) => void;
@@ -38,6 +44,8 @@ interface OmniBoxProps {
   activeMode: AiMode;
   onModeChange: (mode: AiMode) => void;
   showChips?: boolean;
+  favoritePrompts?: FavoritePrompt[];
+  onFavoritePromptClick?: (prompt: FavoritePrompt) => void;
 }
 
 const MODE_CONFIG: Record<AiMode, { label: string; labelEn: string; color: string; icon: string }> = {
