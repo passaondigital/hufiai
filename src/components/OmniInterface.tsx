@@ -496,49 +496,59 @@ export default function OmniInterface() {
     sendFollowUp(`Bitte vereinfache deine letzte Antwort. Mache sie kürzer, einfacher verständlich und auf den Punkt. Hier ist die Antwort:\n\n${msg.content}`);
   };
 
-  const handleExtractActions = async (content: string) => {
-    if (conversationId && user) {
-      await supabase.from("extracted_content").insert({ user_id: user.id, conversation_id: conversationId, type: "action_items", content });
+  const callExtractFunction = async (extractType: string) => {
+    if (!conversationId || !user) return;
+    try {
+      toast.info("Wird extrahiert...");
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error("Not authenticated");
+      
+      const resp = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/extract-content`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.access_token}` },
+        body: JSON.stringify({ conversationId, extractType }),
+      });
+      
+      if (resp.status === 429) { toast.error("Rate limit erreicht. Bitte warte kurz."); return; }
+      if (resp.status === 402) { toast.error("Credits aufgebraucht."); return; }
+      if (!resp.ok) throw new Error("Extraction failed");
+      
+      const data = await resp.json();
+      if (data.content) {
+        const assistantMsg: Message = { id: crypto.randomUUID(), role: "assistant", content: data.content };
+        setMessages(prev => [...prev, assistantMsg]);
+        if (conversationId) {
+          await supabase.from("messages").insert({ conversation_id: conversationId, role: "assistant", content: data.content, model: "google/gemini-3-flash-preview" });
+        }
+        toast.success("Extraktion abgeschlossen!");
+      }
+    } catch (err: any) {
+      toast.error("Fehler bei der Extraktion");
+      console.error(err);
     }
-    sendFollowUp(`Extrahiere alle Action Items und To-Dos aus folgendem Text. Formatiere sie als nummerierte Checkliste mit klaren, umsetzbaren Schritten:\n\n${content}`);
   };
 
-  const handleExtractInsights = async (content: string) => {
-    if (conversationId && user) {
-      await supabase.from("extracted_content").insert({ user_id: user.id, conversation_id: conversationId, type: "insights", content });
-    }
-    sendFollowUp(`Extrahiere die wichtigsten Erkenntnisse und Key Insights aus folgendem Text. Liste sie als Bullet Points auf:\n\n${content}`);
-  };
-
-  const handleCreateSummary = async (content: string) => {
-    if (conversationId && user) {
-      await supabase.from("extracted_content").insert({ user_id: user.id, conversation_id: conversationId, type: "summary", content });
-    }
-    sendFollowUp(`Erstelle eine kurze Zusammenfassung (TL;DR) des folgenden Textes in 2-3 Sätzen:\n\n${content}`);
-  };
+  const handleExtractActions = async (_content: string) => callExtractFunction("action_items");
+  const handleExtractInsights = async (_content: string) => callExtractFunction("insights");
+  const handleCreateSummary = async (_content: string) => callExtractFunction("summary");
 
   const handleExtractAsChat = async (content: string) => {
-    if (!user) return;
+    if (!user || !conversationId) return;
     try {
-      const { data, error } = await supabase
-        .from("conversations")
-        .insert({ user_id: user.id, title: `Deep Dive: ${content.slice(0, 40)}...` })
-        .select("id")
-        .single();
-      if (error) throw error;
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error("Not authenticated");
       
-      await supabase.from("messages").insert({ conversation_id: data.id, role: "assistant", content });
-
-      // Track the split
-      if (conversationId) {
-        await supabase.from("chat_splits").insert({
-          parent_conversation_id: conversationId,
-          child_conversation_id: data.id,
-        });
-      }
+      const resp = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/split-chat`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.access_token}` },
+        body: JSON.stringify({ conversationId, title: `Deep Dive: ${content.slice(0, 40)}...` }),
+      });
       
-      toast.success("Neuer Chat erstellt! Wechsle zum Chat...");
-      loadConversation(data.id);
+      if (!resp.ok) throw new Error("Split failed");
+      const data = await resp.json();
+      
+      toast.success(`Neuer Chat erstellt (${data.messageCount} Nachrichten)!`);
+      loadConversation(data.newConversationId);
     } catch (err: any) {
       toast.error("Chat konnte nicht erstellt werden");
     }
