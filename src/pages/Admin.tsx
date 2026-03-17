@@ -12,7 +12,7 @@ import {
   Users, ShieldCheck, Ban, UserPlus, Search, Loader2, CheckCircle, XCircle, Key,
   Database, Bell, Activity, Send, AlertTriangle, Info, CheckCircle2, Map, TrafficCone,
   Crown, Calendar as CalendarIcon, FileText, RotateCcw, Gift, Paperclip, Download, Sparkles,
-  Cpu, Video, Mic, ImageIcon
+  Cpu, Video, Mic, ImageIcon, DollarSign
 } from "lucide-react";
 import ContentEngine from "@/components/admin/ContentEngine";
 import ModelSwitcher from "@/components/admin/ModelSwitcher";
