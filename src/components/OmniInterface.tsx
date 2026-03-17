@@ -395,7 +395,141 @@ export default function OmniInterface() {
     }
   };
 
-  return (
+  // === CHAT INTELLIGENCE HANDLERS ===
+
+  const sendFollowUp = async (prompt: string) => {
+    if (!user || loading) return;
+    setInput(prompt);
+    // Trigger send on next tick after input updates
+    setTimeout(() => {
+      const fakeEvent = { key: "Enter", shiftKey: false, preventDefault: () => {} };
+      // Actually just call sendMessage directly with the prompt
+    }, 0);
+    // Simpler: just set input and let user see it, or auto-send
+    setInput("");
+    setLoading(true);
+
+    try {
+      let convId = conversationId;
+      if (!convId) return;
+
+      const userMsg: Message = { id: crypto.randomUUID(), role: "user", content: prompt };
+      setMessages(prev => [...prev, userMsg]);
+
+      await supabase.from("messages").insert({ conversation_id: convId, role: "user", content: prompt });
+
+      const aiMessages = [...messages, userMsg]
+        .filter(m => m.id !== "disclaimer")
+        .map(m => ({ role: m.role, content: m.content }));
+
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error("Not authenticated");
+
+      const resp = await fetch(CHAT_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.access_token}` },
+        body: JSON.stringify({
+          messages: aiMessages,
+          conversation_id: convId,
+          horse_context: horseContext || undefined,
+          user_type: profile?.user_type || "privat",
+          provider: provider === "claude" ? "claude" : undefined,
+        }),
+      });
+
+      if (!resp.ok || !resp.body) throw new Error("Stream error");
+
+      const reader = resp.body.getReader();
+      const decoder = new TextDecoder();
+      let textBuffer = "";
+      let assistantSoFar = "";
+      let streamDone = false;
+      const assistantId = crypto.randomUUID();
+
+      while (!streamDone) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        textBuffer += decoder.decode(value, { stream: true });
+        let newlineIndex: number;
+        while ((newlineIndex = textBuffer.indexOf("\n")) !== -1) {
+          let line = textBuffer.slice(0, newlineIndex);
+          textBuffer = textBuffer.slice(newlineIndex + 1);
+          if (line.endsWith("\r")) line = line.slice(0, -1);
+          if (line.startsWith(":") || line.trim() === "") continue;
+          if (!line.startsWith("data: ")) continue;
+          const jsonStr = line.slice(6).trim();
+          if (jsonStr === "[DONE]") { streamDone = true; break; }
+          try {
+            const parsed = JSON.parse(jsonStr);
+            const content = parsed.choices?.[0]?.delta?.content as string | undefined;
+            if (content) {
+              assistantSoFar += content;
+              setMessages(prev => {
+                const last = prev[prev.length - 1];
+                if (last?.id === assistantId) return prev.map((m, i) => i === prev.length - 1 ? { ...m, content: assistantSoFar } : m);
+                return [...prev, { id: assistantId, role: "assistant", content: assistantSoFar }];
+              });
+            }
+          } catch { textBuffer = line + "\n" + textBuffer; break; }
+        }
+      }
+
+      if (assistantSoFar) {
+        await supabase.from("messages").insert({ conversation_id: convId, role: "assistant", content: assistantSoFar, model: "google/gemini-3-flash-preview" });
+      }
+    } catch (err: any) {
+      toast.error(err.message || "Fehler bei der Verarbeitung");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleImprove = (msgId: string) => {
+    const msg = messages.find(m => m.id === msgId);
+    if (!msg) return;
+    sendFollowUp(`Bitte verbessere und erweitere deine letzte Antwort. Mache sie präziser, detaillierter und professioneller. Hier ist die Antwort:\n\n${msg.content}`);
+  };
+
+  const handleSimplify = (msgId: string) => {
+    const msg = messages.find(m => m.id === msgId);
+    if (!msg) return;
+    sendFollowUp(`Bitte vereinfache deine letzte Antwort. Mache sie kürzer, einfacher verständlich und auf den Punkt. Hier ist die Antwort:\n\n${msg.content}`);
+  };
+
+  const handleExtractActions = (content: string) => {
+    sendFollowUp(`Extrahiere alle Action Items und To-Dos aus folgendem Text. Formatiere sie als nummerierte Checkliste mit klaren, umsetzbaren Schritten:\n\n${content}`);
+  };
+
+  const handleExtractInsights = (content: string) => {
+    sendFollowUp(`Extrahiere die wichtigsten Erkenntnisse und Key Insights aus folgendem Text. Liste sie als Bullet Points auf:\n\n${content}`);
+  };
+
+  const handleCreateSummary = (content: string) => {
+    sendFollowUp(`Erstelle eine kurze Zusammenfassung (TL;DR) des folgenden Textes in 2-3 Sätzen:\n\n${content}`);
+  };
+
+  const handleExtractAsChat = async (content: string) => {
+    if (!user) return;
+    try {
+      const { data, error } = await supabase
+        .from("conversations")
+        .insert({ user_id: user.id, title: `Deep Dive: ${content.slice(0, 40)}...` })
+        .select("id")
+        .single();
+      if (error) throw error;
+      
+      // Save the extracted content as the first message
+      await supabase.from("messages").insert({ conversation_id: data.id, role: "assistant", content });
+      
+      toast.success("Neuer Chat erstellt! Wechsle zum Chat...");
+      // Load the new conversation
+      loadConversation(data.id);
+    } catch (err: any) {
+      toast.error("Chat konnte nicht erstellt werden");
+    }
+  };
+
+
     <div className="flex h-full w-full">
       {/* Left: History sidebar (hidden on mobile) */}
       {!isMobile && (
