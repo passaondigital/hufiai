@@ -393,6 +393,39 @@ export type Database = {
           },
         ]
       }
+      design_templates: {
+        Row: {
+          category: string | null
+          created_at: string | null
+          created_by: string | null
+          id: string
+          is_system: boolean | null
+          name: string
+          preview_url: string | null
+          template_data: Json | null
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          is_system?: boolean | null
+          name: string
+          preview_url?: string | null
+          template_data?: Json | null
+        }
+        Update: {
+          category?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          is_system?: boolean | null
+          name?: string
+          preview_url?: string | null
+          template_data?: Json | null
+        }
+        Relationships: []
+      }
       documents: {
         Row: {
           created_at: string | null
@@ -466,6 +499,60 @@ export type Database = {
           id?: string
           status?: string
           updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      generated_content: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          dimensions: string | null
+          file_size: number | null
+          file_url: string | null
+          format: string | null
+          id: string
+          is_favorite: boolean | null
+          original_prompt: string | null
+          preview_url: string | null
+          social_platform: string | null
+          title: string | null
+          type: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          dimensions?: string | null
+          file_size?: number | null
+          file_url?: string | null
+          format?: string | null
+          id?: string
+          is_favorite?: boolean | null
+          original_prompt?: string | null
+          preview_url?: string | null
+          social_platform?: string | null
+          title?: string | null
+          type?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          dimensions?: string | null
+          file_size?: number | null
+          file_url?: string | null
+          format?: string | null
+          id?: string
+          is_favorite?: boolean | null
+          original_prompt?: string | null
+          preview_url?: string | null
+          social_platform?: string | null
+          title?: string | null
+          type?: string | null
+          updated_at?: string | null
           user_id?: string
         }
         Relationships: []
