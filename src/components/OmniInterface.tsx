@@ -651,15 +651,28 @@ export default function OmniInterface() {
                   content={msg.content}
                   attachments={msg.attachments}
                   messageId={msg.id}
+                  versions={msg.versions}
                   onEdit={(id, newContent) => {
-                    setMessages(prev => prev.map(m => m.id === id ? { ...m, content: newContent } : m));
-                    // Update in DB if conversation exists
+                    setMessages(prev => prev.map(m => {
+                      if (m.id !== id) return m;
+                      const prevVersions = m.versions || [{ content: m.content, timestamp: Date.now(), type: "original" as const }];
+                      return { 
+                        ...m, 
+                        content: newContent, 
+                        versions: [...prevVersions, { content: newContent, timestamp: Date.now(), type: "edit" as const }]
+                      };
+                    }));
                     if (conversationId) {
                       supabase.from("messages").update({ content: newContent }).eq("id", id).then(() => {});
                     }
+                    // Re-generate after edit
+                    const idx = messages.findIndex(m => m.id === id);
+                    if (idx >= 0) {
+                      setMessages(prev => prev.slice(0, idx + 1));
+                      sendFollowUp(newContent);
+                    }
                   }}
                   onRegenerate={(id) => {
-                    // Remove this message and all after it, then re-send the last user message
                     const idx = messages.findIndex(m => m.id === id);
                     if (idx > 0) {
                       const lastUserMsg = messages.slice(0, idx).reverse().find(m => m.role === "user");
@@ -669,6 +682,12 @@ export default function OmniInterface() {
                       }
                     }
                   }}
+                  onImprove={handleImprove}
+                  onSimplify={handleSimplify}
+                  onExtractActions={handleExtractActions}
+                  onExtractInsights={handleExtractInsights}
+                  onCreateSummary={handleCreateSummary}
+                  onExtractAsChat={handleExtractAsChat}
                 />
               ))}
               {loading && (
