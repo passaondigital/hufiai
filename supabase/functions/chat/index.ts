@@ -455,8 +455,21 @@ serve(async (req) => {
 
     const verifiedUserId = claimsData.claims.sub as string;
 
-    // Load user's custom system prompt (non-critical)
+    // Load user's custom system prompt and AI memory (non-critical)
     let userSystemPrompt: string | null = null;
+    let aiMemory: string | null = null;
+    try {
+      const { data: profileData } = await authClient
+        .from("profiles")
+        .select("ai_memory")
+        .eq("user_id", verifiedUserId)
+        .maybeSingle();
+      if (profileData?.ai_memory) {
+        aiMemory = profileData.ai_memory;
+      }
+    } catch (e) {
+      console.log("AI memory load skipped:", e);
+    }
     try {
       const { data: promptData } = await authClient
         .from("user_system_prompts")
