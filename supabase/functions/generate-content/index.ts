@@ -307,14 +307,16 @@ async function handleImageGeneration(body: any, apiKey: string) {
   });
 }
 
-// ─── Prompt Generator ────────────────────────────────────────────
+// ─── Prompt Generator (3-Step with Explanation) ─────────────────
 async function handlePromptGeneration(body: any, apiKey: string) {
-  const { idea } = body;
+  const { idea, context } = body;
   if (!idea) {
     return new Response(JSON.stringify({ error: "Missing idea field" }), {
       status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
+
+  const contextStr = context ? `\n\nZusätzlicher Kontext: ${context}` : "";
 
   const response = await fetch(GATEWAY_URL, {
     method: "POST",
@@ -324,16 +326,17 @@ async function handlePromptGeneration(body: any, apiKey: string) {
       messages: [
         {
           role: "system",
-          content: `Du bist ein Prompt-Engineering-Experte für die Pferdebranche. Erstelle einen detaillierten, wirkungsvollen Prompt basierend auf der Beschreibung des Users. Der Prompt soll:
-1. Klar und strukturiert sein
-2. Kontext und Ziel definieren
-3. Das gewünschte Ausgabeformat beschreiben
-4. Fachbegriffe der Pferdebranche nutzen
-5. Auf Deutsch sein
+          content: `Du bist ein Prompt-Engineering-Experte für die Pferdebranche (Hufschmiede, Tierärzte, Reiter, Stallbetreiber). 
 
-Antworte NUR mit dem fertigen Prompt-Text, ohne Erklärungen drumherum.`
+Erstelle einen detaillierten, wirkungsvollen Prompt UND erkläre warum er funktioniert.
+
+Antworte IMMER als JSON (kein Markdown drumherum):
+{
+  "prompt": "Der fertige Prompt-Text auf Deutsch, klar strukturiert mit Kontext, Ziel und gewünschtem Format",
+  "explanation": "2-3 Sätze die erklären: Was tut dieser Prompt? Warum ist er so aufgebaut? Welche Technik (Chain-of-Thought, Rollenspiel, etc.) wird genutzt?"
+}`
         },
-        { role: "user", content: `Erstelle einen optimalen Prompt für folgendes Ziel: ${idea}` }
+        { role: "user", content: `Erstelle einen optimalen Prompt für:\n\nZiel: ${idea}${contextStr}` }
       ],
     }),
   });
@@ -345,9 +348,19 @@ Antworte NUR mit dem fertigen Prompt-Text, ohne Erklärungen drumherum.`
   }
 
   const data = await response.json();
-  const prompt = data.choices?.[0]?.message?.content || "";
-
-  return new Response(JSON.stringify({ prompt }), {
-    headers: { ...corsHeaders, "Content-Type": "application/json" },
-  });
+  const raw = data.choices?.[0]?.message?.content || "";
+  
+  // Parse JSON response
+  try {
+    const cleaned = raw.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
+    const parsed = JSON.parse(cleaned);
+    return new Response(JSON.stringify({ prompt: parsed.prompt || raw, explanation: parsed.explanation || "" }), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  } catch {
+    // Fallback: treat entire response as prompt
+    return new Response(JSON.stringify({ prompt: raw, explanation: "" }), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
 }

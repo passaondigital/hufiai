@@ -109,6 +109,22 @@ export default function OmniInterface() {
       });
   }, [user]);
 
+  // Fetch favorite prompts for quick-access chips
+  const [favoritePrompts, setFavoritePrompts] = useState<{ id: string; title: string; prompt: string }[]>([]);
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from("prompt_templates")
+      .select("id, title, prompt")
+      .eq("user_id", user.id)
+      .eq("is_favorite", true)
+      .order("usage_count", { ascending: false })
+      .limit(5)
+      .then(({ data }) => {
+        if (data) setFavoritePrompts(data as any[]);
+      });
+  }, [user]);
+
   const displayName = profile?.display_name || "du";
   const greeting = lang === "de"
     ? (selectedHorse ? `Hallo ${displayName}! Wie geht es ${selectedHorse.name} heute?` : `Hallo ${displayName}! Wie kann ich dir helfen?`)
@@ -576,6 +592,8 @@ export default function OmniInterface() {
             activeMode={activeMode}
             onModeChange={setActiveMode}
             showChips={messages.length === 0 || messages.length > 1}
+            favoritePrompts={favoritePrompts}
+            onFavoritePromptClick={(fp) => { setInput(fp.prompt); }}
           />
         </div>
       </div>
