@@ -496,15 +496,24 @@ export default function OmniInterface() {
     sendFollowUp(`Bitte vereinfache deine letzte Antwort. Mache sie kürzer, einfacher verständlich und auf den Punkt. Hier ist die Antwort:\n\n${msg.content}`);
   };
 
-  const handleExtractActions = (content: string) => {
+  const handleExtractActions = async (content: string) => {
+    if (conversationId && user) {
+      await supabase.from("extracted_content").insert({ user_id: user.id, conversation_id: conversationId, type: "action_items", content });
+    }
     sendFollowUp(`Extrahiere alle Action Items und To-Dos aus folgendem Text. Formatiere sie als nummerierte Checkliste mit klaren, umsetzbaren Schritten:\n\n${content}`);
   };
 
-  const handleExtractInsights = (content: string) => {
+  const handleExtractInsights = async (content: string) => {
+    if (conversationId && user) {
+      await supabase.from("extracted_content").insert({ user_id: user.id, conversation_id: conversationId, type: "insights", content });
+    }
     sendFollowUp(`Extrahiere die wichtigsten Erkenntnisse und Key Insights aus folgendem Text. Liste sie als Bullet Points auf:\n\n${content}`);
   };
 
-  const handleCreateSummary = (content: string) => {
+  const handleCreateSummary = async (content: string) => {
+    if (conversationId && user) {
+      await supabase.from("extracted_content").insert({ user_id: user.id, conversation_id: conversationId, type: "summary", content });
+    }
     sendFollowUp(`Erstelle eine kurze Zusammenfassung (TL;DR) des folgenden Textes in 2-3 Sätzen:\n\n${content}`);
   };
 
@@ -518,11 +527,17 @@ export default function OmniInterface() {
         .single();
       if (error) throw error;
       
-      // Save the extracted content as the first message
       await supabase.from("messages").insert({ conversation_id: data.id, role: "assistant", content });
+
+      // Track the split
+      if (conversationId) {
+        await supabase.from("chat_splits").insert({
+          parent_conversation_id: conversationId,
+          child_conversation_id: data.id,
+        });
+      }
       
       toast.success("Neuer Chat erstellt! Wechsle zum Chat...");
-      // Load the new conversation
       loadConversation(data.id);
     } catch (err: any) {
       toast.error("Chat konnte nicht erstellt werden");
