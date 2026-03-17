@@ -113,15 +113,21 @@ export default function OmniInterface() {
   const [favoritePrompts, setFavoritePrompts] = useState<{ id: string; title: string; prompt: string }[]>([]);
   useEffect(() => {
     if (!user) return;
+    // Fetch favorites from new schema: join user_favorite_prompts with prompt_library
     supabase
-      .from("prompt_templates")
-      .select("id, title, prompt")
+      .from("user_favorite_prompts" as any)
+      .select("id, custom_name, prompt_id, prompt_library:prompt_id(id, title, content)")
       .eq("user_id", user.id)
-      .eq("is_favorite", true)
-      .order("usage_count", { ascending: false })
+      .order("position", { ascending: true })
       .limit(5)
       .then(({ data }) => {
-        if (data) setFavoritePrompts(data as any[]);
+        if (data) {
+          setFavoritePrompts((data as any[]).map((f: any) => ({
+            id: f.prompt_library?.id || f.prompt_id,
+            title: f.custom_name || f.prompt_library?.title || "Prompt",
+            prompt: f.prompt_library?.content || "",
+          })).filter((f: any) => f.prompt));
+        }
       });
   }, [user]);
 
