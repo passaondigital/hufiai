@@ -688,6 +688,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          ai_memory: string | null
           bio: string | null
           certificates: string[] | null
           company_address: string | null
@@ -714,6 +715,7 @@ export type Database = {
           website: string | null
         }
         Insert: {
+          ai_memory?: string | null
           bio?: string | null
           certificates?: string[] | null
           company_address?: string | null
@@ -740,6 +742,7 @@ export type Database = {
           website?: string | null
         }
         Update: {
+          ai_memory?: string | null
           bio?: string | null
           certificates?: string[] | null
           company_address?: string | null
@@ -791,6 +794,51 @@ export type Database = {
           name?: string
           updated_at?: string | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      prompt_templates: {
+        Row: {
+          category: string
+          created_at: string
+          description: string | null
+          id: string
+          is_favorite: boolean
+          is_system: boolean
+          prompt: string
+          tags: string[] | null
+          title: string
+          updated_at: string
+          usage_count: number
+          user_id: string | null
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_favorite?: boolean
+          is_system?: boolean
+          prompt: string
+          tags?: string[] | null
+          title: string
+          updated_at?: string
+          usage_count?: number
+          user_id?: string | null
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_favorite?: boolean
+          is_system?: boolean
+          prompt?: string
+          tags?: string[] | null
+          title?: string
+          updated_at?: string
+          usage_count?: number
+          user_id?: string | null
         }
         Relationships: []
       }
