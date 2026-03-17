@@ -158,6 +158,11 @@ export default function SettingsPage() {
             <HorseManager />
           </TabsContent>
 
+          {/* AI Prompt Tab */}
+          <TabsContent value="ai-prompt">
+            <SystemPromptEditor />
+          </TabsContent>
+
           <TabsContent value="privacy" className="space-y-6">
             <div className="bg-card rounded-2xl border border-border p-6">
               <div className="flex items-center gap-2 mb-2">

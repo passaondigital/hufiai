@@ -455,6 +455,22 @@ serve(async (req) => {
 
     const verifiedUserId = claimsData.claims.sub as string;
 
+    // Load user's custom system prompt (non-critical)
+    let userSystemPrompt: string | null = null;
+    try {
+      const { data: promptData } = await authClient
+        .from("user_system_prompts")
+        .select("system_prompt")
+        .eq("user_id", verifiedUserId)
+        .eq("is_active", true)
+        .maybeSingle();
+      if (promptData?.system_prompt) {
+        userSystemPrompt = promptData.system_prompt;
+      }
+    } catch (e) {
+      console.log("System prompt load skipped:", e);
+    }
+
     const { messages, conversation_id, horse_context, user_type, log_training, file_context, mode, provider } = await req.json();
 
     const useClaude = provider === "claude";
@@ -462,6 +478,11 @@ serve(async (req) => {
     // Resolve system prompt based on mode
     const resolvedMode = (mode && MODE_PROMPTS[mode]) ? mode : null;
     let systemContent = resolvedMode ? MODE_PROMPTS[resolvedMode] : GENERAL_PROMPT;
+
+    // If user has a custom system prompt, append it
+    if (userSystemPrompt) {
+      systemContent += `\n\n═══ CUSTOM USER CONTEXT ═══\n${userSystemPrompt}`;
+    }
 
     // Append Pascal's knowledge when using Claude
     if (useClaude) {
