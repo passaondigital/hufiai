@@ -154,9 +154,9 @@ const DEFAULT_MODEL = "google/gemini-3-flash-preview";
 // ─── Claude model mapping per mode ───────────────────────────────
 const CLAUDE_MODE_MODELS: Record<string, string> = {
   scout:   "claude-sonnet-4-20250514",
-  canvas:  "claude-haiku-4-20250514",
+  canvas:  "claude-sonnet-4-20250514",
   analyst: "claude-sonnet-4-20250514",
-  agent:   "claude-haiku-4-20250514",
+  agent:   "claude-sonnet-4-20250514",
 };
 const DEFAULT_CLAUDE_MODEL = "claude-sonnet-4-20250514";
 
