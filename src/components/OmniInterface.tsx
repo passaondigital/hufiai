@@ -55,6 +55,7 @@ export default function OmniInterface() {
   const { user, profile } = useAuth();
   const { lang } = useI18n();
   const isMobile = useIsMobile();
+  const location = useLocation();
   const { isFounderFlowActive, founderFlowDaysLeft, hasGewerbeAccess, hasUnlimitedUploads } = useSubscription();
 
   const [messages, setMessages] = useState<Message[]>([]);
@@ -74,6 +75,16 @@ export default function OmniInterface() {
   const [historySidebarCollapsed, setHistorySidebarCollapsed] = useState(false);
   const [assetLibraryOpen, setAssetLibraryOpen] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
+
+  // Handle prefilled prompt from Prompt Library navigation
+  useEffect(() => {
+    const state = location.state as { prefillPrompt?: string } | null;
+    if (state?.prefillPrompt) {
+      setInput(state.prefillPrompt);
+      // Clear the state so it doesn't persist
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
