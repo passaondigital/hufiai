@@ -136,6 +136,8 @@ export default function GraphicsDesign() {
 
   // ── Layer Management ──
   const addLayer = (type: "text" | "shape" | "image") => {
+    const defaultFont = "Inter";
+    loadGoogleFont(defaultFont);
     const newLayer: CanvasLayer = {
       id: crypto.randomUUID(),
       type,
@@ -147,6 +149,7 @@ export default function GraphicsDesign() {
       color: type === "text" ? "#FFFFFF" : brandColor,
       fontSize: 24,
       fontWeight: "bold",
+      fontFamily: defaultFont,
       opacity: 100,
       visible: true,
       zIndex: layers.length,
