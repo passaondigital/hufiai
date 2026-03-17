@@ -428,6 +428,8 @@ serve(async (req) => {
               source: useClaude ? "claude_api" : "lovable_gateway",
               tone: "empathic_professional",
               category,
+              input_tokens: totalInputTokens,
+              output_tokens: totalOutputTokens,
             });
           } catch (logErr) {
             console.error("Training log error (non-critical):", logErr);
