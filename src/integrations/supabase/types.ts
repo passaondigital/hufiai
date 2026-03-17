@@ -149,6 +149,87 @@ export type Database = {
           },
         ]
       }
+      chat_exports: {
+        Row: {
+          conversation_id: string | null
+          exported_at: string
+          file_url: string | null
+          format: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          conversation_id?: string | null
+          exported_at?: string
+          file_url?: string | null
+          format: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          conversation_id?: string | null
+          exported_at?: string
+          file_url?: string | null
+          format?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_exports_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chat_splits: {
+        Row: {
+          child_conversation_id: string
+          created_at: string
+          id: string
+          parent_conversation_id: string
+          split_message_id: string | null
+        }
+        Insert: {
+          child_conversation_id: string
+          created_at?: string
+          id?: string
+          parent_conversation_id: string
+          split_message_id?: string | null
+        }
+        Update: {
+          child_conversation_id?: string
+          created_at?: string
+          id?: string
+          parent_conversation_id?: string
+          split_message_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_splits_child_conversation_id_fkey"
+            columns: ["child_conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chat_splits_parent_conversation_id_fkey"
+            columns: ["parent_conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chat_splits_split_message_id_fkey"
+            columns: ["split_message_id"]
+            isOneToOne: false
+            referencedRelation: "messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       content_calendar: {
         Row: {
           ai_generated: boolean | null
@@ -503,6 +584,41 @@ export type Database = {
         }
         Relationships: []
       }
+      extracted_content: {
+        Row: {
+          content: string
+          conversation_id: string | null
+          created_at: string
+          id: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          conversation_id?: string | null
+          created_at?: string
+          id?: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          conversation_id?: string | null
+          created_at?: string
+          id?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "extracted_content_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       generated_content: {
         Row: {
           created_at: string | null
@@ -679,29 +795,73 @@ export type Database = {
         }
         Relationships: []
       }
+      message_versions: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          message_id: string
+          version_number: number
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          message_id: string
+          version_number?: number
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          message_id?: string
+          version_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "message_versions_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       messages: {
         Row: {
           content: string
           conversation_id: string
           created_at: string | null
+          edit_count: number | null
+          edited_at: string | null
           id: string
+          is_edited: boolean | null
           model: string | null
+          parent_message_id: string | null
           role: string
         }
         Insert: {
           content: string
           conversation_id: string
           created_at?: string | null
+          edit_count?: number | null
+          edited_at?: string | null
           id?: string
+          is_edited?: boolean | null
           model?: string | null
+          parent_message_id?: string | null
           role: string
         }
         Update: {
           content?: string
           conversation_id?: string
           created_at?: string | null
+          edit_count?: number | null
+          edited_at?: string | null
           id?: string
+          is_edited?: boolean | null
           model?: string | null
+          parent_message_id?: string | null
           role?: string
         }
         Relationships: [
@@ -710,6 +870,13 @@ export type Database = {
             columns: ["conversation_id"]
             isOneToOne: false
             referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_parent_message_id_fkey"
+            columns: ["parent_message_id"]
+            isOneToOne: false
+            referencedRelation: "messages"
             referencedColumns: ["id"]
           },
         ]
