@@ -497,6 +497,11 @@ serve(async (req) => {
       systemContent += `\n\n═══ CUSTOM USER CONTEXT ═══\n${userSystemPrompt}`;
     }
 
+    // Inject AI memory if available
+    if (aiMemory) {
+      systemContent += `\n\n═══ PERSISTENT MEMORY ═══\nDu erinnerst dich an folgende Fakten über diesen Nutzer aus früheren Gesprächen:\n${aiMemory}\nNutze dieses Wissen kontextbezogen, ohne es ungefragt zu wiederholen.`;
+    }
+
     // Append Pascal's knowledge when using Claude
     if (useClaude) {
       systemContent += `\n\n${PASCAL_KNOWLEDGE}`;
