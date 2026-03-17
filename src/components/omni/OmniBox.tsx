@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect } from "react";
-import { Send, Paperclip, Loader2, X, FileText, Image as ImageIcon, Mic, MicOff, Camera, Sparkles } from "lucide-react";
+import { Send, Paperclip, Loader2, X, FileText, Image as ImageIcon, Mic, MicOff, Camera, Sparkles, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/lib/i18n";
+import { useNavigate } from "react-router-dom";
 
 export type AiMode = "scout" | "canvas" | "analyst" | "agent" | "auto";
 
