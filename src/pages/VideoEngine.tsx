@@ -367,6 +367,12 @@ export default function VideoEngine() {
                 <TabsTrigger value="stock" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-xs gap-1.5">
                   <Globe className="w-3.5 h-3.5" /> Stock
                 </TabsTrigger>
+                <TabsTrigger value="videocreator" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-xs gap-1.5">
+                  <Film className="w-3.5 h-3.5" /> Clips
+                </TabsTrigger>
+                <TabsTrigger value="socialpreview" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-xs gap-1.5">
+                  <Share2 className="w-3.5 h-3.5" /> Preview
+                </TabsTrigger>
               </TabsList>
 
               {/* CREATE TAB */}
