@@ -33,6 +33,7 @@ import EthikSeite from "./pages/EthikSeite";
 import Ecosystem from "./pages/Ecosystem";
 import HufManagerDashboard from "./pages/HufManagerDashboard";
 import VideoEngine from "./pages/VideoEngine";
+import PromptLibrary from "./pages/PromptLibrary";
 import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
 import PWAInstallPrompt from "./components/PWAInstallPrompt";
