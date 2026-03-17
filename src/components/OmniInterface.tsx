@@ -125,6 +125,7 @@ export default function OmniInterface() {
       });
   }, [user]);
 
+  const displayName = profile?.display_name || "du";
   const greeting = lang === "de"
     ? (selectedHorse ? `Hallo ${displayName}! Wie geht es ${selectedHorse.name} heute?` : `Hallo ${displayName}! Wie kann ich dir helfen?`)
     : (selectedHorse ? `Hello ${displayName}! How is ${selectedHorse.name} doing today?` : `Hello ${displayName}! How can I help you?`);
