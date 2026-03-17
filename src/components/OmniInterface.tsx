@@ -490,7 +490,31 @@ export default function OmniInterface() {
           ) : (
             <div className="max-w-3xl mx-auto space-y-4">
               {messages.map(msg => (
-                <MessageBubble key={msg.id} role={msg.role} content={msg.content} attachments={msg.attachments} />
+                <MessageBubble
+                  key={msg.id}
+                  role={msg.role}
+                  content={msg.content}
+                  attachments={msg.attachments}
+                  messageId={msg.id}
+                  onEdit={(id, newContent) => {
+                    setMessages(prev => prev.map(m => m.id === id ? { ...m, content: newContent } : m));
+                    // Update in DB if conversation exists
+                    if (conversationId) {
+                      supabase.from("messages").update({ content: newContent }).eq("id", id).then(() => {});
+                    }
+                  }}
+                  onRegenerate={(id) => {
+                    // Remove this message and all after it, then re-send the last user message
+                    const idx = messages.findIndex(m => m.id === id);
+                    if (idx > 0) {
+                      const lastUserMsg = messages.slice(0, idx).reverse().find(m => m.role === "user");
+                      if (lastUserMsg) {
+                        setMessages(prev => prev.slice(0, idx));
+                        setInput(lastUserMsg.content);
+                      }
+                    }
+                  }}
+                />
               ))}
               {loading && (
                 <div className="flex justify-start animate-fade-in">
