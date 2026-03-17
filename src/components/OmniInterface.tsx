@@ -297,6 +297,7 @@ export default function OmniInterface() {
           user_id: shouldLog ? user.id : undefined,
           file_context: shouldLog && fileCtx ? fileCtx.slice(0, 4000) : undefined,
           mode: resolvedMode,
+          provider: provider === "claude" ? "claude" : undefined,
         }),
       });
 
