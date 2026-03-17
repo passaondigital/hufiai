@@ -851,6 +851,16 @@ export default function VideoEngine() {
               <TabsContent value="stock">
                 <StockMedia />
               </TabsContent>
+
+              {/* VIDEO CREATOR TAB */}
+              <TabsContent value="videocreator">
+                <VideoCreator />
+              </TabsContent>
+
+              {/* SOCIAL MEDIA PREVIEW TAB */}
+              <TabsContent value="socialpreview">
+                <SocialMediaPreview />
+              </TabsContent>
             </Tabs>
           </div>
 
