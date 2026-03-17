@@ -423,7 +423,7 @@ export default function GraphicsDesign() {
                         >
                           {layer.type === "text" && (
                             <div
-                              style={{ color: layer.color, fontSize: layer.fontSize, fontWeight: layer.fontWeight }}
+                              style={{ color: layer.color, fontSize: layer.fontSize, fontWeight: layer.fontWeight, fontFamily: layer.fontFamily || "Inter" }}
                               className="w-full h-full flex items-center justify-center"
                             >
                               {layer.content}
