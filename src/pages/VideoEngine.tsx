@@ -31,6 +31,8 @@ import AssetLibraryEnhanced from "@/components/video/AssetLibraryEnhanced";
 import ImageGenerator from "@/components/video/ImageGenerator";
 import GraphicsDesign from "@/components/video/GraphicsDesign";
 import StockMedia from "@/components/video/StockMedia";
+import VideoCreator from "@/components/video/VideoCreator";
+import SocialMediaPreview from "@/components/video/SocialMediaPreview";
 
 const MODELS = [
   { id: "wan-2.2", label: "Wan 2.2", desc: "Best Allround", badge: "⭐" },
