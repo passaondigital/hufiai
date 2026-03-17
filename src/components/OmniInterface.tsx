@@ -434,10 +434,26 @@ export default function OmniInterface() {
 
         {/* Active horse indicator */}
         {selectedHorse && messages.length > 0 && (
-          <div className="px-6 py-2 border-b border-border bg-primary/5 flex items-center gap-2 text-xs text-primary">
-            <span>🐴</span>
-            <span className="font-medium">{selectedHorse.name}</span>
-            {selectedHorse.breed && <span className="text-muted-foreground">({selectedHorse.breed})</span>}
+          <div className="px-6 py-2 border-b border-border bg-primary/5 flex items-center justify-between">
+            <div className="flex items-center gap-2 text-xs text-primary">
+              <span>🐴</span>
+              <span className="font-medium">{selectedHorse.name}</span>
+              {selectedHorse.breed && <span className="text-muted-foreground">({selectedHorse.breed})</span>}
+            </div>
+            <ChatExportMenu
+              messages={messages.filter(m => m.id !== "disclaimer")}
+              conversationId={conversationId}
+              onExportPdf={() => setPdfOpen(true)}
+            />
+          </div>
+        )}
+        {!selectedHorse && messages.length > 0 && (
+          <div className="px-6 py-2 border-b border-border flex items-center justify-end">
+            <ChatExportMenu
+              messages={messages.filter(m => m.id !== "disclaimer")}
+              conversationId={conversationId}
+              onExportPdf={() => setPdfOpen(true)}
+            />
           </div>
         )}
 
