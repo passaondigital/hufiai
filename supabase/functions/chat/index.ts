@@ -381,6 +381,8 @@ serve(async (req) => {
     const reader = outputStream.getReader();
     const decoder = new TextDecoder();
     let fullResponse = "";
+    let totalInputTokens = 0;
+    let totalOutputTokens = 0;
 
     (async () => {
       try {
@@ -395,6 +397,11 @@ serve(async (req) => {
                 const parsed = JSON.parse(line.slice(6));
                 const content = parsed.choices?.[0]?.delta?.content;
                 if (content) fullResponse += content;
+                // Capture usage from final chunk (OpenAI-compatible format)
+                if (parsed.usage) {
+                  totalInputTokens = parsed.usage.prompt_tokens || totalInputTokens;
+                  totalOutputTokens = parsed.usage.completion_tokens || totalOutputTokens;
+                }
               } catch { /* partial JSON, ignore */ }
             }
           }
@@ -421,6 +428,8 @@ serve(async (req) => {
               source: useClaude ? "claude_api" : "lovable_gateway",
               tone: "empathic_professional",
               category,
+              input_tokens: totalInputTokens,
+              output_tokens: totalOutputTokens,
             });
           } catch (logErr) {
             console.error("Training log error (non-critical):", logErr);

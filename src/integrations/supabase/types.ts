@@ -975,7 +975,9 @@ export type Database = {
           created_at: string
           file_context: string | null
           id: string
+          input_tokens: number | null
           model_used: string | null
+          output_tokens: number | null
           source: string | null
           tone: string | null
           user_id: string
@@ -988,7 +990,9 @@ export type Database = {
           created_at?: string
           file_context?: string | null
           id?: string
+          input_tokens?: number | null
           model_used?: string | null
+          output_tokens?: number | null
           source?: string | null
           tone?: string | null
           user_id: string
@@ -1001,7 +1005,9 @@ export type Database = {
           created_at?: string
           file_context?: string | null
           id?: string
+          input_tokens?: number | null
           model_used?: string | null
+          output_tokens?: number | null
           source?: string | null
           tone?: string | null
           user_id?: string

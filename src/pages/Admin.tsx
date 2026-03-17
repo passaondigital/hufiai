@@ -12,7 +12,7 @@ import {
   Users, ShieldCheck, Ban, UserPlus, Search, Loader2, CheckCircle, XCircle, Key,
   Database, Bell, Activity, Send, AlertTriangle, Info, CheckCircle2, Map, TrafficCone,
   Crown, Calendar as CalendarIcon, FileText, RotateCcw, Gift, Paperclip, Download, Sparkles,
-  Cpu, Video, Mic, ImageIcon
+  Cpu, Video, Mic, ImageIcon, DollarSign
 } from "lucide-react";
 import ContentEngine from "@/components/admin/ContentEngine";
 import ModelSwitcher from "@/components/admin/ModelSwitcher";
@@ -20,6 +20,7 @@ import VideoAnalysisLab from "@/components/admin/VideoAnalysisLab";
 import VoiceEngine from "@/components/admin/VoiceEngine";
 import ImageLab from "@/components/admin/ImageLab";
 import VideoTrainingTab from "@/components/admin/VideoTrainingTab";
+import ApiCostTracker from "@/components/admin/ApiCostTracker";
 import { useNavigate } from "react-router-dom";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue
@@ -368,6 +369,7 @@ export default function Admin() {
             <TabsTrigger value="image"><ImageIcon className="w-4 h-4 mr-2" />Image Lab</TabsTrigger>
             <TabsTrigger value="video-training"><Video className="w-4 h-4 mr-2" />Video Training</TabsTrigger>
             <TabsTrigger value="ampel"><TrafficCone className="w-4 h-4 mr-2" />Feature-Ampel</TabsTrigger>
+            <TabsTrigger value="costs"><DollarSign className="w-4 h-4 mr-2" />API-Kosten</TabsTrigger>
           </TabsList>
 
           {/* USERS TAB */}
@@ -912,6 +914,11 @@ export default function Admin() {
           {/* IMAGE LAB TAB */}
           <TabsContent value="image">
             <ImageLab />
+          </TabsContent>
+
+          {/* API COST TRACKER TAB */}
+          <TabsContent value="costs">
+            <ApiCostTracker />
           </TabsContent>
 
         </Tabs>
