@@ -28,6 +28,9 @@ import MultiFormatExport from "@/components/video/MultiFormatExport";
 import ContentCalendar from "@/components/video/ContentCalendar";
 import MediaEditor from "@/components/video/MediaEditor";
 import AssetLibraryEnhanced from "@/components/video/AssetLibraryEnhanced";
+import ImageGenerator from "@/components/video/ImageGenerator";
+import GraphicsDesign from "@/components/video/GraphicsDesign";
+import StockMedia from "@/components/video/StockMedia";
 
 const MODELS = [
   { id: "wan-2.2", label: "Wan 2.2", desc: "Best Allround", badge: "⭐" },
@@ -352,6 +355,15 @@ export default function VideoEngine() {
                 </TabsTrigger>
                 <TabsTrigger value="editor" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-xs gap-1.5">
                   <Edit2 className="w-3.5 h-3.5" /> Editor
+                </TabsTrigger>
+                <TabsTrigger value="imagegen" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-xs gap-1.5">
+                  <Image className="w-3.5 h-3.5" /> Bilder
+                </TabsTrigger>
+                <TabsTrigger value="graphics" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-xs gap-1.5">
+                  <Palette className="w-3.5 h-3.5" /> Design
+                </TabsTrigger>
+                <TabsTrigger value="stock" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-xs gap-1.5">
+                  <Globe className="w-3.5 h-3.5" /> Stock
                 </TabsTrigger>
               </TabsList>
 
@@ -815,6 +827,21 @@ export default function VideoEngine() {
                   }
                   return <MediaEditor mediaUrl={mediaUrl} mediaType={editorMediaType} />;
                 })()}
+              </TabsContent>
+
+              {/* IMAGE GENERATOR TAB */}
+              <TabsContent value="imagegen">
+                <ImageGenerator />
+              </TabsContent>
+
+              {/* GRAPHICS & DESIGN TAB */}
+              <TabsContent value="graphics">
+                <GraphicsDesign />
+              </TabsContent>
+
+              {/* STOCK MEDIA TAB */}
+              <TabsContent value="stock">
+                <StockMedia />
               </TabsContent>
             </Tabs>
           </div>
