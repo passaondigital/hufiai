@@ -916,6 +916,11 @@ export default function Admin() {
             <ImageLab />
           </TabsContent>
 
+          {/* API COST TRACKER TAB */}
+          <TabsContent value="costs">
+            <ApiCostTracker />
+          </TabsContent>
+
         </Tabs>
       </div>
 
