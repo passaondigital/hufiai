@@ -68,6 +68,7 @@ export default function OmniInterface() {
   const [pendingFiles, setPendingFiles] = useState<AttachmentPreview[]>([]);
   const [uploading, setUploading] = useState(false);
   const [activeMode, setActiveMode] = useState<AiMode>("auto");
+  const [provider, setProvider] = useState<"lovable" | "claude">("lovable");
   const [historySidebarCollapsed, setHistorySidebarCollapsed] = useState(false);
   const [assetLibraryOpen, setAssetLibraryOpen] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -296,6 +297,7 @@ export default function OmniInterface() {
           user_id: shouldLog ? user.id : undefined,
           file_context: shouldLog && fileCtx ? fileCtx.slice(0, 4000) : undefined,
           mode: resolvedMode,
+          provider: provider === "claude" ? "claude" : undefined,
         }),
       });
 
@@ -493,6 +495,19 @@ export default function OmniInterface() {
 
         {/* OmniBox */}
         <div className="border-t border-border p-4">
+          {/* Provider toggle */}
+          <div className="flex items-center justify-end gap-2 mb-2 max-w-3xl mx-auto">
+            <button
+              onClick={() => setProvider(p => p === "lovable" ? "claude" : "lovable")}
+              className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium transition-all border ${
+                provider === "claude"
+                  ? "border-amber-500/50 bg-amber-500/10 text-amber-600"
+                  : "border-border bg-muted/50 text-muted-foreground hover:border-primary/30"
+              }`}
+            >
+              {provider === "claude" ? "🧠 Claude" : "⚡ Lovable AI"}
+            </button>
+          </div>
           <OmniBox
             input={input}
             onInputChange={setInput}
