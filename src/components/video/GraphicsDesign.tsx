@@ -12,6 +12,24 @@ import { Slider } from "@/components/ui/slider";
 import { Loader2, Sparkles, Download, Palette, Type, BarChart3, Crown, Copy, Layers, Move, Trash2, Plus, Square, Circle, Image as ImageIcon } from "lucide-react";
 import { toast } from "sonner";
 
+// ── Google Fonts ──
+const GOOGLE_FONTS = [
+  "Inter", "Roboto", "Montserrat", "Playfair Display", "Oswald",
+  "Lora", "Poppins", "Raleway", "Bebas Neue", "Dancing Script",
+  "Merriweather", "Nunito", "Caveat", "Pacifico", "Permanent Marker",
+];
+
+// Load Google Fonts dynamically
+const loadGoogleFont = (fontFamily: string) => {
+  const id = `gfont-${fontFamily.replace(/\s/g, "-")}`;
+  if (document.getElementById(id)) return;
+  const link = document.createElement("link");
+  link.id = id;
+  link.rel = "stylesheet";
+  link.href = `https://fonts.googleapis.com/css2?family=${encodeURIComponent(fontFamily)}:wght@400;700&display=swap`;
+  document.head.appendChild(link);
+};
+
 // ── Template Data ──
 const LOGO_STYLES = [
   { id: "minimalist", label: "Minimalistisch", prompt: "Minimalist logo design, clean lines, simple geometry" },
@@ -50,6 +68,7 @@ interface CanvasLayer {
   color: string;
   fontSize?: number;
   fontWeight?: string;
+  fontFamily?: string;
   opacity: number;
   visible: boolean;
   zIndex: number;
@@ -117,6 +136,8 @@ export default function GraphicsDesign() {
 
   // ── Layer Management ──
   const addLayer = (type: "text" | "shape" | "image") => {
+    const defaultFont = "Inter";
+    loadGoogleFont(defaultFont);
     const newLayer: CanvasLayer = {
       id: crypto.randomUUID(),
       type,
@@ -128,6 +149,7 @@ export default function GraphicsDesign() {
       color: type === "text" ? "#FFFFFF" : brandColor,
       fontSize: 24,
       fontWeight: "bold",
+      fontFamily: defaultFont,
       opacity: 100,
       visible: true,
       zIndex: layers.length,
@@ -401,7 +423,7 @@ export default function GraphicsDesign() {
                         >
                           {layer.type === "text" && (
                             <div
-                              style={{ color: layer.color, fontSize: layer.fontSize, fontWeight: layer.fontWeight }}
+                              style={{ color: layer.color, fontSize: layer.fontSize, fontWeight: layer.fontWeight, fontFamily: layer.fontFamily || "Inter" }}
                               className="w-full h-full flex items-center justify-center"
                             >
                               {layer.content}
@@ -581,25 +603,34 @@ export default function GraphicsDesign() {
                     <Slider value={[selectedLayer.opacity]} onValueChange={v => updateLayer(selectedLayer.id, { opacity: v[0] })} min={0} max={100} step={5} className="mt-1" />
                   </div>
                   {selectedLayer.type === "text" && (
-                    <div>
-                      <label className="text-[10px] text-[hsl(var(--sidebar-muted))]">Schriftgröße: {selectedLayer.fontSize}px</label>
-                      <Slider value={[selectedLayer.fontSize || 24]} onValueChange={v => updateLayer(selectedLayer.id, { fontSize: v[0] })} min={8} max={72} step={1} className="mt-1" />
-                    </div>
+                    <>
+                      <div>
+                        <label className="text-[10px] text-[hsl(var(--sidebar-muted))]">Schriftart</label>
+                        <Select value={selectedLayer.fontFamily || "Inter"} onValueChange={v => { loadGoogleFont(v); updateLayer(selectedLayer.id, { fontFamily: v }); }}>
+                          <SelectTrigger className="h-8 text-xs bg-[hsl(var(--sidebar-background))] mt-1">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {GOOGLE_FONTS.map(f => (
+                              <SelectItem key={f} value={f}>
+                                <span style={{ fontFamily: f }}>{f}</span>
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <label className="text-[10px] text-[hsl(var(--sidebar-muted))]">Schriftgröße: {selectedLayer.fontSize}px</label>
+                        <Slider value={[selectedLayer.fontSize || 24]} onValueChange={v => updateLayer(selectedLayer.id, { fontSize: v[0] })} min={8} max={72} step={1} className="mt-1" />
+                      </div>
+                      <div className="flex gap-1">
+                        <Button variant={selectedLayer.fontWeight === "bold" ? "default" : "outline"} size="sm" className="text-xs h-7 flex-1"
+                          onClick={() => updateLayer(selectedLayer.id, { fontWeight: selectedLayer.fontWeight === "bold" ? "normal" : "bold" })}>
+                          <strong>B</strong>
+                        </Button>
+                      </div>
+                    </>
                   )}
-                  <div className="grid grid-cols-2 gap-1">
-                    <Input
-                      type="number" value={selectedLayer.width}
-                      onChange={e => updateLayer(selectedLayer.id, { width: Number(e.target.value) })}
-                      className="text-xs h-7 bg-[hsl(var(--sidebar-background))]"
-                      placeholder="W"
-                    />
-                    <Input
-                      type="number" value={selectedLayer.height}
-                      onChange={e => updateLayer(selectedLayer.id, { height: Number(e.target.value) })}
-                      className="text-xs h-7 bg-[hsl(var(--sidebar-background))]"
-                      placeholder="H"
-                    />
-                  </div>
                 </div>
               )}
             </CardContent>
