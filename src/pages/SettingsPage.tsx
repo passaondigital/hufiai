@@ -8,9 +8,10 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { Shield, Heart, User, AlertTriangle, Loader2, Fingerprint, Handshake } from "lucide-react";
+import { Shield, Heart, User, AlertTriangle, Loader2, Fingerprint, Handshake, Brain } from "lucide-react";
 import HorseManager from "@/components/HorseManager";
 import EcosystemRoleCard from "@/components/EcosystemRoleCard";
+import SystemPromptEditor from "@/components/SystemPromptEditor";
 import PartnerAccessMatrix from "@/components/PartnerAccessMatrix";
 import PartnerSharedDataView from "@/components/PartnerSharedDataView";
 import {
@@ -118,6 +119,7 @@ export default function SettingsPage() {
             <TabsTrigger value="profile"><User className="w-4 h-4 mr-2" />Profil</TabsTrigger>
             <TabsTrigger value="ecosystem"><Fingerprint className="w-4 h-4 mr-2" />Ecosystem</TabsTrigger>
             <TabsTrigger value="horses">🐴 Pferde</TabsTrigger>
+            <TabsTrigger value="ai-prompt"><Brain className="w-4 h-4 mr-2" />AI Prompt</TabsTrigger>
             <TabsTrigger value="privacy"><Shield className="w-4 h-4 mr-2" />Datenschutz</TabsTrigger>
             <TabsTrigger value="danger"><AlertTriangle className="w-4 h-4 mr-2" />Danger Zone</TabsTrigger>
           </TabsList>
@@ -154,6 +156,11 @@ export default function SettingsPage() {
           {/* Horses Tab */}
           <TabsContent value="horses">
             <HorseManager />
+          </TabsContent>
+
+          {/* AI Prompt Tab */}
+          <TabsContent value="ai-prompt">
+            <SystemPromptEditor />
           </TabsContent>
 
           <TabsContent value="privacy" className="space-y-6">
