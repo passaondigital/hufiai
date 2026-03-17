@@ -8,9 +8,10 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { Shield, Heart, User, AlertTriangle, Loader2, Fingerprint, Handshake } from "lucide-react";
+import { Shield, Heart, User, AlertTriangle, Loader2, Fingerprint, Handshake, Brain } from "lucide-react";
 import HorseManager from "@/components/HorseManager";
 import EcosystemRoleCard from "@/components/EcosystemRoleCard";
+import SystemPromptEditor from "@/components/SystemPromptEditor";
 import PartnerAccessMatrix from "@/components/PartnerAccessMatrix";
 import PartnerSharedDataView from "@/components/PartnerSharedDataView";
 import {
