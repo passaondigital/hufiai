@@ -15,6 +15,7 @@ import MessageBubble from "@/components/omni/MessageBubble";
 import { generateSmartChips, detectMode } from "@/components/omni/SmartChipEngine";
 import HistorySidebar from "@/components/omni/HistorySidebar";
 import AssetLibrary from "@/components/omni/AssetLibrary";
+import FavoritePromptChips from "@/components/prompts/FavoritePromptChips";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat`;
