@@ -797,6 +797,48 @@ export type Database = {
         }
         Relationships: []
       }
+      prompt_library: {
+        Row: {
+          category: string | null
+          content: string
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          difficulty: string | null
+          id: string
+          is_system: boolean | null
+          title: string
+          updated_at: string | null
+          use_cases: string[] | null
+        }
+        Insert: {
+          category?: string | null
+          content: string
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          difficulty?: string | null
+          id?: string
+          is_system?: boolean | null
+          title: string
+          updated_at?: string | null
+          use_cases?: string[] | null
+        }
+        Update: {
+          category?: string | null
+          content?: string
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          difficulty?: string | null
+          id?: string
+          is_system?: boolean | null
+          title?: string
+          updated_at?: string | null
+          use_cases?: string[] | null
+        }
+        Relationships: []
+      }
       prompt_templates: {
         Row: {
           category: string
@@ -841,6 +883,38 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: []
+      }
+      prompt_usage_logs: {
+        Row: {
+          conversation_id: string | null
+          id: string
+          prompt_id: string | null
+          used_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          conversation_id?: string | null
+          id?: string
+          prompt_id?: string | null
+          used_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          conversation_id?: string | null
+          id?: string
+          prompt_id?: string | null
+          used_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "prompt_usage_logs_prompt_id_fkey"
+            columns: ["prompt_id"]
+            isOneToOne: false
+            referencedRelation: "prompt_library"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       roadmap_entries: {
         Row: {
@@ -1097,6 +1171,41 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      user_favorite_prompts: {
+        Row: {
+          created_at: string | null
+          custom_name: string | null
+          id: string
+          position: number | null
+          prompt_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          custom_name?: string | null
+          id?: string
+          position?: number | null
+          prompt_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          custom_name?: string | null
+          id?: string
+          position?: number | null
+          prompt_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_favorite_prompts_prompt_id_fkey"
+            columns: ["prompt_id"]
+            isOneToOne: false
+            referencedRelation: "prompt_library"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_horses: {
         Row: {
