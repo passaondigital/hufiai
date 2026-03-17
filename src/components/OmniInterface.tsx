@@ -668,6 +668,7 @@ export default function OmniInterface() {
                   messageId={msg.id}
                   versions={msg.versions}
                   onEdit={(id, newContent) => {
+                    const msg = messages.find(m => m.id === id);
                     setMessages(prev => prev.map(m => {
                       if (m.id !== id) return m;
                       const prevVersions = m.versions || [{ content: m.content, timestamp: Date.now(), type: "original" as const }];
@@ -678,7 +679,10 @@ export default function OmniInterface() {
                       };
                     }));
                     if (conversationId) {
-                      supabase.from("messages").update({ content: newContent }).eq("id", id).then(() => {});
+                      supabase.from("messages").update({ content: newContent, is_edited: true, edited_at: new Date().toISOString(), edit_count: (msg as any)?.edit_count ? (msg as any).edit_count + 1 : 1 }).eq("id", id).then(() => {});
+                      // Save version to DB
+                      const versionNum = (msg?.versions?.length || 0) + 1;
+                      supabase.from("message_versions").insert({ message_id: id, version_number: versionNum, content: newContent }).then(() => {});
                     }
                     // Re-generate after edit
                     const idx = messages.findIndex(m => m.id === id);
