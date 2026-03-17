@@ -564,6 +564,12 @@ export default function OmniInterface() {
               {provider === "claude" ? "🧠 Claude" : "⚡ Lovable AI"}
             </button>
           </div>
+          {/* Favorite Prompt Chips */}
+          {messages.length === 0 && user && (
+            <div className="px-4 pb-2">
+              <FavoritePromptChips userId={user.id} onPromptClick={(content) => setInput(content)} />
+            </div>
+          )}
           <OmniBox
             input={input}
             onInputChange={setInput}
@@ -579,8 +585,6 @@ export default function OmniInterface() {
             activeMode={activeMode}
             onModeChange={setActiveMode}
             showChips={messages.length === 0 || messages.length > 1}
-            favoritePrompts={favoritePrompts}
-            onFavoritePromptClick={(fp) => { setInput(fp.prompt); }}
           />
         </div>
       </div>
