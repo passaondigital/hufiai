@@ -12,6 +12,24 @@ import { Slider } from "@/components/ui/slider";
 import { Loader2, Sparkles, Download, Palette, Type, BarChart3, Crown, Copy, Layers, Move, Trash2, Plus, Square, Circle, Image as ImageIcon } from "lucide-react";
 import { toast } from "sonner";
 
+// ── Google Fonts ──
+const GOOGLE_FONTS = [
+  "Inter", "Roboto", "Montserrat", "Playfair Display", "Oswald",
+  "Lora", "Poppins", "Raleway", "Bebas Neue", "Dancing Script",
+  "Merriweather", "Nunito", "Caveat", "Pacifico", "Permanent Marker",
+];
+
+// Load Google Fonts dynamically
+const loadGoogleFont = (fontFamily: string) => {
+  const id = `gfont-${fontFamily.replace(/\s/g, "-")}`;
+  if (document.getElementById(id)) return;
+  const link = document.createElement("link");
+  link.id = id;
+  link.rel = "stylesheet";
+  link.href = `https://fonts.googleapis.com/css2?family=${encodeURIComponent(fontFamily)}:wght@400;700&display=swap`;
+  document.head.appendChild(link);
+};
+
 // ── Template Data ──
 const LOGO_STYLES = [
   { id: "minimalist", label: "Minimalistisch", prompt: "Minimalist logo design, clean lines, simple geometry" },
@@ -50,6 +68,7 @@ interface CanvasLayer {
   color: string;
   fontSize?: number;
   fontWeight?: string;
+  fontFamily?: string;
   opacity: number;
   visible: boolean;
   zIndex: number;
