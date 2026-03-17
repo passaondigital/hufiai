@@ -65,3 +65,15 @@ verify_jwt = false
 
 [functions.stock-media]
 verify_jwt = false
+
+[functions.extract-content]
+verify_jwt = false
+
+[functions.export-chat]
+verify_jwt = false
+
+[functions.generate-summary]
+verify_jwt = false
+
+[functions.split-chat]
+verify_jwt = false
