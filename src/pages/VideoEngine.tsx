@@ -28,6 +28,9 @@ import MultiFormatExport from "@/components/video/MultiFormatExport";
 import ContentCalendar from "@/components/video/ContentCalendar";
 import MediaEditor from "@/components/video/MediaEditor";
 import AssetLibraryEnhanced from "@/components/video/AssetLibraryEnhanced";
+import ImageGenerator from "@/components/video/ImageGenerator";
+import GraphicsDesign from "@/components/video/GraphicsDesign";
+import StockMedia from "@/components/video/StockMedia";
 
 const MODELS = [
   { id: "wan-2.2", label: "Wan 2.2", desc: "Best Allround", badge: "⭐" },
