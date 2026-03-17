@@ -57,7 +57,7 @@ serve(async (req) => {
     }
     const userId = user.id;
 
-    const { jobId } = await req.json();
+    const { jobId, shortFormPreset } = await req.json();
     if (!jobId) throw new Error("jobId is required");
 
     // Fetch job
@@ -70,13 +70,24 @@ serve(async (req) => {
 
     if (jobError || !job) throw new Error("Job not found");
 
+    // Apply short-form preset overrides if specified
+    const sfPreset = shortFormPreset ? SHORT_FORM_PRESETS[shortFormPreset] : null;
+    if (sfPreset) {
+      // Override job settings for short-form
+      job.aspect_ratio = sfPreset.aspect_ratio;
+      if (job.duration > sfPreset.max_duration) job.duration = sfPreset.max_duration;
+    }
+
     // Update status to processing
     await supabase.from("video_jobs").update({ status: "processing" }).eq("id", jobId);
 
     const endpoint = MODEL_ENDPOINTS[job.model] || MODEL_ENDPOINTS["wan-2.2"];
 
-    // Build enhanced prompt with style keywords
+    // Build enhanced prompt with style keywords + short-form hints
     let enhancedPrompt = job.optimized_prompt || job.prompt;
+    if (sfPreset) {
+      enhancedPrompt = `${enhancedPrompt}, ${sfPreset.style_hint}`;
+    }
     if (job.preset && STYLE_KEYWORDS[job.preset]) {
       enhancedPrompt = `${enhancedPrompt}, ${STYLE_KEYWORDS[job.preset]}`;
     }
