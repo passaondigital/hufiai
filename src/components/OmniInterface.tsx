@@ -1,10 +1,12 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
+import { useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Sparkles, Crown } from "lucide-react";
 import { toast } from "sonner";
 import PdfExportDialog from "@/components/PdfExportDialog";
+import ChatExportMenu from "@/components/ChatExportMenu";
 import EcosystemWidget from "@/components/EcosystemWidget";
 import UpsellModal from "@/components/UpsellModal";
 import { useSubscription } from "@/hooks/useSubscription";
@@ -53,6 +55,7 @@ export default function OmniInterface() {
   const { user, profile } = useAuth();
   const { lang } = useI18n();
   const isMobile = useIsMobile();
+  const location = useLocation();
   const { isFounderFlowActive, founderFlowDaysLeft, hasGewerbeAccess, hasUnlimitedUploads } = useSubscription();
 
   const [messages, setMessages] = useState<Message[]>([]);
@@ -72,6 +75,16 @@ export default function OmniInterface() {
   const [historySidebarCollapsed, setHistorySidebarCollapsed] = useState(false);
   const [assetLibraryOpen, setAssetLibraryOpen] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
+
+  // Handle prefilled prompt from Prompt Library navigation
+  useEffect(() => {
+    const state = location.state as { prefillPrompt?: string } | null;
+    if (state?.prefillPrompt) {
+      setInput(state.prefillPrompt);
+      // Clear the state so it doesn't persist
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -421,10 +434,26 @@ export default function OmniInterface() {
 
         {/* Active horse indicator */}
         {selectedHorse && messages.length > 0 && (
-          <div className="px-6 py-2 border-b border-border bg-primary/5 flex items-center gap-2 text-xs text-primary">
-            <span>🐴</span>
-            <span className="font-medium">{selectedHorse.name}</span>
-            {selectedHorse.breed && <span className="text-muted-foreground">({selectedHorse.breed})</span>}
+          <div className="px-6 py-2 border-b border-border bg-primary/5 flex items-center justify-between">
+            <div className="flex items-center gap-2 text-xs text-primary">
+              <span>🐴</span>
+              <span className="font-medium">{selectedHorse.name}</span>
+              {selectedHorse.breed && <span className="text-muted-foreground">({selectedHorse.breed})</span>}
+            </div>
+            <ChatExportMenu
+              messages={messages.filter(m => m.id !== "disclaimer")}
+              conversationId={conversationId}
+              onExportPdf={() => setPdfOpen(true)}
+            />
+          </div>
+        )}
+        {!selectedHorse && messages.length > 0 && (
+          <div className="px-6 py-2 border-b border-border flex items-center justify-end">
+            <ChatExportMenu
+              messages={messages.filter(m => m.id !== "disclaimer")}
+              conversationId={conversationId}
+              onExportPdf={() => setPdfOpen(true)}
+            />
           </div>
         )}
 
@@ -477,7 +506,31 @@ export default function OmniInterface() {
           ) : (
             <div className="max-w-3xl mx-auto space-y-4">
               {messages.map(msg => (
-                <MessageBubble key={msg.id} role={msg.role} content={msg.content} attachments={msg.attachments} />
+                <MessageBubble
+                  key={msg.id}
+                  role={msg.role}
+                  content={msg.content}
+                  attachments={msg.attachments}
+                  messageId={msg.id}
+                  onEdit={(id, newContent) => {
+                    setMessages(prev => prev.map(m => m.id === id ? { ...m, content: newContent } : m));
+                    // Update in DB if conversation exists
+                    if (conversationId) {
+                      supabase.from("messages").update({ content: newContent }).eq("id", id).then(() => {});
+                    }
+                  }}
+                  onRegenerate={(id) => {
+                    // Remove this message and all after it, then re-send the last user message
+                    const idx = messages.findIndex(m => m.id === id);
+                    if (idx > 0) {
+                      const lastUserMsg = messages.slice(0, idx).reverse().find(m => m.role === "user");
+                      if (lastUserMsg) {
+                        setMessages(prev => prev.slice(0, idx));
+                        setInput(lastUserMsg.content);
+                      }
+                    }
+                  }}
+                />
               ))}
               {loading && (
                 <div className="flex justify-start animate-fade-in">

@@ -455,8 +455,21 @@ serve(async (req) => {
 
     const verifiedUserId = claimsData.claims.sub as string;
 
-    // Load user's custom system prompt (non-critical)
+    // Load user's custom system prompt and AI memory (non-critical)
     let userSystemPrompt: string | null = null;
+    let aiMemory: string | null = null;
+    try {
+      const { data: profileData } = await authClient
+        .from("profiles")
+        .select("ai_memory")
+        .eq("user_id", verifiedUserId)
+        .maybeSingle();
+      if (profileData?.ai_memory) {
+        aiMemory = profileData.ai_memory;
+      }
+    } catch (e) {
+      console.log("AI memory load skipped:", e);
+    }
     try {
       const { data: promptData } = await authClient
         .from("user_system_prompts")
@@ -482,6 +495,11 @@ serve(async (req) => {
     // If user has a custom system prompt, append it
     if (userSystemPrompt) {
       systemContent += `\n\n═══ CUSTOM USER CONTEXT ═══\n${userSystemPrompt}`;
+    }
+
+    // Inject AI memory if available
+    if (aiMemory) {
+      systemContent += `\n\n═══ PERSISTENT MEMORY ═══\nDu erinnerst dich an folgende Fakten über diesen Nutzer aus früheren Gesprächen:\n${aiMemory}\nNutze dieses Wissen kontextbezogen, ohne es ungefragt zu wiederholen.`;
     }
 
     // Append Pascal's knowledge when using Claude
@@ -595,6 +613,38 @@ serve(async (req) => {
             });
           } catch (logErr) {
             console.error("Training log error (non-critical):", logErr);
+          }
+        }
+
+        // Update AI Memory every 5 messages (non-critical, async)
+        if (verifiedUserId && messages.length >= 5 && messages.length % 5 === 0 && fullResponse) {
+          try {
+            const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+            if (LOVABLE_API_KEY) {
+              const memoryPrompt = `Analysiere dieses Gespräch und extrahiere die wichtigsten Fakten über den Nutzer und seine Pferde. Format: Stichpunkte, max 500 Zeichen. Nur neue, wichtige Infos wie: Pferdenamen, Rassen, Gesundheitsprobleme, Geschäftsart, Präferenzen.\n\nGespräch:\n${messages.slice(-6).map((m: any) => `${m.role}: ${typeof m.content === 'string' ? m.content.slice(0, 500) : ''}`).join('\n')}`;
+              
+              const memRes = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+                method: "POST",
+                headers: { Authorization: `Bearer ${LOVABLE_API_KEY}`, "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  model: "google/gemini-2.5-flash-lite",
+                  messages: [{ role: "user", content: memoryPrompt }],
+                }),
+              });
+              
+              if (memRes.ok) {
+                const memData = await memRes.json();
+                const newMemory = memData.choices?.[0]?.message?.content || "";
+                if (newMemory.trim()) {
+                  const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+                  const sb2 = createClient(supabaseUrl, supabaseKey);
+                  const combined = aiMemory ? `${aiMemory}\n${newMemory}`.slice(-2000) : newMemory.slice(0, 2000);
+                  await sb2.from("profiles").update({ ai_memory: combined }).eq("user_id", verifiedUserId);
+                }
+              }
+            }
+          } catch (memErr) {
+            console.error("Memory update error (non-critical):", memErr);
           }
         }
       } catch (e) {

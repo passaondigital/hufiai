@@ -6,7 +6,7 @@ import { useUnreadNotifications } from "@/hooks/useUnreadNotifications";
 import {
   MessageSquare, FolderKanban, FileText, CreditCard, Settings,
   LogOut, ChevronLeft, ChevronRight, Plus, Shield,
-  ArrowLeftRight, Building2, Map, Megaphone, Crown, Heart, Award, Users, Sparkles, Link2, Database, Bell, Video
+  ArrowLeftRight, Building2, Map, Megaphone, Crown, Heart, Award, Users, Sparkles, Link2, Database, Bell, Video, BookOpen
 } from "lucide-react";
 import hufiaiLogo from "@/assets/hufiai-logo.svg";
 
@@ -37,6 +37,7 @@ export default function AppSidebar() {
 
   const navItems: { icon: any; label: string; path: string; badge?: number }[] = [
     { icon: MessageSquare, label: "Chat", path: "/" },
+    { icon: BookOpen, label: "Prompt-Bibliothek", path: "/prompts" },
     { icon: Sparkles, label: "Meine Pferde", path: "/horses" },
     ...(profile?.user_type === "gewerbe" || hasGewerbeAccess ? [
       { icon: FolderKanban, label: "Projekte", path: "/projects" },
