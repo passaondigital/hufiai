@@ -356,6 +356,15 @@ export default function VideoEngine() {
                 <TabsTrigger value="editor" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-xs gap-1.5">
                   <Edit2 className="w-3.5 h-3.5" /> Editor
                 </TabsTrigger>
+                <TabsTrigger value="imagegen" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-xs gap-1.5">
+                  <Image className="w-3.5 h-3.5" /> Bilder
+                </TabsTrigger>
+                <TabsTrigger value="graphics" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-xs gap-1.5">
+                  <Palette className="w-3.5 h-3.5" /> Design
+                </TabsTrigger>
+                <TabsTrigger value="stock" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-xs gap-1.5">
+                  <Globe className="w-3.5 h-3.5" /> Stock
+                </TabsTrigger>
               </TabsList>
 
               {/* CREATE TAB */}

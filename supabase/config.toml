@@ -56,3 +56,6 @@ verify_jwt = false
 
 [functions.analyze-prompt]
 verify_jwt = false
+
+[functions.generate-image-ai]
+verify_jwt = false
