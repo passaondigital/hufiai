@@ -94,28 +94,6 @@ export default function OmniBox({
         </div>
       )}
 
-      {/* Favorite Prompts Quick Access */}
-      {showChips && favoritePrompts.length > 0 && !input.trim() && (
-        <div className="flex flex-wrap gap-2 px-1">
-          {favoritePrompts.slice(0, 5).map(fp => (
-            <button
-              key={fp.id}
-              onClick={() => onFavoritePromptClick?.(fp)}
-              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full border border-primary/20 bg-primary/5 text-[11px] font-medium text-primary hover:bg-primary/10 transition-all"
-            >
-              <BookOpen className="w-3 h-3" />
-              {fp.title.length > 25 ? fp.title.slice(0, 25) + "…" : fp.title}
-            </button>
-          ))}
-          <button
-            onClick={() => navigate("/prompts")}
-            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full border border-border text-[11px] font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-all"
-          >
-            Alle Prompts →
-          </button>
-        </div>
-      )}
-
       {/* Pending files */}
       {pendingFiles.length > 0 && (
         <div className="flex flex-wrap gap-2 px-1">
