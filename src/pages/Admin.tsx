@@ -20,6 +20,7 @@ import VideoAnalysisLab from "@/components/admin/VideoAnalysisLab";
 import VoiceEngine from "@/components/admin/VoiceEngine";
 import ImageLab from "@/components/admin/ImageLab";
 import VideoTrainingTab from "@/components/admin/VideoTrainingTab";
+import ApiCostTracker from "@/components/admin/ApiCostTracker";
 import { useNavigate } from "react-router-dom";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue
