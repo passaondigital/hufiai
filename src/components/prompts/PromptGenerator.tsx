@@ -32,12 +32,13 @@ export default function PromptGenerator({ open, onOpenChange, onSaveAsNew, onSav
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) throw new Error("Nicht eingeloggt");
-      const res = await supabase.functions.invoke("generate-content", {
-        body: { action: "generate_prompt", idea: goal, context },
+      const res = await supabase.functions.invoke("generate-prompt", {
+        body: { goal, context },
       });
       if (res.error) throw res.error;
-      setGeneratedPrompt(res.data?.prompt || "");
-      setExplanation(res.data?.explanation || "");
+      const d = res.data || {};
+      setGeneratedPrompt(d.prompt || "");
+      setExplanation([d.explanation, d.whyWorks, d.howToUse].filter(Boolean).join("\n\n"));
       setStep(3);
     } catch (err: any) {
       toast.error(err.message || "Generator fehlgeschlagen");
