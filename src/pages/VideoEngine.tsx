@@ -828,6 +828,21 @@ export default function VideoEngine() {
                   return <MediaEditor mediaUrl={mediaUrl} mediaType={editorMediaType} />;
                 })()}
               </TabsContent>
+
+              {/* IMAGE GENERATOR TAB */}
+              <TabsContent value="imagegen">
+                <ImageGenerator />
+              </TabsContent>
+
+              {/* GRAPHICS & DESIGN TAB */}
+              <TabsContent value="graphics">
+                <GraphicsDesign />
+              </TabsContent>
+
+              {/* STOCK MEDIA TAB */}
+              <TabsContent value="stock">
+                <StockMedia />
+              </TabsContent>
             </Tabs>
           </div>
 
