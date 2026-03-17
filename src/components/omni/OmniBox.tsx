@@ -1,8 +1,7 @@
 import { useState, useRef, useEffect } from "react";
-import { Send, Paperclip, Loader2, X, FileText, Image as ImageIcon, Mic, MicOff, Camera, Sparkles, BookOpen } from "lucide-react";
+import { Send, Paperclip, Loader2, X, FileText, Image as ImageIcon, Mic, MicOff, Camera, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/lib/i18n";
-import { useNavigate } from "react-router-dom";
 
 export type AiMode = "scout" | "canvas" | "analyst" | "agent" | "auto";
 
@@ -22,12 +21,6 @@ interface PendingFile {
   extractedText?: string;
 }
 
-interface FavoritePrompt {
-  id: string;
-  title: string;
-  prompt: string;
-}
-
 interface OmniBoxProps {
   input: string;
   onInputChange: (val: string) => void;
@@ -44,8 +37,6 @@ interface OmniBoxProps {
   activeMode: AiMode;
   onModeChange: (mode: AiMode) => void;
   showChips?: boolean;
-  favoritePrompts?: FavoritePrompt[];
-  onFavoritePromptClick?: (prompt: FavoritePrompt) => void;
 }
 
 const MODE_CONFIG: Record<AiMode, { label: string; labelEn: string; color: string; icon: string }> = {
@@ -59,10 +50,9 @@ const MODE_CONFIG: Record<AiMode, { label: string; labelEn: string; color: strin
 export default function OmniBox({
   input, onInputChange, onSend, onFileSelect, pendingFiles, onRemoveFile,
   loading, uploading, disabled, selectedHorseName, smartChips, onChipClick,
-  activeMode, onModeChange, showChips = true, favoritePrompts = [], onFavoritePromptClick,
+  activeMode, onModeChange, showChips = true,
 }: OmniBoxProps) {
   const { lang } = useI18n();
-  const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -101,28 +91,6 @@ export default function OmniBox({
               {chip.label}
             </button>
           ))}
-        </div>
-      )}
-
-      {/* Favorite Prompts Quick Access */}
-      {showChips && favoritePrompts.length > 0 && !input.trim() && (
-        <div className="flex flex-wrap gap-2 px-1">
-          {favoritePrompts.slice(0, 5).map(fp => (
-            <button
-              key={fp.id}
-              onClick={() => onFavoritePromptClick?.(fp)}
-              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full border border-primary/20 bg-primary/5 text-[11px] font-medium text-primary hover:bg-primary/10 transition-all"
-            >
-              <BookOpen className="w-3 h-3" />
-              {fp.title.length > 25 ? fp.title.slice(0, 25) + "…" : fp.title}
-            </button>
-          ))}
-          <button
-            onClick={() => navigate("/prompts")}
-            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full border border-border text-[11px] font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-all"
-          >
-            Alle Prompts →
-          </button>
         </div>
       )}
 
