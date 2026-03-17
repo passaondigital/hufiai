@@ -1,10 +1,12 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
+import { useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Sparkles, Crown } from "lucide-react";
 import { toast } from "sonner";
 import PdfExportDialog from "@/components/PdfExportDialog";
+import ChatExportMenu from "@/components/ChatExportMenu";
 import EcosystemWidget from "@/components/EcosystemWidget";
 import UpsellModal from "@/components/UpsellModal";
 import { useSubscription } from "@/hooks/useSubscription";
