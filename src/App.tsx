@@ -154,6 +154,7 @@ function AppRoutes() {
         <Route path="/ecosystem" element={<ProtectedRoute><Ecosystem /></ProtectedRoute>} />
         <Route path="/hufmanager" element={<ProtectedRoute><HufManagerDashboard /></ProtectedRoute>} />
         <Route path="/video-engine" element={<ProtectedRoute><VideoEngine /></ProtectedRoute>} />
+        <Route path="/prompts" element={<ProtectedRoute><PromptLibrary /></ProtectedRoute>} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </>
