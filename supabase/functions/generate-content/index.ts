@@ -47,6 +47,7 @@ serve(async (req) => {
     if (action === "speech_to_text") return await handleSTT(body, LOVABLE_API_KEY);
     if (action === "text_to_speech") return await handleTTS(body, LOVABLE_API_KEY);
     if (action === "generate_image") return await handleImageGeneration(body, LOVABLE_API_KEY);
+    if (action === "generate_prompt") return await handlePromptGeneration(body, LOVABLE_API_KEY);
 
     // Legacy content generation
     return await handleContentGeneration(body, LOVABLE_API_KEY, verifiedUserId);
