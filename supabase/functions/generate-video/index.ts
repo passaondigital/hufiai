@@ -15,6 +15,16 @@ const MODEL_ENDPOINTS: Record<string, string> = {
   "mochi-1": "fal-ai/mochi-v1",
 };
 
+// Short-form presets: auto-configure aspect ratio, duration, and style for social platforms
+const SHORT_FORM_PRESETS: Record<string, { aspect_ratio: string; max_duration: number; style_hint: string }> = {
+  "instagram-reel": { aspect_ratio: "9:16", max_duration: 15, style_hint: "Fast-paced, visually engaging, vertical format optimized for Instagram Reels" },
+  "youtube-short": { aspect_ratio: "9:16", max_duration: 15, style_hint: "Eye-catching, vertical format optimized for YouTube Shorts, bold text-friendly" },
+  "tiktok": { aspect_ratio: "9:16", max_duration: 15, style_hint: "Trendy, dynamic, vertical format optimized for TikTok, fast cuts" },
+  "instagram-story": { aspect_ratio: "9:16", max_duration: 10, style_hint: "Vertical story format, quick and immersive, 15 seconds max" },
+  "linkedin-video": { aspect_ratio: "1:1", max_duration: 30, style_hint: "Professional, clean, square format for LinkedIn feed" },
+  "twitter-video": { aspect_ratio: "16:9", max_duration: 30, style_hint: "Landscape format, attention-grabbing first frame for Twitter/X" },
+};
+
 const STYLE_KEYWORDS: Record<string, string> = {
   realistic: "photorealistic, high detail, natural lighting, 8K UHD",
   comic: "cel shaded, comic book style, bold outlines, vibrant flat colors, manga inspired",
