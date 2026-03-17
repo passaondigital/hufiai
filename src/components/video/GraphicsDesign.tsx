@@ -603,25 +603,34 @@ export default function GraphicsDesign() {
                     <Slider value={[selectedLayer.opacity]} onValueChange={v => updateLayer(selectedLayer.id, { opacity: v[0] })} min={0} max={100} step={5} className="mt-1" />
                   </div>
                   {selectedLayer.type === "text" && (
-                    <div>
-                      <label className="text-[10px] text-[hsl(var(--sidebar-muted))]">Schriftgröße: {selectedLayer.fontSize}px</label>
-                      <Slider value={[selectedLayer.fontSize || 24]} onValueChange={v => updateLayer(selectedLayer.id, { fontSize: v[0] })} min={8} max={72} step={1} className="mt-1" />
-                    </div>
+                    <>
+                      <div>
+                        <label className="text-[10px] text-[hsl(var(--sidebar-muted))]">Schriftart</label>
+                        <Select value={selectedLayer.fontFamily || "Inter"} onValueChange={v => { loadGoogleFont(v); updateLayer(selectedLayer.id, { fontFamily: v }); }}>
+                          <SelectTrigger className="h-8 text-xs bg-[hsl(var(--sidebar-background))] mt-1">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {GOOGLE_FONTS.map(f => (
+                              <SelectItem key={f} value={f}>
+                                <span style={{ fontFamily: f }}>{f}</span>
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <label className="text-[10px] text-[hsl(var(--sidebar-muted))]">Schriftgröße: {selectedLayer.fontSize}px</label>
+                        <Slider value={[selectedLayer.fontSize || 24]} onValueChange={v => updateLayer(selectedLayer.id, { fontSize: v[0] })} min={8} max={72} step={1} className="mt-1" />
+                      </div>
+                      <div className="flex gap-1">
+                        <Button variant={selectedLayer.fontWeight === "bold" ? "default" : "outline"} size="sm" className="text-xs h-7 flex-1"
+                          onClick={() => updateLayer(selectedLayer.id, { fontWeight: selectedLayer.fontWeight === "bold" ? "normal" : "bold" })}>
+                          <strong>B</strong>
+                        </Button>
+                      </div>
+                    </>
                   )}
-                  <div className="grid grid-cols-2 gap-1">
-                    <Input
-                      type="number" value={selectedLayer.width}
-                      onChange={e => updateLayer(selectedLayer.id, { width: Number(e.target.value) })}
-                      className="text-xs h-7 bg-[hsl(var(--sidebar-background))]"
-                      placeholder="W"
-                    />
-                    <Input
-                      type="number" value={selectedLayer.height}
-                      onChange={e => updateLayer(selectedLayer.id, { height: Number(e.target.value) })}
-                      className="text-xs h-7 bg-[hsl(var(--sidebar-background))]"
-                      placeholder="H"
-                    />
-                  </div>
                 </div>
               )}
             </CardContent>
