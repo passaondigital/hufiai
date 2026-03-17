@@ -68,6 +68,7 @@ export default function OmniInterface() {
   const [pendingFiles, setPendingFiles] = useState<AttachmentPreview[]>([]);
   const [uploading, setUploading] = useState(false);
   const [activeMode, setActiveMode] = useState<AiMode>("auto");
+  const [provider, setProvider] = useState<"lovable" | "claude">("lovable");
   const [historySidebarCollapsed, setHistorySidebarCollapsed] = useState(false);
   const [assetLibraryOpen, setAssetLibraryOpen] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
