@@ -109,27 +109,7 @@ export default function OmniInterface() {
       });
   }, [user]);
 
-  // Fetch favorite prompts for quick-access chips
-  const [favoritePrompts, setFavoritePrompts] = useState<{ id: string; title: string; prompt: string }[]>([]);
-  useEffect(() => {
-    if (!user) return;
-    // Fetch favorites from new schema: join user_favorite_prompts with prompt_library
-    supabase
-      .from("user_favorite_prompts" as any)
-      .select("id, custom_name, prompt_id, prompt_library:prompt_id(id, title, content)")
-      .eq("user_id", user.id)
-      .order("position", { ascending: true })
-      .limit(5)
-      .then(({ data }) => {
-        if (data) {
-          setFavoritePrompts((data as any[]).map((f: any) => ({
-            id: f.prompt_library?.id || f.prompt_id,
-            title: f.custom_name || f.prompt_library?.title || "Prompt",
-            prompt: f.prompt_library?.content || "",
-          })).filter((f: any) => f.prompt));
-        }
-      });
-  }, [user]);
+  // Favorite prompts handled by FavoritePromptChips component
 
   const displayName = profile?.display_name || "du";
   const greeting = lang === "de"
