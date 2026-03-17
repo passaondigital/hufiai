@@ -59,9 +59,10 @@ const MODE_CONFIG: Record<AiMode, { label: string; labelEn: string; color: strin
 export default function OmniBox({
   input, onInputChange, onSend, onFileSelect, pendingFiles, onRemoveFile,
   loading, uploading, disabled, selectedHorseName, smartChips, onChipClick,
-  activeMode, onModeChange, showChips = true,
+  activeMode, onModeChange, showChips = true, favoritePrompts = [], onFavoritePromptClick,
 }: OmniBoxProps) {
   const { lang } = useI18n();
+  const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
