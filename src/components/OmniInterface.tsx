@@ -592,6 +592,8 @@ export default function OmniInterface() {
             activeMode={activeMode}
             onModeChange={setActiveMode}
             showChips={messages.length === 0 || messages.length > 1}
+            favoritePrompts={favoritePrompts}
+            onFavoritePromptClick={(fp) => { setInput(fp.prompt); }}
           />
         </div>
       </div>
