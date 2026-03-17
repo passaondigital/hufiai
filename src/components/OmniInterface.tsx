@@ -11,7 +11,7 @@ import EcosystemWidget from "@/components/EcosystemWidget";
 import UpsellModal from "@/components/UpsellModal";
 import { useSubscription } from "@/hooks/useSubscription";
 import OmniBox, { type AiMode } from "@/components/omni/OmniBox";
-import MessageBubble from "@/components/omni/MessageBubble";
+import MessageBubble, { type MessageVersion } from "@/components/omni/MessageBubble";
 import { generateSmartChips, detectMode } from "@/components/omni/SmartChipEngine";
 import HistorySidebar from "@/components/omni/HistorySidebar";
 import AssetLibrary from "@/components/omni/AssetLibrary";
