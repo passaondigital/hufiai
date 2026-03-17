@@ -306,3 +306,48 @@ async function handleImageGeneration(body: any, apiKey: string) {
     headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
 }
+
+// ─── Prompt Generator ────────────────────────────────────────────
+async function handlePromptGeneration(body: any, apiKey: string) {
+  const { idea } = body;
+  if (!idea) {
+    return new Response(JSON.stringify({ error: "Missing idea field" }), {
+      status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
+  const response = await fetch(GATEWAY_URL, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+    body: JSON.stringify({
+      model: "google/gemini-3-flash-preview",
+      messages: [
+        {
+          role: "system",
+          content: `Du bist ein Prompt-Engineering-Experte für die Pferdebranche. Erstelle einen detaillierten, wirkungsvollen Prompt basierend auf der Beschreibung des Users. Der Prompt soll:
+1. Klar und strukturiert sein
+2. Kontext und Ziel definieren
+3. Das gewünschte Ausgabeformat beschreiben
+4. Fachbegriffe der Pferdebranche nutzen
+5. Auf Deutsch sein
+
+Antworte NUR mit dem fertigen Prompt-Text, ohne Erklärungen drumherum.`
+        },
+        { role: "user", content: `Erstelle einen optimalen Prompt für folgendes Ziel: ${idea}` }
+      ],
+    }),
+  });
+
+  if (!response.ok) {
+    const t = await response.text();
+    console.error("Prompt gen error:", response.status, t);
+    throw new Error(`Prompt-Generierung fehlgeschlagen (${response.status})`);
+  }
+
+  const data = await response.json();
+  const prompt = data.choices?.[0]?.message?.content || "";
+
+  return new Response(JSON.stringify({ prompt }), {
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
+  });
+}
