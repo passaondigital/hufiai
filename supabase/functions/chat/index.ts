@@ -35,6 +35,34 @@ Wenn du eine potenziell kritische Situation erkennst (akute Verletzung, starke L
 🔍 [Finde einen Experten in deiner Nähe](/experten)
 ---`;
 
+// ─── Pascal's knowledge context (used when provider=claude) ──────
+const PASCAL_KNOWLEDGE = `
+ÜBER DEN GRÜNDER – PASCAL SCHMID:
+- Solo Founder, 15+ Jahre Equine Industry, Standort Düsseldorf
+- 3 Ventures: HufManager (SaaS), Barhuf Service Schmid, Hufbusiness Coaching
+- Philosophie: BeTheHorse – Freiheit, Selbstbestimmung, Präsens
+- Ziel: Pferdebusiness bis Nov 2030 (40. Geburtstag) skalieren
+- Marktraum: DACH + Global
+
+ÜBER HUFMANAGER:
+- Vision: "Nervensystem der Pferdewelt" – Das Operating System für die Branche
+- Tech: React 18 + TypeScript, Lovable.dev, Supabase, Tailwind, shadcn/ui
+- Features: Kundenverwaltung, Pferde-Register, Termine, Hufwerte, Team-Modul
+- Rollen: provider (#pid), client (#kid), partner, employee, admin
+- Pricing: Starter €9.90, Pro €29, Duo €49+, Team €79+
+- Partnerships: Fischer Versicherung (2.800 versicherte Profis), Uelzener (geplant)
+
+BRAND:
+- Colors: Black #0a0700, Amber-Orange #F5970A
+- Hashtag: #ZukunftHuf2030
+- Tone: Deutsch, direkt, authentisch, practitioner-focused
+
+KOMMUNIKATIONSSTIL MIT PASCAL:
+- Sei direkt und actionable (keine Floskeln)
+- Denke langfristig (bis Nov 2030)
+- Gib ehrliches Feedback, maximal 3 Optionen statt 10
+- Nutze Deutsch, direkter Ton`;
+
 // ─── Mode-specific system prompts ────────────────────────────────
 const MODE_PROMPTS: Record<string, string> = {
   scout: `${BASE_PERSONA}
@@ -107,21 +135,30 @@ FORMAT: Liefere direkt verwendbare, exportfähige Dokumente. Nutze klare Struktu
 Bei professionellen Nutzern (Gewerbe): Betone explizit, dass du nur ein Assistenz-Tool bist und die fachliche Entscheidung beim Experten liegt.`,
 };
 
-// Fallback = general mode (legacy)
+// Fallback = general mode
 const GENERAL_PROMPT = `${BASE_PERSONA}
 
 ROLLE: Du bist Assistent, Educator und Coach. Du ersetzt NIEMALS professionelle tierärztliche, hufpflegerische, juristische oder steuerliche Beratung.
 
 FACHGEBIETE: Hufpflege, Pferdegesundheit, Fütterung, Stallbau, Haltung, Reitbetrieb-Management, Coaching, Online-Kurse, Produktentwicklung, Business-Skalierung für Equine-Profis.`;
 
-// ─── Model selection per mode ────────────────────────────────────
+// ─── Model selection per mode (Lovable AI Gateway) ───────────────
 const MODE_MODELS: Record<string, string> = {
-  scout:   "google/gemini-2.5-flash",     // strong reasoning, good for research
-  canvas:  "google/gemini-3-flash-preview", // fast creative output
-  analyst: "google/gemini-2.5-pro",        // best accuracy for analysis
-  agent:   "google/gemini-3-flash-preview", // fast action-oriented
+  scout:   "google/gemini-2.5-flash",
+  canvas:  "google/gemini-3-flash-preview",
+  analyst: "google/gemini-2.5-pro",
+  agent:   "google/gemini-3-flash-preview",
 };
 const DEFAULT_MODEL = "google/gemini-3-flash-preview";
+
+// ─── Claude model mapping per mode ───────────────────────────────
+const CLAUDE_MODE_MODELS: Record<string, string> = {
+  scout:   "claude-sonnet-4-20250514",
+  canvas:  "claude-haiku-4-20250514",
+  analyst: "claude-sonnet-4-20250514",
+  agent:   "claude-haiku-4-20250514",
+};
+const DEFAULT_CLAUDE_MODEL = "claude-sonnet-4-20250514";
 
 // ─── Topic category detection ────────────────────────────────────
 function detectCategory(text: string): string {
@@ -139,6 +176,114 @@ function detectCategory(text: string): string {
     if (keywords.some(k => lower.includes(k))) return cat;
   }
   return "general";
+}
+
+// ─── Lovable AI Gateway call (existing) ──────────────────────────
+async function callLovableGateway(
+  systemContent: string,
+  messages: any[],
+  model: string,
+): Promise<Response> {
+  const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+  if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
+
+  const aiMessages = [
+    { role: "system", content: systemContent },
+    ...messages,
+  ];
+
+  return await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${LOVABLE_API_KEY}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ model, messages: aiMessages, stream: true }),
+  });
+}
+
+// ─── Claude API call (new) ───────────────────────────────────────
+async function callClaudeAPI(
+  systemContent: string,
+  messages: any[],
+  model: string,
+): Promise<Response> {
+  const ANTHROPIC_API_KEY = Deno.env.get("ANTHROPIC_API_KEY");
+  if (!ANTHROPIC_API_KEY) throw new Error("ANTHROPIC_API_KEY is not configured");
+
+  // Convert OpenAI-style messages to Anthropic format (filter out system)
+  const anthropicMessages = messages
+    .filter((m: any) => m.role !== "system")
+    .map((m: any) => ({ role: m.role, content: m.content }));
+
+  return await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: {
+      "x-api-key": ANTHROPIC_API_KEY,
+      "anthropic-version": "2023-06-01",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      model,
+      max_tokens: 4096,
+      system: systemContent,
+      messages: anthropicMessages,
+      stream: true,
+    }),
+  });
+}
+
+// ─── Transform Claude SSE stream → OpenAI-compatible SSE stream ──
+function transformClaudeStream(claudeBody: ReadableStream<Uint8Array>): ReadableStream<Uint8Array> {
+  const decoder = new TextDecoder();
+  const encoder = new TextEncoder();
+  let buffer = "";
+
+  return new ReadableStream({
+    async start(controller) {
+      const reader = claudeBody.getReader();
+      try {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) {
+            // Send [DONE] in OpenAI format
+            controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+            controller.close();
+            break;
+          }
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split("\n");
+          buffer = lines.pop() || "";
+
+          for (const line of lines) {
+            if (!line.startsWith("data: ")) continue;
+            const jsonStr = line.slice(6).trim();
+            if (!jsonStr) continue;
+            try {
+              const event = JSON.parse(jsonStr);
+              // Claude sends content_block_delta with text delta
+              if (event.type === "content_block_delta" && event.delta?.type === "text_delta") {
+                const openaiChunk = {
+                  choices: [{ delta: { content: event.delta.text }, index: 0 }],
+                };
+                controller.enqueue(encoder.encode(`data: ${JSON.stringify(openaiChunk)}\n\n`));
+              }
+              // Claude sends message_stop when done
+              if (event.type === "message_stop") {
+                controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+                controller.close();
+                reader.cancel();
+                return;
+              }
+            } catch { /* partial JSON, skip */ }
+          }
+        }
+      } catch (e) {
+        console.error("Claude stream transform error:", e);
+        controller.close();
+      }
+    },
+  });
 }
 
 // ─── Main handler ────────────────────────────────────────────────
@@ -169,14 +314,18 @@ serve(async (req) => {
 
     const verifiedUserId = claimsData.claims.sub as string;
 
-    const { messages, conversation_id, horse_context, user_type, log_training, file_context, mode } = await req.json();
+    const { messages, conversation_id, horse_context, user_type, log_training, file_context, mode, provider } = await req.json();
 
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
+    const useClaude = provider === "claude";
 
     // Resolve system prompt based on mode
     const resolvedMode = (mode && MODE_PROMPTS[mode]) ? mode : null;
     let systemContent = resolvedMode ? MODE_PROMPTS[resolvedMode] : GENERAL_PROMPT;
+
+    // Append Pascal's knowledge when using Claude
+    if (useClaude) {
+      systemContent += `\n\n${PASCAL_KNOWLEDGE}`;
+    }
 
     // Append horse context
     if (horse_context) {
@@ -186,26 +335,21 @@ serve(async (req) => {
       systemContent += `\n\nDer Nutzer ist ein Gewerbetreibender in der Pferdebranche. Berücksichtige geschäftliche Aspekte in deinen Antworten.`;
     }
 
-    // Select model based on mode
-    const selectedModel = resolvedMode ? MODE_MODELS[resolvedMode] : DEFAULT_MODEL;
+    // Select model based on provider + mode
+    let selectedModel: string;
+    if (useClaude) {
+      selectedModel = resolvedMode ? CLAUDE_MODE_MODELS[resolvedMode] : DEFAULT_CLAUDE_MODEL;
+    } else {
+      selectedModel = resolvedMode ? MODE_MODELS[resolvedMode] : DEFAULT_MODEL;
+    }
 
-    const aiMessages = [
-      { role: "system", content: systemContent },
-      ...messages,
-    ];
-
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: selectedModel,
-        messages: aiMessages,
-        stream: true,
-      }),
-    });
+    // Call the appropriate provider
+    let response: Response;
+    if (useClaude) {
+      response = await callClaudeAPI(systemContent, messages, selectedModel);
+    } else {
+      response = await callLovableGateway(systemContent, messages, selectedModel);
+    }
 
     if (!response.ok) {
       if (response.status === 429) {
@@ -219,16 +363,22 @@ serve(async (req) => {
         });
       }
       const t = await response.text();
-      console.error("AI gateway error:", response.status, t);
-      return new Response(JSON.stringify({ error: "KI-Gateway Fehler" }), {
+      console.error("AI provider error:", response.status, t);
+      return new Response(JSON.stringify({ error: "KI-Provider Fehler" }), {
         status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
+    // For Claude, transform the stream to OpenAI-compatible format
+    // so the frontend SSE parser works unchanged
+    const outputStream = useClaude
+      ? transformClaudeStream(response.body!)
+      : response.body!;
+
     // Stream response & collect for training log
     const { readable, writable } = new TransformStream();
     const writer = writable.getWriter();
-    const reader = response.body!.getReader();
+    const reader = outputStream.getReader();
     const decoder = new TextDecoder();
     let fullResponse = "";
 
@@ -268,7 +418,7 @@ serve(async (req) => {
               ai_output: fullResponse.slice(0, 8000),
               file_context: file_context || null,
               model_used: selectedModel,
-              source: "lovable_gateway",
+              source: useClaude ? "claude_api" : "lovable_gateway",
               tone: "empathic_professional",
               category,
             });
