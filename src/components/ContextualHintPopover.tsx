@@ -32,7 +32,7 @@ const POPOVER_HINTS: Record<string, HintConfig> = {
     emoji: "✍️",
     title: "Creative Mode Unlocked",
     content: "Canvas is for content creation. Fast. Creative.",
-    example: "„Write an Instagram post about barhoof care"",
+    example: "Write an Instagram post about barhoof care",
     tip: "Generate an image after writing!",
     xp: "+2 XP pro Canvas-Chat",
     learnMorePath: "/gamification",
