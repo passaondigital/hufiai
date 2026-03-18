@@ -243,7 +243,7 @@ export default function MemoryDashboard() {
                       <div className="flex gap-2">
                         <Input value={editValue} onChange={e => setEditValue(e.target.value)} className="text-sm" autoFocus />
                         <Button size="icon" variant="ghost" onClick={() => updateFact(fact.id)}>
-                          <Check className="w-4 h-4 text-green-500" />
+                          <Check className="w-4 h-4 text-primary" />
                         </Button>
                         <Button size="icon" variant="ghost" onClick={() => setEditingId(null)}>
                           <X className="w-4 h-4" />
