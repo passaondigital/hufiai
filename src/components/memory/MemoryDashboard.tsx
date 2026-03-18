@@ -12,31 +12,32 @@ import {
   TrendingUp, MessageSquare, Target, BarChart3, Edit2, Check, X
 } from "lucide-react";
 
-interface MemoryFact {
+interface MemoryItem {
   id: string;
   fact: string;
-  source: string;
-  category: string;
-  is_active: boolean;
+  category: string | null;
+  importance: number;
+  confidence: number;
+  use_count: number;
   created_at: string;
 }
 
-interface Reminder {
+interface ReminderItem {
   id: string;
-  reminder_type: string;
+  reminder_text: string;
+  type: string | null;
   trigger_topic: string | null;
   trigger_condition: string | null;
-  trigger_date: string | null;
-  message: string;
+  due_date: string | null;
   is_active: boolean;
-  is_triggered: boolean;
+  reminded_count: number;
   created_at: string;
 }
 
 export default function MemoryDashboard() {
-  const { user, profile } = useAuth();
-  const [facts, setFacts] = useState<MemoryFact[]>([]);
-  const [reminders, setReminders] = useState<Reminder[]>([]);
+  const { user } = useAuth();
+  const [facts, setFacts] = useState<MemoryItem[]>([]);
+  const [reminders, setReminders] = useState<ReminderItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [newFact, setNewFact] = useState("");
@@ -55,12 +56,12 @@ export default function MemoryDashboard() {
     if (!user) return;
     setLoading(true);
     try {
-      const [factsRes, remindersRes] = await Promise.all([
-        supabase.from("memory_facts").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
-        supabase.from("user_reminders").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
+      const [memRes, remRes] = await Promise.all([
+        supabase.from("user_memory" as any).select("id, fact, category, importance, confidence, use_count, created_at").eq("user_id", user.id).order("created_at", { ascending: false }),
+        supabase.from("user_reminders" as any).select("id, reminder_text, type, trigger_topic, trigger_condition, due_date, is_active, reminded_count, created_at").eq("user_id", user.id).order("created_at", { ascending: false }),
       ]);
-      if (factsRes.data) setFacts(factsRes.data as MemoryFact[]);
-      if (remindersRes.data) setReminders(remindersRes.data as Reminder[]);
+      if (memRes.data) setFacts(memRes.data as unknown as MemoryItem[]);
+      if (remRes.data) setReminders(remRes.data as unknown as ReminderItem[]);
     } catch (err) {
       console.error(err);
     } finally {
@@ -72,8 +73,8 @@ export default function MemoryDashboard() {
     if (!user || !newFact.trim()) return;
     setAddingFact(true);
     try {
-      const { error } = await supabase.from("memory_facts").insert({
-        user_id: user.id, fact: newFact.trim(), source: "manual", category: "general",
+      const { error } = await (supabase.from("user_memory" as any) as any).insert({
+        user_id: user.id, fact: newFact.trim(), category: "fact", importance: 3,
       });
       if (error) throw error;
       setNewFact("");
@@ -84,14 +85,14 @@ export default function MemoryDashboard() {
   };
 
   const deleteFact = async (id: string) => {
-    const { error } = await supabase.from("memory_facts").delete().eq("id", id);
+    const { error } = await (supabase.from("user_memory" as any) as any).delete().eq("id", id);
     if (error) toast.error(error.message);
     else { setFacts(f => f.filter(x => x.id !== id)); toast.success("Gelöscht"); }
   };
 
   const updateFact = async (id: string) => {
     if (!editValue.trim()) return;
-    const { error } = await supabase.from("memory_facts").update({ fact: editValue.trim() }).eq("id", id);
+    const { error } = await (supabase.from("user_memory" as any) as any).update({ fact: editValue.trim() }).eq("id", id);
     if (error) toast.error(error.message);
     else {
       setFacts(f => f.map(x => x.id === id ? { ...x, fact: editValue.trim() } : x));
@@ -100,19 +101,14 @@ export default function MemoryDashboard() {
     }
   };
 
-  const toggleFact = async (id: string, active: boolean) => {
-    const { error } = await supabase.from("memory_facts").update({ is_active: active }).eq("id", id);
-    if (!error) setFacts(f => f.map(x => x.id === id ? { ...x, is_active: active } : x));
-  };
-
   const addReminder = async () => {
     if (!user || !newReminder.message.trim()) return;
     setAddingReminder(true);
     try {
-      const { error } = await supabase.from("user_reminders").insert({
+      const { error } = await (supabase.from("user_reminders" as any) as any).insert({
         user_id: user.id,
-        message: newReminder.message.trim(),
-        reminder_type: newReminder.type,
+        reminder_text: newReminder.message.trim(),
+        type: newReminder.type,
         trigger_topic: newReminder.type === "topic" ? newReminder.topic : null,
       });
       if (error) throw error;
@@ -124,26 +120,23 @@ export default function MemoryDashboard() {
   };
 
   const deleteReminder = async (id: string) => {
-    const { error } = await supabase.from("user_reminders").delete().eq("id", id);
+    const { error } = await (supabase.from("user_reminders" as any) as any).delete().eq("id", id);
     if (error) toast.error(error.message);
     else { setReminders(r => r.filter(x => x.id !== id)); toast.success("Gelöscht"); }
   };
 
   const toggleReminder = async (id: string, active: boolean) => {
-    const { error } = await supabase.from("user_reminders").update({ is_active: active }).eq("id", id);
+    const { error } = await (supabase.from("user_reminders" as any) as any).update({ is_active: active }).eq("id", id);
     if (!error) setReminders(r => r.map(x => x.id === id ? { ...x, is_active: active } : x));
   };
 
   const filteredFacts = facts.filter(f =>
     f.fact.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    f.category.toLowerCase().includes(searchQuery.toLowerCase())
+    (f.category || "").toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const activeFacts = facts.filter(f => f.is_active);
-  const autoFacts = facts.filter(f => f.source === "auto");
-  const manualFacts = facts.filter(f => f.source === "manual");
-  const categories = [...new Set(facts.map(f => f.category))];
-  const activeReminders = reminders.filter(r => r.is_active && !r.is_triggered);
+  const categories = [...new Set(facts.map(f => f.category || "general"))];
+  const activeReminders = reminders.filter(r => r.is_active);
 
   if (loading) {
     return (
@@ -168,8 +161,8 @@ export default function MemoryDashboard() {
       {/* Stats Row */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <div className="bg-card rounded-xl border border-border p-3 text-center">
-          <p className="text-2xl font-bold text-primary">{activeFacts.length}</p>
-          <p className="text-xs text-muted-foreground">Aktive Fakten</p>
+          <p className="text-2xl font-bold text-primary">{facts.length}</p>
+          <p className="text-xs text-muted-foreground">Gespeicherte Fakten</p>
         </div>
         <div className="bg-card rounded-xl border border-border p-3 text-center">
           <p className="text-2xl font-bold text-primary">{activeReminders.length}</p>
@@ -180,8 +173,8 @@ export default function MemoryDashboard() {
           <p className="text-xs text-muted-foreground">Kategorien</p>
         </div>
         <div className="bg-card rounded-xl border border-border p-3 text-center">
-          <p className="text-2xl font-bold text-primary">{autoFacts.length}</p>
-          <p className="text-xs text-muted-foreground">Auto-extrahiert</p>
+          <p className="text-2xl font-bold text-primary">{facts.reduce((sum, f) => sum + f.use_count, 0)}</p>
+          <p className="text-xs text-muted-foreground">Mal genutzt</p>
         </div>
       </div>
 
@@ -197,32 +190,20 @@ export default function MemoryDashboard() {
           <div className="flex gap-2">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input
-                value={searchQuery}
-                onChange={e => setSearchQuery(e.target.value)}
-                placeholder="Fakten durchsuchen..."
-                className="pl-9"
-              />
+              <Input value={searchQuery} onChange={e => setSearchQuery(e.target.value)} placeholder="Fakten durchsuchen..." className="pl-9" />
             </div>
           </div>
 
-          {/* Add new fact */}
           <div className="bg-card rounded-xl border border-border p-4">
             <p className="text-sm font-medium mb-2">Neuen Fakt hinzufügen</p>
             <div className="flex gap-2">
-              <Input
-                value={newFact}
-                onChange={e => setNewFact(e.target.value)}
-                placeholder='z.B. "Mein Pferd Luna hat Hufrehne-Vorgeschichte"'
-                onKeyDown={e => e.key === "Enter" && addFact()}
-              />
+              <Input value={newFact} onChange={e => setNewFact(e.target.value)} placeholder='z.B. "Mein Pferd Luna hat Hufrehne-Vorgeschichte"' onKeyDown={e => e.key === "Enter" && addFact()} />
               <Button onClick={addFact} disabled={addingFact || !newFact.trim()} size="sm">
                 {addingFact ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
               </Button>
             </div>
           </div>
 
-          {/* Facts List */}
           <div className="space-y-2">
             {filteredFacts.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
@@ -232,12 +213,7 @@ export default function MemoryDashboard() {
               </div>
             ) : (
               filteredFacts.map(fact => (
-                <div key={fact.id} className={`flex items-start gap-3 p-3 rounded-xl border transition-colors ${fact.is_active ? "bg-card border-border" : "bg-muted/30 border-border/50 opacity-60"}`}>
-                  <Switch
-                    checked={fact.is_active}
-                    onCheckedChange={v => toggleFact(fact.id, v)}
-                    className="mt-0.5 shrink-0"
-                  />
+                <div key={fact.id} className="flex items-start gap-3 p-3 rounded-xl border bg-card border-border">
                   <div className="flex-1 min-w-0">
                     {editingId === fact.id ? (
                       <div className="flex gap-2">
@@ -252,11 +228,11 @@ export default function MemoryDashboard() {
                     ) : (
                       <>
                         <p className="text-sm">{fact.fact}</p>
-                        <div className="flex items-center gap-2 mt-1">
-                          <Badge variant="secondary" className="text-xs">{fact.category}</Badge>
-                          <Badge variant={fact.source === "auto" ? "default" : "outline"} className="text-xs">
-                            {fact.source === "auto" ? "Auto" : "Manuell"}
-                          </Badge>
+                        <div className="flex items-center gap-2 mt-1 flex-wrap">
+                          <Badge variant="secondary" className="text-xs">{fact.category || "general"}</Badge>
+                          <Badge variant="outline" className="text-xs">⭐ {fact.importance}/5</Badge>
+                          <Badge variant="outline" className="text-xs">🎯 {Math.round(fact.confidence * 100)}%</Badge>
+                          {fact.use_count > 0 && <Badge variant="outline" className="text-xs">×{fact.use_count}</Badge>}
                           <span className="text-xs text-muted-foreground">
                             {new Date(fact.created_at).toLocaleDateString("de-DE")}
                           </span>
@@ -278,8 +254,6 @@ export default function MemoryDashboard() {
               ))
             )}
           </div>
-
-          {/* Legacy ai_memory is stored in profiles table and injected via edge function */}
         </TabsContent>
 
         {/* REMINDERS TAB */}
@@ -287,40 +261,18 @@ export default function MemoryDashboard() {
           <div className="bg-card rounded-xl border border-border p-4 space-y-3">
             <p className="text-sm font-medium">Neue Erinnerung</p>
             <div className="flex gap-2 flex-wrap">
-              <Badge
-                variant={newReminder.type === "topic" ? "default" : "outline"}
-                className="cursor-pointer"
-                onClick={() => setNewReminder(r => ({ ...r, type: "topic" }))}
-              >
-                <MessageSquare className="w-3 h-3 mr-1" />Thema
-              </Badge>
-              <Badge
-                variant={newReminder.type === "condition" ? "default" : "outline"}
-                className="cursor-pointer"
-                onClick={() => setNewReminder(r => ({ ...r, type: "condition" }))}
-              >
-                <Target className="w-3 h-3 mr-1" />Bedingung
-              </Badge>
-              <Badge
-                variant={newReminder.type === "time" ? "default" : "outline"}
-                className="cursor-pointer"
-                onClick={() => setNewReminder(r => ({ ...r, type: "time" }))}
-              >
-                <Clock className="w-3 h-3 mr-1" />Zeitbasiert
-              </Badge>
+              {(["topic", "condition", "time"] as const).map(t => (
+                <Badge key={t} variant={newReminder.type === t ? "default" : "outline"} className="cursor-pointer" onClick={() => setNewReminder(r => ({ ...r, type: t }))}>
+                  {t === "topic" ? <><MessageSquare className="w-3 h-3 mr-1" />Thema</> :
+                   t === "condition" ? <><Target className="w-3 h-3 mr-1" />Bedingung</> :
+                   <><Clock className="w-3 h-3 mr-1" />Zeitbasiert</>}
+                </Badge>
+              ))}
             </div>
             {newReminder.type === "topic" && (
-              <Input
-                value={newReminder.topic}
-                onChange={e => setNewReminder(r => ({ ...r, topic: e.target.value }))}
-                placeholder="Thema z.B. 'Hufrehne', 'Fütterung'"
-              />
+              <Input value={newReminder.topic} onChange={e => setNewReminder(r => ({ ...r, topic: e.target.value }))} placeholder="Thema z.B. 'Hufrehne', 'Fütterung'" />
             )}
-            <Input
-              value={newReminder.message}
-              onChange={e => setNewReminder(r => ({ ...r, message: e.target.value }))}
-              placeholder="Was soll erinnert werden?"
-            />
+            <Input value={newReminder.message} onChange={e => setNewReminder(r => ({ ...r, message: e.target.value }))} placeholder="Was soll erinnert werden?" />
             <Button onClick={addReminder} disabled={addingReminder || !newReminder.message.trim()} size="sm">
               {addingReminder ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : <Plus className="w-4 h-4 mr-1" />}
               Erinnerung speichern
@@ -332,24 +284,19 @@ export default function MemoryDashboard() {
               <div className="text-center py-8 text-muted-foreground">
                 <Bell className="w-10 h-10 mx-auto mb-2 opacity-30" />
                 <p className="text-sm">Keine Erinnerungen.</p>
-                <p className="text-xs mt-1">Erstelle Erinnerungen für themen- oder zeitbasierte Hinweise.</p>
               </div>
             ) : (
               reminders.map(r => (
-                <div key={r.id} className={`flex items-start gap-3 p-3 rounded-xl border ${r.is_triggered ? "bg-green-500/5 border-green-500/20" : r.is_active ? "bg-card border-border" : "bg-muted/30 border-border/50 opacity-60"}`}>
-                  <Switch
-                    checked={r.is_active}
-                    onCheckedChange={v => toggleReminder(r.id, v)}
-                    className="mt-0.5 shrink-0"
-                  />
+                <div key={r.id} className={`flex items-start gap-3 p-3 rounded-xl border ${r.is_active ? "bg-card border-border" : "bg-muted/30 border-border/50 opacity-60"}`}>
+                  <Switch checked={r.is_active} onCheckedChange={v => toggleReminder(r.id, v)} className="mt-0.5 shrink-0" />
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm">{r.message}</p>
+                    <p className="text-sm">{r.reminder_text}</p>
                     <div className="flex items-center gap-2 mt-1 flex-wrap">
                       <Badge variant="secondary" className="text-xs">
-                        {r.reminder_type === "topic" ? `📌 ${r.trigger_topic || "Allgemein"}` :
-                         r.reminder_type === "condition" ? `⚡ Bedingung` : `⏰ Zeitbasiert`}
+                        {r.type === "topic" ? `📌 ${r.trigger_topic || "Allgemein"}` :
+                         r.type === "condition" ? `⚡ Bedingung` : `⏰ Zeitbasiert`}
                       </Badge>
-                      {r.is_triggered && <Badge variant="default" className="text-xs">✓ Ausgelöst</Badge>}
+                      {r.reminded_count > 0 && <Badge variant="outline" className="text-xs">×{r.reminded_count} erinnert</Badge>}
                     </div>
                   </div>
                   <Button size="icon" variant="ghost" className="h-7 w-7 text-destructive shrink-0" onClick={() => deleteReminder(r.id)}>
@@ -368,48 +315,42 @@ export default function MemoryDashboard() {
               <TrendingUp className="w-5 h-5 text-primary" />
               <h3 className="font-semibold">Memory Insights</h3>
             </div>
-
             <div className="space-y-4">
               <div>
                 <p className="text-sm font-medium mb-2">Top Kategorien</p>
                 {categories.length > 0 ? (
                   <div className="flex flex-wrap gap-2">
-                    {categories.map(cat => {
-                      const count = facts.filter(f => f.category === cat).length;
-                      return (
-                        <Badge key={cat} variant="secondary" className="text-xs">
-                          {cat} ({count})
-                        </Badge>
-                      );
-                    })}
+                    {categories.map(cat => (
+                      <Badge key={cat} variant="secondary" className="text-xs">
+                        {cat} ({facts.filter(f => (f.category || "general") === cat).length})
+                      </Badge>
+                    ))}
                   </div>
                 ) : (
                   <p className="text-xs text-muted-foreground">Noch keine Daten</p>
                 )}
               </div>
-
               <div>
                 <p className="text-sm font-medium mb-2">Memory Health</p>
                 <div className="grid grid-cols-2 gap-3">
                   <div className="bg-muted/50 rounded-lg p-3">
-                    <p className="text-xs text-muted-foreground">Automatisch</p>
-                    <p className="text-lg font-bold">{autoFacts.length}</p>
+                    <p className="text-xs text-muted-foreground">Durchschn. Wichtigkeit</p>
+                    <p className="text-lg font-bold">{facts.length > 0 ? (facts.reduce((s, f) => s + f.importance, 0) / facts.length).toFixed(1) : "–"}</p>
                   </div>
                   <div className="bg-muted/50 rounded-lg p-3">
-                    <p className="text-xs text-muted-foreground">Manuell</p>
-                    <p className="text-lg font-bold">{manualFacts.length}</p>
+                    <p className="text-xs text-muted-foreground">Durchschn. Konfidenz</p>
+                    <p className="text-lg font-bold">{facts.length > 0 ? `${Math.round((facts.reduce((s, f) => s + f.confidence, 0) / facts.length) * 100)}%` : "–"}</p>
                   </div>
                   <div className="bg-muted/50 rounded-lg p-3">
                     <p className="text-xs text-muted-foreground">Aktive Erinnerungen</p>
                     <p className="text-lg font-bold">{activeReminders.length}</p>
                   </div>
                   <div className="bg-muted/50 rounded-lg p-3">
-                    <p className="text-xs text-muted-foreground">Ausgelöst</p>
-                    <p className="text-lg font-bold">{reminders.filter(r => r.is_triggered).length}</p>
+                    <p className="text-xs text-muted-foreground">Gesamt genutzt</p>
+                    <p className="text-lg font-bold">{facts.reduce((s, f) => s + f.use_count, 0)}</p>
                   </div>
                 </div>
               </div>
-
               <div>
                 <p className="text-sm font-medium mb-2">Zuletzt hinzugefügt</p>
                 {facts.slice(0, 3).map(f => (

@@ -30,7 +30,7 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
 
-    // ACTION: extract_facts - Extract facts from recent chat messages
+    // ACTION: extract_facts
     if (action === "extract_facts") {
       if (!chatMessages || chatMessages.length === 0) throw new Error("No messages");
 
@@ -49,15 +49,9 @@ serve(async (req) => {
           messages: [
             {
               role: "system",
-              content: `Du bist ein Memory-Extraktor. Analysiere den Chat und extrahiere wichtige Fakten über den User und seine Pferde.
-              
-Regeln:
-- Nur konkrete, nützliche Fakten extrahieren (keine Allgemeinheiten)
-- Kategorien: pferd, gesundheit, futter, haltung, training, business, persönlich
-- Maximal 5 Fakten pro Analyse
-- Keine Duplikate zu bestehenden Fakten
-
-Antworte NUR mit einem JSON-Array von Objekten: [{"fact": "...", "category": "..."}]`,
+              content: `Du bist ein Memory-Extraktor. Analysiere den Chat und extrahiere wichtige Fakten.
+Kategorien: goal, preference, fact, experience, skill
+Maximal 5 Fakten. Bewerte importance (1-5) und confidence (0.0-1.0).`,
             },
             { role: "user", content: chatContent },
           ],
@@ -66,7 +60,7 @@ Antworte NUR mit einem JSON-Array von Objekten: [{"fact": "...", "category": "..
               type: "function",
               function: {
                 name: "extract_facts",
-                description: "Extract facts from the conversation",
+                description: "Extract memory facts from conversation",
                 parameters: {
                   type: "object",
                   properties: {
@@ -76,9 +70,11 @@ Antworte NUR mit einem JSON-Array von Objekten: [{"fact": "...", "category": "..
                         type: "object",
                         properties: {
                           fact: { type: "string" },
-                          category: { type: "string", enum: ["pferd", "gesundheit", "futter", "haltung", "training", "business", "persönlich", "general"] }
+                          category: { type: "string", enum: ["goal", "preference", "fact", "experience", "skill"] },
+                          importance: { type: "integer", minimum: 1, maximum: 5 },
+                          confidence: { type: "number", minimum: 0, maximum: 1 }
                         },
-                        required: ["fact", "category"],
+                        required: ["fact", "category", "importance", "confidence"],
                         additionalProperties: false
                       }
                     }
@@ -101,33 +97,39 @@ Antworte NUR mit einem JSON-Array von Objekten: [{"fact": "...", "category": "..
 
       const aiData = await aiResp.json();
       let extractedFacts: any[] = [];
-      
       const toolCall = aiData.choices?.[0]?.message?.tool_calls?.[0];
       if (toolCall) {
         const args = JSON.parse(toolCall.function.arguments);
         extractedFacts = args.facts || [];
       }
 
-      // Check for duplicates
-      const { data: existingFacts } = await supabase
-        .from("memory_facts")
-        .select("fact")
-        .eq("user_id", user.id)
-        .eq("is_active", true);
-
-      const existingSet = new Set((existingFacts || []).map((f: any) => f.fact.toLowerCase()));
+      // Dedup
+      const { data: existing } = await supabase.from("user_memory").select("fact").eq("user_id", user.id);
+      const existingSet = new Set((existing || []).map((f: any) => f.fact.toLowerCase()));
       const newFacts = extractedFacts.filter((f: any) => !existingSet.has(f.fact.toLowerCase()));
 
       if (newFacts.length > 0) {
-        await supabase.from("memory_facts").insert(
+        await supabase.from("user_memory").insert(
           newFacts.map((f: any) => ({
             user_id: user.id,
             fact: f.fact,
             category: f.category,
-            source: "auto",
-            conversation_id: conversationId || null,
+            importance: f.importance,
+            confidence: f.confidence,
+            source_conversation_id: conversationId || null,
           }))
         );
+      }
+
+      // Create snapshot
+      const { data: allFacts } = await supabase.from("user_memory").select("category").eq("user_id", user.id);
+      if (allFacts) {
+        const catCounts: Record<string, number> = {};
+        allFacts.forEach((f: any) => { catCounts[f.category || "fact"] = (catCounts[f.category || "fact"] || 0) + 1; });
+        const topCats = Object.entries(catCounts).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([c]) => c);
+        await supabase.from("memory_snapshots").insert({
+          user_id: user.id, facts_count: allFacts.length, top_categories: topCats,
+        });
       }
 
       return new Response(JSON.stringify({ extracted: newFacts.length, facts: newFacts }), {
@@ -135,7 +137,7 @@ Antworte NUR mit einem JSON-Array von Objekten: [{"fact": "...", "category": "..
       });
     }
 
-    // ACTION: check_reminders - Check if any reminders should fire for current message
+    // ACTION: check_reminders
     if (action === "check_reminders") {
       const userMessage = chatMessages?.[chatMessages.length - 1]?.content || "";
 
@@ -143,16 +145,39 @@ Antworte NUR mit einem JSON-Array von Objekten: [{"fact": "...", "category": "..
         .from("user_reminders")
         .select("*")
         .eq("user_id", user.id)
-        .eq("is_active", true)
-        .eq("is_triggered", false);
+        .eq("is_active", true);
 
       const triggered: any[] = [];
       for (const reminder of activeReminders || []) {
-        if (reminder.reminder_type === "topic" && reminder.trigger_topic) {
+        if (reminder.type === "topic" && reminder.trigger_topic) {
           const topics = reminder.trigger_topic.toLowerCase().split(",").map((t: string) => t.trim());
           if (topics.some((t: string) => userMessage.toLowerCase().includes(t))) {
             triggered.push(reminder);
-            await supabase.from("user_reminders").update({ is_triggered: true, triggered_at: new Date().toISOString() }).eq("id", reminder.id);
+            await supabase.from("user_reminders").update({
+              reminded_count: (reminder.reminded_count || 0) + 1,
+              last_reminded_at: new Date().toISOString(),
+            }).eq("id", reminder.id);
+          }
+        }
+      }
+
+      // Link relevant memories to conversation
+      if (conversationId) {
+        const { data: memories } = await supabase.from("user_memory").select("id, fact").eq("user_id", user.id);
+        if (memories) {
+          const relevant = memories.filter((m: any) => {
+            const words = m.fact.toLowerCase().split(/\s+/);
+            return words.some((w: string) => w.length > 3 && userMessage.toLowerCase().includes(w));
+          }).slice(0, 5);
+
+          for (const mem of relevant) {
+            await supabase.from("conversation_memory_links").upsert({
+              conversation_id: conversationId, memory_id: mem.id, relevance_score: 0.7,
+            }, { onConflict: "conversation_id,memory_id" });
+            await supabase.from("user_memory").update({
+              use_count: (mem as any).use_count ? (mem as any).use_count + 1 : 1,
+              last_used_at: new Date().toISOString(),
+            }).eq("id", mem.id);
           }
         }
       }
@@ -162,18 +187,18 @@ Antworte NUR mit einem JSON-Array von Objekten: [{"fact": "...", "category": "..
       });
     }
 
-    // ACTION: get_context - Get full memory context for chat injection
+    // ACTION: get_context
     if (action === "get_context") {
-      const [factsRes, remindersRes, profileRes] = await Promise.all([
-        supabase.from("memory_facts").select("fact, category").eq("user_id", user.id).eq("is_active", true).limit(50),
-        supabase.from("user_reminders").select("message, trigger_topic, reminder_type").eq("user_id", user.id).eq("is_active", true).eq("is_triggered", false),
+      const [memRes, remRes, profRes] = await Promise.all([
+        supabase.from("user_memory").select("fact, category, importance").eq("user_id", user.id).order("importance", { ascending: false }).limit(30),
+        supabase.from("user_reminders").select("reminder_text, trigger_topic, type").eq("user_id", user.id).eq("is_active", true),
         supabase.from("profiles").select("ai_memory").eq("user_id", user.id).single(),
       ]);
 
       const context = {
-        facts: (factsRes.data || []).map((f: any) => `[${f.category}] ${f.fact}`).join("\n"),
-        reminders: (remindersRes.data || []).map((r: any) => `Reminder: ${r.message}${r.trigger_topic ? ` (bei Thema: ${r.trigger_topic})` : ""}`).join("\n"),
-        legacyMemory: profileRes.data?.ai_memory || "",
+        facts: (memRes.data || []).map((f: any) => `[${f.category}|★${f.importance}] ${f.fact}`).join("\n"),
+        reminders: (remRes.data || []).map((r: any) => `Reminder: ${r.reminder_text}${r.trigger_topic ? ` (Thema: ${r.trigger_topic})` : ""}`).join("\n"),
+        legacyMemory: profRes.data?.ai_memory || "",
       };
 
       return new Response(JSON.stringify(context), {
