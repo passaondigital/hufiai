@@ -16,6 +16,7 @@ import VideoShowcase from "@/components/landing/VideoShowcase";
 import UseCaseSection from "@/components/landing/UseCaseSection";
 import ComparisonTable from "@/components/landing/ComparisonTable";
 import TrustFooter from "@/components/landing/TrustFooter";
+import GamificationJourney from "@/components/landing/GamificationJourney";
 import CookieBanner from "@/components/CookieBanner";
 
 interface BlogPost {
@@ -138,6 +139,9 @@ export default function Landing() {
 
       {/* Video Engine Showcase */}
       <VideoShowcase />
+
+      {/* Gamification Journey */}
+      <GamificationJourney />
 
       {/* Use Cases */}
       <UseCaseSection />
