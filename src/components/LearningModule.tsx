@@ -267,10 +267,14 @@ export default function LearningModule({ path, modules, progress, onBack }: Prop
                         </div>
                       )}
                       {mod.content_type === "interactive" && (
-                        <div className="space-y-2">
-                          <Sparkles className="w-12 h-12 text-primary mx-auto" />
-                          <p className="text-sm text-muted-foreground">Interaktive Übung – probiere es selbst aus!</p>
-                        </div>
+                        mod.title.toLowerCase().includes("model") || mod.title.toLowerCase().includes("modell") ? (
+                          <ModelComparisonContent />
+                        ) : (
+                          <div className="space-y-2">
+                            <Sparkles className="w-12 h-12 text-primary mx-auto" />
+                            <p className="text-sm text-muted-foreground">Interaktive Übung – probiere es selbst aus!</p>
+                          </div>
+                        )
                       )}
                     </div>
                     <Button className="w-full" onClick={() => completeModule(mod)}>

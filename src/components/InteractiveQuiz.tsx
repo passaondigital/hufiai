@@ -17,6 +17,7 @@ const QUIZ_BANKS: Record<string, { question: string; options: string[]; correct:
     { question: "Was ist KI im Kern?", options: ["Ein Roboter", "Ein Algorithmus, der aus Daten lernt", "Ein Ersatz für Menschen", "Eine Suchmaschine"], correct: 1, explanation: "KI sind Algorithmen, die Muster in Daten erkennen und daraus lernen – kein Roboter, kein Mensch-Ersatz." },
     { question: "Wofür steht DSGVO?", options: ["Datensicherheits-Grundverordnung", "Datenschutz-Grundverordnung", "Digitale Sicherheits-Garantie", "Daten-Service-Gesetz"], correct: 1, explanation: "Die Datenschutz-Grundverordnung schützt personenbezogene Daten in der EU." },
     { question: "Wird KI dich ersetzen?", options: ["Ja, komplett", "Nein, KI ist ein Werkzeug", "Nur in manchen Berufen", "KI ist zu dumm dafür"], correct: 1, explanation: "KI verstärkt menschliche Fähigkeiten – sie ersetzt keine Expertise, sondern ergänzt sie." },
+    { question: "Du willst einen Social-Media-Post schreiben. Welche Modus + Modell-Kombi?", options: ["Scout + Claude", "Canvas + Gemini", "Agent + Claude", "Analyst + Gemini"], correct: 1, explanation: "Canvas-Modus + schnelles Gemini = die beste Kombi für kreativen Social Content." },
   ],
   PROMPT_MASTERY: [
     { question: "Was sind die 4 Bausteine eines guten Prompts?", options: ["Wer, Was, Wann, Wo", "Rolle, Aufgabe, Kontext, Format", "Frage, Antwort, Check, Done", "Input, Process, Output, Feedback"], correct: 1, explanation: "Rolle + Aufgabe + Kontext + Format = die perfekte Prompt-Formel." },
