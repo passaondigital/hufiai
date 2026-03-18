@@ -120,6 +120,9 @@ export default function AppSidebar() {
 
       {/* Footer */}
       <div className="p-3 border-t border-sidebar-border space-y-1">
+        {/* Level Badge */}
+        {!collapsed && <LevelBadge variant="sidebar" />}
+        {collapsed && <LevelBadge variant="mini" className="justify-center" />}
         {/* User type badge + switch */}
         {!collapsed && profile && (
           <button
