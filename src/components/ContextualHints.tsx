@@ -60,8 +60,8 @@ const HINTS: Record<string, Hint> = {
     title: "Prompt Library",
     description: "Nutze fertige Prompts als Starthilfe.",
     why: "Bewährte Strukturen sparen dir Zeit.",
-    example: "Klicke auf einen Prompt – er füllt deinen Chat automatisch.",
-    tip: "Teste den „Scout Master"-Prompt für tiefe Recherche.",
+    example: "Klicke auf einen Prompt \u2013 er f\u00FCllt deinen Chat automatisch.",
+    tip: "Teste den Scout-Master-Prompt f\u00FCr tiefe Recherche.",
     xp: "+3 XP für Custom Prompts",
   },
   favorites: {
