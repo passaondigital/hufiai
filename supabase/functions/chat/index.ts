@@ -484,7 +484,7 @@ serve(async (req) => {
       console.log("System prompt load skipped:", e);
     }
 
-    const { messages, conversation_id, horse_context, user_type, log_training, file_context, mode, provider } = await req.json();
+    const { messages, conversation_id, horse_context, memory_context, user_type, log_training, file_context, mode, provider } = await req.json();
 
     const useClaude = provider === "claude";
 
@@ -510,6 +510,11 @@ serve(async (req) => {
     // Append horse context
     if (horse_context) {
       systemContent += `\n\nAKTUELLES PFERD:\n${horse_context}`;
+    }
+
+    // Append structured memory context (facts, reminders)
+    if (memory_context) {
+      systemContent += `\n\n═══ STRUCTURED MEMORY ═══\n${memory_context}\nNutze dieses Wissen kontextbezogen. Wenn eine Erinnerung aktiv ist, erwähne sie natürlich in deiner Antwort.`;
     }
     if (user_type === "gewerbe") {
       systemContent += `\n\nDer Nutzer ist ein Gewerbetreibender in der Pferdebranche. Berücksichtige geschäftliche Aspekte in deinen Antworten.`;
