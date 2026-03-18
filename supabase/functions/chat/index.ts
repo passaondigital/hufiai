@@ -455,33 +455,63 @@ serve(async (req) => {
 
     const verifiedUserId = claimsData.claims.sub as string;
 
-    // Load user's custom system prompt and AI memory (non-critical)
+    // Load user's custom system prompt, AI memory, structured memory & reminders (non-critical)
+    const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const serviceClient = createClient(supabaseUrl, serviceKey);
     let userSystemPrompt: string | null = null;
     let aiMemory: string | null = null;
-    try {
-      const { data: profileData } = await authClient
-        .from("profiles")
-        .select("ai_memory")
-        .eq("user_id", verifiedUserId)
-        .maybeSingle();
-      if (profileData?.ai_memory) {
-        aiMemory = profileData.ai_memory;
-      }
-    } catch (e) {
-      console.log("AI memory load skipped:", e);
+    let memoryBlock = "";
+
+    // Parallel load: profile, system prompt, memories, reminders
+    const [profileRes, promptRes, memoriesRes, remindersRes] = await Promise.allSettled([
+      authClient.from("profiles").select("ai_memory").eq("user_id", verifiedUserId).maybeSingle(),
+      authClient.from("user_system_prompts").select("system_prompt").eq("user_id", verifiedUserId).eq("is_active", true).maybeSingle(),
+      serviceClient.from("user_memory").select("id, fact, category, importance, confidence, use_count").eq("user_id", verifiedUserId).order("importance", { ascending: false }).order("last_used_at", { ascending: false, nullsFirst: false }).limit(15),
+      serviceClient.from("user_reminders").select("id, reminder_text, type, trigger_topic, trigger_condition, due_date").eq("user_id", verifiedUserId).eq("is_active", true),
+    ]);
+
+    if (profileRes.status === "fulfilled" && profileRes.value.data?.ai_memory) {
+      aiMemory = profileRes.value.data.ai_memory;
     }
-    try {
-      const { data: promptData } = await authClient
-        .from("user_system_prompts")
-        .select("system_prompt")
-        .eq("user_id", verifiedUserId)
-        .eq("is_active", true)
-        .maybeSingle();
-      if (promptData?.system_prompt) {
-        userSystemPrompt = promptData.system_prompt;
-      }
-    } catch (e) {
-      console.log("System prompt load skipped:", e);
+    if (promptRes.status === "fulfilled" && promptRes.value.data?.system_prompt) {
+      userSystemPrompt = promptRes.value.data.system_prompt;
+    }
+
+    // Build structured memory block from user_memory + user_reminders
+    const memories = memoriesRes.status === "fulfilled" ? (memoriesRes.value.data || []) : [];
+    const reminders = remindersRes.status === "fulfilled" ? (remindersRes.value.data || []) : [];
+
+    const sections: string[] = [];
+    const topMemories = memories.slice(0, 10);
+    if (topMemories.length > 0) {
+      sections.push("BEKANNTE FAKTEN ÜBER DEN NUTZER:");
+      topMemories.forEach((m: any) => {
+        sections.push(`- [${m.category || "fact"}|★${m.importance}] ${m.fact}`);
+      });
+    }
+    if (reminders.length > 0) {
+      sections.push("\nAKTIVE ERINNERUNGEN (erwähne diese wenn thematisch passend):");
+      reminders.forEach((r: any) => {
+        let prefix = "📌";
+        if (r.type === "condition") prefix = "⚡";
+        if (r.type === "time") prefix = "⏰";
+        sections.push(`- ${prefix} ${r.reminder_text}${r.trigger_topic ? ` [bei Thema: ${r.trigger_topic}]` : ""}`);
+      });
+    }
+    if (sections.length > 0) {
+      memoryBlock = `\n\n═══ MASTER MEMORY (${topMemories.length} Fakten, ${reminders.length} Erinnerungen) ═══\n${sections.join("\n")}\n\nNutze dieses Wissen kontextbezogen, ohne es ungefragt zu wiederholen. Referenziere relevante Fakten natürlich in deinen Antworten (z.B. "Basierend auf deinem Ziel...", "Das könnte bei deiner Zusammenarbeit mit... relevant sein..."). Wenn eine Erinnerung thematisch passt, erwähne sie natürlich.`;
+    }
+
+    // Update use_count for injected memories (fire-and-forget)
+    if (topMemories.length > 0) {
+      Promise.allSettled(
+        topMemories.map((m: any) =>
+          serviceClient.from("user_memory").update({
+            use_count: (m.use_count || 0) + 1,
+            last_used_at: new Date().toISOString(),
+          }).eq("id", m.id)
+        )
+      ).catch(() => {});
     }
 
     const { messages, conversation_id, horse_context, memory_context, user_type, log_training, file_context, mode, provider } = await req.json();
@@ -512,8 +542,13 @@ serve(async (req) => {
       systemContent += `\n\nAKTUELLES PFERD:\n${horse_context}`;
     }
 
-    // Append structured memory context (facts, reminders)
-    if (memory_context) {
+    // Inject server-side Master Memory block (replaces client-side memory_context)
+    if (memoryBlock) {
+      systemContent += memoryBlock;
+    }
+
+    // Legacy: also append client-side memory_context if provided (backward compat)
+    if (memory_context && !memoryBlock) {
       systemContent += `\n\n═══ STRUCTURED MEMORY ═══\n${memory_context}\nNutze dieses Wissen kontextbezogen. Wenn eine Erinnerung aktiv ist, erwähne sie natürlich in deiner Antwort.`;
     }
     if (user_type === "gewerbe") {
