@@ -22,7 +22,7 @@ const POPOVER_HINTS: Record<string, HintConfig> = {
     emoji: "🔍",
     title: "Research Mode Unlocked",
     content: "Scout Mode is perfect for research & analysis.\nWhy: It uses deeper thinking for complex questions.",
-    example: "„Recherchiere die neuesten Hufpflege-Studien"",
+    example: "Recherchiere die neuesten Hufpflege-Studien",
     tip: "Ask a research question and see the difference!",
     xp: "+2 XP pro Scout-Chat",
     learnMorePath: "/gamification",
