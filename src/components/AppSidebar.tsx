@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import LevelBadge from "@/components/LevelBadge";
 import { useAuth } from "@/lib/auth";
 import { useSubscription } from "@/hooks/useSubscription";
 import { useUnreadNotifications } from "@/hooks/useUnreadNotifications";
