@@ -157,6 +157,7 @@ function AppRoutes() {
         <Route path="/hufmanager" element={<ProtectedRoute><HufManagerDashboard /></ProtectedRoute>} />
         <Route path="/video-engine" element={<ProtectedRoute><VideoEngine /></ProtectedRoute>} />
         <Route path="/prompts" element={<ProtectedRoute><PromptLibrary /></ProtectedRoute>} />
+        <Route path="/gamification" element={<ProtectedRoute><Gamification /></ProtectedRoute>} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </>
