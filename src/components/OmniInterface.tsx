@@ -302,28 +302,28 @@ export default function OmniInterface() {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) throw new Error(lang === "de" ? "Nicht authentifiziert" : "Not authenticated");
 
-      // Fetch memory context for injection
+      // Fetch memory context via inject-memory
       let memoryContext = "";
       try {
-        const memResp = await supabase.functions.invoke("manage-memory", {
-          body: { action: "get_context" },
+        const memResp = await supabase.functions.invoke("inject-memory", {
+          body: { conversationId: convId },
         });
-        if (memResp.data) {
-          const { facts, reminders, legacyMemory } = memResp.data;
-          const parts = [facts, reminders, legacyMemory].filter(Boolean);
-          if (parts.length > 0) memoryContext = "\n\n[User Memory]\n" + parts.join("\n");
+        if (memResp.data?.memoryBlock) {
+          memoryContext = memResp.data.memoryBlock;
         }
       } catch { /* memory fetch optional */ }
 
-      // Check reminders
+      // Check reminders via check-reminders
       try {
-        const remResp = await supabase.functions.invoke("manage-memory", {
-          body: { action: "check_reminders", messages: [{ role: "user", content: fullContent }] },
+        const remResp = await supabase.functions.invoke("check-reminders", {
+          body: { userMessage: fullContent, conversationId: convId },
         });
         if (remResp.data?.triggered?.length > 0) {
-          const reminderTexts = remResp.data.triggered.map((r: any) => r.message).join(", ");
+          const reminderTexts = remResp.data.triggered.map((r: any) => r.text).join(", ");
           toast.info(`📌 Erinnerung: ${reminderTexts}`, { duration: 6000 });
-          memoryContext += `\n[Active Reminder] ${reminderTexts}`;
+          if (remResp.data.reminderContext) {
+            memoryContext += `\n${remResp.data.reminderContext}`;
+          }
         }
       } catch { /* reminder check optional */ }
 
@@ -413,16 +413,12 @@ export default function OmniInterface() {
         const modeModelMap: Record<string, string> = { scout: "google/gemini-2.5-flash", canvas: "google/gemini-3-flash-preview", analyst: "google/gemini-2.5-pro", agent: "google/gemini-3-flash-preview" };
         await supabase.from("messages").insert({ conversation_id: convId, role: "assistant", content: assistantSoFar, model: modeModelMap[resolvedMode] || "google/gemini-3-flash-preview" });
 
-        // Auto-extract memory facts every 5 messages
+        // Auto-extract memory every 5 messages via extract-memory
         setMessageCount(prev => {
           const newCount = prev + 1;
           if (newCount % 5 === 0 && convId) {
-            const recentMsgs = [...currentMessages, { id: "latest", role: "assistant" as const, content: assistantSoFar }]
-              .filter(m => m.id !== "disclaimer")
-              .slice(-10)
-              .map(m => ({ role: m.role, content: m.content }));
-            supabase.functions.invoke("manage-memory", {
-              body: { action: "extract_facts", conversationId: convId, messages: recentMsgs },
+            supabase.functions.invoke("extract-memory", {
+              body: { conversationId: convId },
             }).catch(() => {});
           }
           return newCount;
