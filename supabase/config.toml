@@ -77,3 +77,6 @@ verify_jwt = false
 
 [functions.split-chat]
 verify_jwt = false
+
+[functions.manage-memory]
+verify_jwt = false
