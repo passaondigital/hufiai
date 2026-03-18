@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { ArrowRight, Calendar, Briefcase, Lightbulb, Target } from "lucide-react";
+import pascalPortrait from "@/assets/pascal-portrait.png";
 
 const chapters = [
   {
