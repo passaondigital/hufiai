@@ -426,6 +426,39 @@ export type Database = {
         }
         Relationships: []
       }
+      conversation_memory_links: {
+        Row: {
+          conversation_id: string
+          memory_id: string
+          relevance_score: number | null
+        }
+        Insert: {
+          conversation_id: string
+          memory_id: string
+          relevance_score?: number | null
+        }
+        Update: {
+          conversation_id?: string
+          memory_id?: string
+          relevance_score?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversation_memory_links_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "conversation_memory_links_memory_id_fkey"
+            columns: ["memory_id"]
+            isOneToOne: false
+            referencedRelation: "user_memory"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       conversations: {
         Row: {
           created_at: string | null
@@ -795,49 +828,29 @@ export type Database = {
         }
         Relationships: []
       }
-      memory_facts: {
+      memory_snapshots: {
         Row: {
-          category: string | null
-          conversation_id: string | null
-          created_at: string
-          fact: string
+          facts_count: number | null
           id: string
-          is_active: boolean
-          source: string | null
-          updated_at: string
+          snapshot_date: string | null
+          top_categories: string[] | null
           user_id: string
         }
         Insert: {
-          category?: string | null
-          conversation_id?: string | null
-          created_at?: string
-          fact: string
+          facts_count?: number | null
           id?: string
-          is_active?: boolean
-          source?: string | null
-          updated_at?: string
+          snapshot_date?: string | null
+          top_categories?: string[] | null
           user_id: string
         }
         Update: {
-          category?: string | null
-          conversation_id?: string | null
-          created_at?: string
-          fact?: string
+          facts_count?: number | null
           id?: string
-          is_active?: boolean
-          source?: string | null
-          updated_at?: string
+          snapshot_date?: string | null
+          top_categories?: string[] | null
           user_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "memory_facts_conversation_id_fkey"
-            columns: ["conversation_id"]
-            isOneToOne: false
-            referencedRelation: "conversations"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       message_versions: {
         Row: {
@@ -1565,61 +1578,107 @@ export type Database = {
         }
         Relationships: []
       }
-      user_reminders: {
+      user_memory: {
         Row: {
-          conversation_id: string | null
-          created_at: string
+          category: string | null
+          confidence: number | null
+          created_at: string | null
+          fact: string
           id: string
-          is_active: boolean
-          is_triggered: boolean
-          message: string
-          reminder_type: string
-          trigger_condition: string | null
-          trigger_date: string | null
-          trigger_topic: string | null
-          triggered_at: string | null
-          updated_at: string
+          importance: number | null
+          last_used_at: string | null
+          source_conversation_id: string | null
+          source_message_id: string | null
+          updated_at: string | null
+          use_count: number | null
           user_id: string
         }
         Insert: {
-          conversation_id?: string | null
-          created_at?: string
+          category?: string | null
+          confidence?: number | null
+          created_at?: string | null
+          fact: string
           id?: string
-          is_active?: boolean
-          is_triggered?: boolean
-          message: string
-          reminder_type?: string
-          trigger_condition?: string | null
-          trigger_date?: string | null
-          trigger_topic?: string | null
-          triggered_at?: string | null
-          updated_at?: string
+          importance?: number | null
+          last_used_at?: string | null
+          source_conversation_id?: string | null
+          source_message_id?: string | null
+          updated_at?: string | null
+          use_count?: number | null
           user_id: string
         }
         Update: {
-          conversation_id?: string | null
-          created_at?: string
+          category?: string | null
+          confidence?: number | null
+          created_at?: string | null
+          fact?: string
           id?: string
-          is_active?: boolean
-          is_triggered?: boolean
-          message?: string
-          reminder_type?: string
-          trigger_condition?: string | null
-          trigger_date?: string | null
-          trigger_topic?: string | null
-          triggered_at?: string | null
-          updated_at?: string
+          importance?: number | null
+          last_used_at?: string | null
+          source_conversation_id?: string | null
+          source_message_id?: string | null
+          updated_at?: string | null
+          use_count?: number | null
           user_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "user_reminders_conversation_id_fkey"
-            columns: ["conversation_id"]
+            foreignKeyName: "user_memory_source_conversation_id_fkey"
+            columns: ["source_conversation_id"]
             isOneToOne: false
             referencedRelation: "conversations"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "user_memory_source_message_id_fkey"
+            columns: ["source_message_id"]
+            isOneToOne: false
+            referencedRelation: "messages"
+            referencedColumns: ["id"]
+          },
         ]
+      }
+      user_reminders: {
+        Row: {
+          created_at: string | null
+          due_date: string | null
+          id: string
+          is_active: boolean | null
+          last_reminded_at: string | null
+          reminded_count: number | null
+          reminder_text: string
+          trigger_condition: string | null
+          trigger_topic: string | null
+          type: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          due_date?: string | null
+          id?: string
+          is_active?: boolean | null
+          last_reminded_at?: string | null
+          reminded_count?: number | null
+          reminder_text: string
+          trigger_condition?: string | null
+          trigger_topic?: string | null
+          type?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          due_date?: string | null
+          id?: string
+          is_active?: boolean | null
+          last_reminded_at?: string | null
+          reminded_count?: number | null
+          reminder_text?: string
+          trigger_condition?: string | null
+          trigger_topic?: string | null
+          type?: string | null
+          user_id?: string
+        }
+        Relationships: []
       }
       user_roles: {
         Row: {
