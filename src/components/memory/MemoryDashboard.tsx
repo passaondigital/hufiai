@@ -349,7 +349,7 @@ export default function MemoryDashboard() {
                         {r.reminder_type === "topic" ? `📌 ${r.trigger_topic || "Allgemein"}` :
                          r.reminder_type === "condition" ? `⚡ Bedingung` : `⏰ Zeitbasiert`}
                       </Badge>
-                      {r.is_triggered && <Badge className="text-xs bg-green-500/20 text-green-700">✓ Ausgelöst</Badge>}
+                      {r.is_triggered && <Badge variant="default" className="text-xs">✓ Ausgelöst</Badge>}
                     </div>
                   </div>
                   <Button size="icon" variant="ghost" className="h-7 w-7 text-destructive shrink-0" onClick={() => deleteReminder(r.id)}>
