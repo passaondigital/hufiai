@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      achievements: {
+        Row: {
+          code: string
+          created_at: string
+          description: string | null
+          icon_emoji: string | null
+          id: string
+          level_required: number
+          title: string
+          unlock_condition: Json | null
+          xp_reward: number
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          description?: string | null
+          icon_emoji?: string | null
+          id?: string
+          level_required?: number
+          title: string
+          unlock_condition?: Json | null
+          xp_reward?: number
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          description?: string | null
+          icon_emoji?: string | null
+          id?: string
+          level_required?: number
+          title?: string
+          unlock_condition?: Json | null
+          xp_reward?: number
+        }
+        Relationships: []
+      }
       asset_tags: {
         Row: {
           asset_id: string
@@ -828,6 +864,86 @@ export type Database = {
         }
         Relationships: []
       }
+      learning_modules: {
+        Row: {
+          content_type: string
+          content_url: string | null
+          created_at: string
+          duration_minutes: number | null
+          id: string
+          learning_path_id: string
+          order_position: number
+          title: string
+          xp_reward: number
+        }
+        Insert: {
+          content_type?: string
+          content_url?: string | null
+          created_at?: string
+          duration_minutes?: number | null
+          id?: string
+          learning_path_id: string
+          order_position?: number
+          title: string
+          xp_reward?: number
+        }
+        Update: {
+          content_type?: string
+          content_url?: string | null
+          created_at?: string
+          duration_minutes?: number | null
+          id?: string
+          learning_path_id?: string
+          order_position?: number
+          title?: string
+          xp_reward?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "learning_modules_learning_path_id_fkey"
+            columns: ["learning_path_id"]
+            isOneToOne: false
+            referencedRelation: "learning_paths"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      learning_paths: {
+        Row: {
+          code: string
+          created_at: string
+          description: string | null
+          difficulty: string
+          estimated_time_minutes: number | null
+          icon_emoji: string | null
+          id: string
+          order_position: number
+          title: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          description?: string | null
+          difficulty?: string
+          estimated_time_minutes?: number | null
+          icon_emoji?: string | null
+          id?: string
+          order_position?: number
+          title: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          description?: string | null
+          difficulty?: string
+          estimated_time_minutes?: number | null
+          icon_emoji?: string | null
+          id?: string
+          order_position?: number
+          title?: string
+        }
+        Relationships: []
+      }
       memory_snapshots: {
         Row: {
           facts_count: number | null
@@ -1359,6 +1475,44 @@ export type Database = {
           },
         ]
       }
+      public_achievements: {
+        Row: {
+          achievement_id: string
+          id: string
+          share_message: string | null
+          share_url: string | null
+          shared_at: string
+          social_platforms: string[] | null
+          user_id: string
+        }
+        Insert: {
+          achievement_id: string
+          id?: string
+          share_message?: string | null
+          share_url?: string | null
+          shared_at?: string
+          social_platforms?: string[] | null
+          user_id: string
+        }
+        Update: {
+          achievement_id?: string
+          id?: string
+          share_message?: string | null
+          share_url?: string | null
+          shared_at?: string
+          social_platforms?: string[] | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "public_achievements_achievement_id_fkey"
+            columns: ["achievement_id"]
+            isOneToOne: false
+            referencedRelation: "achievements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       roadmap_entries: {
         Row: {
           created_at: string
@@ -1615,6 +1769,38 @@ export type Database = {
         }
         Relationships: []
       }
+      user_achievements: {
+        Row: {
+          achievement_id: string
+          id: string
+          is_public: boolean
+          unlocked_at: string
+          user_id: string
+        }
+        Insert: {
+          achievement_id: string
+          id?: string
+          is_public?: boolean
+          unlocked_at?: string
+          user_id: string
+        }
+        Update: {
+          achievement_id?: string
+          id?: string
+          is_public?: boolean
+          unlocked_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_achievements_achievement_id_fkey"
+            columns: ["achievement_id"]
+            isOneToOne: false
+            referencedRelation: "achievements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_favorite_prompts: {
         Row: {
           created_at: string | null
@@ -1707,6 +1893,86 @@ export type Database = {
           photo_url?: string | null
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      user_learning_progress: {
+        Row: {
+          completed_at: string | null
+          completed_modules: number
+          created_at: string
+          id: string
+          learning_path_id: string
+          progress_percentage: number
+          total_modules: number | null
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          completed_modules?: number
+          created_at?: string
+          id?: string
+          learning_path_id: string
+          progress_percentage?: number
+          total_modules?: number | null
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          completed_modules?: number
+          created_at?: string
+          id?: string
+          learning_path_id?: string
+          progress_percentage?: number
+          total_modules?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_learning_progress_learning_path_id_fkey"
+            columns: ["learning_path_id"]
+            isOneToOne: false
+            referencedRelation: "learning_paths"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_levels: {
+        Row: {
+          created_at: string
+          current_level: number
+          current_xp: number
+          id: string
+          last_level_up_at: string | null
+          level_up_count: number
+          total_xp: number
+          updated_at: string
+          user_id: string
+          xp_for_next_level: number
+        }
+        Insert: {
+          created_at?: string
+          current_level?: number
+          current_xp?: number
+          id?: string
+          last_level_up_at?: string | null
+          level_up_count?: number
+          total_xp?: number
+          updated_at?: string
+          user_id: string
+          xp_for_next_level?: number
+        }
+        Update: {
+          created_at?: string
+          current_level?: number
+          current_xp?: number
+          id?: string
+          last_level_up_at?: string | null
+          level_up_count?: number
+          total_xp?: number
+          updated_at?: string
+          user_id?: string
+          xp_for_next_level?: number
         }
         Relationships: []
       }
@@ -2051,6 +2317,33 @@ export type Database = {
           updated_at?: string
           user_id?: string
           video_url?: string | null
+        }
+        Relationships: []
+      }
+      xp_logs: {
+        Row: {
+          action_type: string
+          created_at: string
+          id: string
+          source_id: string | null
+          user_id: string
+          xp_earned: number
+        }
+        Insert: {
+          action_type: string
+          created_at?: string
+          id?: string
+          source_id?: string | null
+          user_id: string
+          xp_earned?: number
+        }
+        Update: {
+          action_type?: string
+          created_at?: string
+          id?: string
+          source_id?: string | null
+          user_id?: string
+          xp_earned?: number
         }
         Relationships: []
       }
