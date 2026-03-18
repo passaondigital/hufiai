@@ -40,7 +40,7 @@ const HINTS: Record<string, Hint> = {
     title: "Analyst-Modus",
     description: "Analyst wertet Daten und Bilder für dich aus.",
     why: "Datenanalyse braucht Sorgfalt – Analyst liefert Tiefe.",
-    example: "„Analysiere dieses Hufbild auf Anomalien"",
+    example: "\u201EAnalysiere dieses Hufbild auf Anomalien\u201C",
     tip: "Lade ein Foto hoch und starte die Analyse!",
     xp: "+2 XP pro Analyst-Chat",
   },
