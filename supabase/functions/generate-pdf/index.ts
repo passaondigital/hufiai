@@ -622,6 +622,40 @@ Deno.serve(async (req) => {
     } as any);
 
     const pdfBuffer = doc.output("arraybuffer");
+    const pdfUint8 = new Uint8Array(pdfBuffer);
+    const fileName = `HufiAi-${body.template}-${cid.slice(0, 8)}.pdf`;
+
+    // Save to storage
+    const storagePath = `${user.id}/${Date.now()}-${fileName}`;
+    let fileUrl: string | null = null;
+    try {
+      const { error: uploadErr } = await adminClient.storage
+        .from("pdf-exports")
+        .upload(storagePath, pdfUint8, { contentType: "application/pdf" });
+      if (!uploadErr) {
+        const { data: urlData } = adminClient.storage.from("pdf-exports").getPublicUrl(storagePath);
+        fileUrl = urlData?.publicUrl || null;
+      }
+    } catch { /* non-critical */ }
+
+    // Save to pdf_exports table
+    try {
+      await adminClient.from("pdf_exports").insert({
+        user_id: user.id,
+        conversation_id: cid,
+        pdf_title: summary.title || conv?.title || "Unbenannt",
+        file_url: fileUrl,
+        file_size: pdfUint8.byteLength,
+        page_count: doc.internal.getNumberOfPages(),
+        format_options: {
+          template: body.template,
+          include_prompts: body.include_prompts,
+          include_metadata: body.include_metadata,
+          include_toc: body.include_toc,
+          watermark: body.watermark || null,
+        },
+      });
+    } catch { /* non-critical */ }
 
     try {
       await adminClient.from("chat_exports").insert({
@@ -635,7 +669,7 @@ Deno.serve(async (req) => {
       headers: {
         ...corsHeaders,
         "Content-Type": "application/pdf",
-        "Content-Disposition": `attachment; filename="HufiAi-${body.template}-${cid.slice(0, 8)}.pdf"`,
+        "Content-Disposition": `attachment; filename="${fileName}"`,
       },
     });
   } catch (err: any) {
