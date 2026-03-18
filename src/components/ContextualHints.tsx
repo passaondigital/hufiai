@@ -30,7 +30,7 @@ const HINTS: Record<string, Hint> = {
     title: "Canvas-Modus",
     description: "Canvas ist dein Kreativ-Modus für Inhalte.",
     why: "Canvas ist kreativ & schnell – ideal für Content.",
-    example: "„Schreibe einen Instagram-Post über Barhufpflege"",
+    example: "\u201ESchreibe einen Instagram-Post \u00FCber Barhufpflege\u201C",
     tip: "Generiere danach ein Bild dazu!",
     xp: "+2 XP pro Canvas-Chat",
   },
