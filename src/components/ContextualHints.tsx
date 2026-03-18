@@ -80,7 +80,7 @@ const HINTS: Record<string, Hint> = {
     title: "Zusammenarbeiten",
     description: "Lade Freunde ein, um gemeinsam zu arbeiten.",
     why: "Zwei Köpfe > ein Kopf.",
-    example: "Klicke „Einladen", teile per Link oder E-Mail.",
+    example: "Klicke \u201EEinladen\u201C, teile per Link oder E-Mail.",
     tip: "Einem Freund helfen = +10 XP Achievement!",
     xp: "+10 XP Achievement",
   },
