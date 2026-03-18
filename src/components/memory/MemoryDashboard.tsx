@@ -279,16 +279,7 @@ export default function MemoryDashboard() {
             )}
           </div>
 
-          {/* Legacy ai_memory display */}
-          {profile?.ai_memory && (
-            <div className="bg-muted/50 rounded-xl border border-border p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <Sparkles className="w-4 h-4 text-primary" />
-                <p className="text-sm font-medium">AI Memory (Legacy)</p>
-              </div>
-              <p className="text-xs text-muted-foreground whitespace-pre-wrap">{profile.ai_memory}</p>
-            </div>
-          )}
+          {/* Legacy ai_memory is stored in profiles table and injected via edge function */}
         </TabsContent>
 
         {/* REMINDERS TAB */}
