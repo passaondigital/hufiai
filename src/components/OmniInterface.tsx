@@ -413,16 +413,12 @@ export default function OmniInterface() {
         const modeModelMap: Record<string, string> = { scout: "google/gemini-2.5-flash", canvas: "google/gemini-3-flash-preview", analyst: "google/gemini-2.5-pro", agent: "google/gemini-3-flash-preview" };
         await supabase.from("messages").insert({ conversation_id: convId, role: "assistant", content: assistantSoFar, model: modeModelMap[resolvedMode] || "google/gemini-3-flash-preview" });
 
-        // Auto-extract memory facts every 5 messages
+        // Auto-extract memory every 5 messages via extract-memory
         setMessageCount(prev => {
           const newCount = prev + 1;
           if (newCount % 5 === 0 && convId) {
-            const recentMsgs = [...currentMessages, { id: "latest", role: "assistant" as const, content: assistantSoFar }]
-              .filter(m => m.id !== "disclaimer")
-              .slice(-10)
-              .map(m => ({ role: m.role, content: m.content }));
-            supabase.functions.invoke("manage-memory", {
-              body: { action: "extract_facts", conversationId: convId, messages: recentMsgs },
+            supabase.functions.invoke("extract-memory", {
+              body: { conversationId: convId },
             }).catch(() => {});
           }
           return newCount;
