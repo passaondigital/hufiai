@@ -617,15 +617,77 @@ export type Database = {
           },
         ]
       }
+      ecosystem_errors: {
+        Row: {
+          auto_retry_scheduled: boolean | null
+          connection_id: string | null
+          created_at: string
+          error_message: string
+          error_type: string
+          id: string
+          max_retries: number | null
+          next_retry_at: string | null
+          request_payload: Json | null
+          resolved_at: string | null
+          retry_count: number | null
+          stack_trace: string | null
+          user_id: string
+          user_notified: boolean | null
+        }
+        Insert: {
+          auto_retry_scheduled?: boolean | null
+          connection_id?: string | null
+          created_at?: string
+          error_message: string
+          error_type?: string
+          id?: string
+          max_retries?: number | null
+          next_retry_at?: string | null
+          request_payload?: Json | null
+          resolved_at?: string | null
+          retry_count?: number | null
+          stack_trace?: string | null
+          user_id: string
+          user_notified?: boolean | null
+        }
+        Update: {
+          auto_retry_scheduled?: boolean | null
+          connection_id?: string | null
+          created_at?: string
+          error_message?: string
+          error_type?: string
+          id?: string
+          max_retries?: number | null
+          next_retry_at?: string | null
+          request_payload?: Json | null
+          resolved_at?: string | null
+          retry_count?: number | null
+          stack_trace?: string | null
+          user_id?: string
+          user_notified?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ecosystem_errors_connection_id_fkey"
+            columns: ["connection_id"]
+            isOneToOne: false
+            referencedRelation: "ecosystem_links"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ecosystem_links: {
         Row: {
           app_key: string
           connected_at: string | null
           created_at: string
           data_sharing_enabled: boolean
+          error_message: string | null
           external_id: string | null
           id: string
           status: string
+          sync_count: number | null
+          synced_at: string | null
           updated_at: string
           user_id: string
         }
@@ -634,9 +696,12 @@ export type Database = {
           connected_at?: string | null
           created_at?: string
           data_sharing_enabled?: boolean
+          error_message?: string | null
           external_id?: string | null
           id?: string
           status?: string
+          sync_count?: number | null
+          synced_at?: string | null
           updated_at?: string
           user_id: string
         }
@@ -645,13 +710,147 @@ export type Database = {
           connected_at?: string | null
           created_at?: string
           data_sharing_enabled?: boolean
+          error_message?: string | null
           external_id?: string | null
           id?: string
           status?: string
+          sync_count?: number | null
+          synced_at?: string | null
           updated_at?: string
           user_id?: string
         }
         Relationships: []
+      }
+      ecosystem_mappings: {
+        Row: {
+          created_at: string
+          id: string
+          source_id: string
+          source_system: string
+          source_type: string
+          target_id: string
+          target_system: string
+          target_type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          source_id: string
+          source_system: string
+          source_type: string
+          target_id: string
+          target_system?: string
+          target_type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          source_id?: string
+          source_system?: string
+          source_type?: string
+          target_id?: string
+          target_system?: string
+          target_type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      ecosystem_settings: {
+        Row: {
+          auto_sync_enabled: boolean | null
+          created_at: string
+          id: string
+          last_full_sync_at: string | null
+          notifications_enabled: boolean | null
+          retry_delay_seconds: number | null
+          retry_max_count: number | null
+          shared_data_types: string[] | null
+          sync_interval: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          auto_sync_enabled?: boolean | null
+          created_at?: string
+          id?: string
+          last_full_sync_at?: string | null
+          notifications_enabled?: boolean | null
+          retry_delay_seconds?: number | null
+          retry_max_count?: number | null
+          shared_data_types?: string[] | null
+          sync_interval?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          auto_sync_enabled?: boolean | null
+          created_at?: string
+          id?: string
+          last_full_sync_at?: string | null
+          notifications_enabled?: boolean | null
+          retry_delay_seconds?: number | null
+          retry_max_count?: number | null
+          shared_data_types?: string[] | null
+          sync_interval?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      ecosystem_sync_log: {
+        Row: {
+          connection_id: string | null
+          created_at: string
+          direction: string
+          duration_ms: number | null
+          error_message: string | null
+          id: string
+          metadata: Json | null
+          record_count: number | null
+          status: string
+          sync_type: string
+          user_id: string
+        }
+        Insert: {
+          connection_id?: string | null
+          created_at?: string
+          direction?: string
+          duration_ms?: number | null
+          error_message?: string | null
+          id?: string
+          metadata?: Json | null
+          record_count?: number | null
+          status?: string
+          sync_type?: string
+          user_id: string
+        }
+        Update: {
+          connection_id?: string | null
+          created_at?: string
+          direction?: string
+          duration_ms?: number | null
+          error_message?: string | null
+          id?: string
+          metadata?: Json | null
+          record_count?: number | null
+          status?: string
+          sync_type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ecosystem_sync_log_connection_id_fkey"
+            columns: ["connection_id"]
+            isOneToOne: false
+            referencedRelation: "ecosystem_links"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       extracted_content: {
         Row: {
