@@ -3,10 +3,10 @@ import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const fears = [
-  "„Wird KI mich ersetzen?"",
-  "„Ist das sicher?"",
-  "„Das ist zu kompliziert für mich"",
-  "„Ich verstehe die Technik nicht"",
+  "\u201EWird KI mich ersetzen?\u201C",
+  "\u201EIst das sicher?\u201C",
+  "\u201EDas ist zu kompliziert f\u00FCr mich\u201C",
+  "\u201EIch verstehe die Technik nicht\u201C",
 ];
 
 const answers = [
