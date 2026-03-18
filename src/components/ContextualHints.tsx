@@ -89,7 +89,7 @@ const HINTS: Record<string, Hint> = {
     emoji: "🛠️",
     title: "Custom Prompt erstellen",
     description: "Erstelle eigene Prompts für wiederkehrende Aufgaben.",
-    why: "Eigene Prompts sparen dir jedes Mal 5–10 Minuten.",
+    why: "Eigene Prompts sparen dir jedes Mal 5\u201310 Minuten.",
     tip: "Starte mit Rolle + Aufgabe + Kontext + Format.",
     xp: "+3 XP pro Custom Prompt",
   },
