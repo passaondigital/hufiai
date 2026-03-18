@@ -165,6 +165,11 @@ export default function SettingsPage() {
             <SystemPromptEditor />
           </TabsContent>
 
+          {/* Memory Tab */}
+          <TabsContent value="memory">
+            <MemoryDashboard />
+          </TabsContent>
+
           <TabsContent value="privacy" className="space-y-6">
             <div className="bg-card rounded-2xl border border-border p-6">
               <div className="flex items-center gap-2 mb-2">
