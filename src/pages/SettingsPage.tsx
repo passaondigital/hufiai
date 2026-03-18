@@ -151,6 +151,7 @@ export default function SettingsPage() {
           {/* Ecosystem Tab */}
           <TabsContent value="ecosystem" className="space-y-6">
             <EcosystemRoleCard />
+            <EcosystemHealthDashboard />
             <PartnerAccessMatrix />
             <PartnerSharedDataView />
           </TabsContent>
