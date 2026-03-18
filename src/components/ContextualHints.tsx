@@ -50,8 +50,8 @@ const HINTS: Record<string, Hint> = {
     title: "Agent-Modus",
     description: "Agent führt Aufgaben und Workflows autonom aus.",
     why: "Aktionen brauchen Tempo – Agent erledigt das für dich.",
-    example: "„Erstelle einen PDF-Bericht aus meinem letzten Chat"",
-    tip: "Kombiniere Agent mit Memory für smarte Automatisierung!",
+    example: "\u201EErstelle einen PDF-Bericht aus meinem letzten Chat\u201C",
+    tip: "Kombiniere Agent mit Memory f\u00FCr smarte Automatisierung!",
     xp: "+2 XP pro Agent-Chat",
   },
   prompt_library: {
