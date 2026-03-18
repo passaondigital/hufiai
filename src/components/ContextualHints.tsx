@@ -20,8 +20,8 @@ const HINTS: Record<string, Hint> = {
     title: "Scout-Modus",
     description: "Nutze Scout für Recherche, Analyse und Quellen.",
     why: "Scout nutzt tieferes Denken für präzisere Antworten.",
-    example: "„Recherchiere die neuesten Hufpflege-Studien"",
-    tip: "Probiere Scout als nächstes!",
+    example: "\u201ERecherchiere die neuesten Hufpflege-Studien\u201C",
+    tip: "Probiere Scout als N\u00E4chstes!",
     xp: "+2 XP pro Scout-Chat",
   },
   canvas_mode: {
