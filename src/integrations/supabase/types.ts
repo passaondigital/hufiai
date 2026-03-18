@@ -997,6 +997,138 @@ export type Database = {
         }
         Relationships: []
       }
+      pdf_batch_exports: {
+        Row: {
+          completed_at: string | null
+          conversation_ids: string[] | null
+          created_at: string | null
+          export_status: string | null
+          id: string
+          output_format: string | null
+          user_id: string
+          zip_file_url: string | null
+        }
+        Insert: {
+          completed_at?: string | null
+          conversation_ids?: string[] | null
+          created_at?: string | null
+          export_status?: string | null
+          id?: string
+          output_format?: string | null
+          user_id: string
+          zip_file_url?: string | null
+        }
+        Update: {
+          completed_at?: string | null
+          conversation_ids?: string[] | null
+          created_at?: string | null
+          export_status?: string | null
+          id?: string
+          output_format?: string | null
+          user_id?: string
+          zip_file_url?: string | null
+        }
+        Relationships: []
+      }
+      pdf_exports: {
+        Row: {
+          conversation_id: string | null
+          created_at: string | null
+          downloaded_count: number | null
+          file_size: number | null
+          file_url: string | null
+          format_options: Json | null
+          id: string
+          last_downloaded_at: string | null
+          page_count: number | null
+          pdf_title: string | null
+          template_id: string | null
+          user_id: string
+        }
+        Insert: {
+          conversation_id?: string | null
+          created_at?: string | null
+          downloaded_count?: number | null
+          file_size?: number | null
+          file_url?: string | null
+          format_options?: Json | null
+          id?: string
+          last_downloaded_at?: string | null
+          page_count?: number | null
+          pdf_title?: string | null
+          template_id?: string | null
+          user_id: string
+        }
+        Update: {
+          conversation_id?: string | null
+          created_at?: string | null
+          downloaded_count?: number | null
+          file_size?: number | null
+          file_url?: string | null
+          format_options?: Json | null
+          id?: string
+          last_downloaded_at?: string | null
+          page_count?: number | null
+          pdf_title?: string | null
+          template_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pdf_exports_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pdf_exports_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "pdf_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pdf_templates: {
+        Row: {
+          brand_kit_compatible: boolean | null
+          category: string | null
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          id: string
+          is_system: boolean | null
+          name: string
+          preview_url: string | null
+          template_html: string | null
+        }
+        Insert: {
+          brand_kit_compatible?: boolean | null
+          category?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_system?: boolean | null
+          name: string
+          preview_url?: string | null
+          template_html?: string | null
+        }
+        Update: {
+          brand_kit_compatible?: boolean | null
+          category?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_system?: boolean | null
+          name?: string
+          preview_url?: string | null
+          template_html?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           ai_memory: string | null
