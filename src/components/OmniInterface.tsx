@@ -553,7 +553,7 @@ export default function OmniInterface() {
       toast.error("Chat konnte nicht erstellt werden");
     }
   };
-
+  const [messageCount, setMessageCount] = useState(0);
 
   return (
     <div className="flex h-full w-full">
