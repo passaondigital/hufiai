@@ -143,47 +143,76 @@ export default function Landing() {
       <CookieBanner />
 
       {/* Footer */}
-      <footer className="border-t border-border py-12">
-        <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-start gap-8">
-          <div>
-            <div className="flex items-center gap-2 mb-3">
-              <img src={hufiaiLogo} alt="HufiAi" className="h-[4.5rem]" />
-            </div>
-            <p className="text-sm text-muted-foreground max-w-xs">
+      <footer className="bg-secondary text-secondary-foreground border-t border-border py-14">
+        <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-start gap-10">
+          {/* Left: Logo + tagline */}
+          <div className="max-w-xs">
+            <img src={hufiaiLogo} alt="HufiAi" className="h-[4.5rem] mb-3 brightness-0 invert" />
+            <p className="text-sm text-secondary-foreground/70 mb-2">
               KI-Plattform für die Pferdebranche. Einfach. Sicher. Gamified.
             </p>
+            <p className="text-xs text-secondary-foreground/50">
+              Made with ❤️ from Düsseldorf
+            </p>
+            <p className="text-xs text-secondary-foreground/40 mt-1">
+              support@hufiai.de
+            </p>
           </div>
+
+          {/* Middle: Link columns */}
           <div className="flex flex-col sm:flex-row gap-8 sm:gap-12">
             <div>
-              <h4 className="font-semibold text-sm mb-3">Über Pascal</h4>
-              <div className="space-y-2 text-sm text-muted-foreground">
-                <button onClick={() => navigate("/ueber-hufiai")} className="block hover:text-foreground transition-colors">Über HufiAi</button>
-                <button onClick={() => navigate("/ethik")} className="block hover:text-foreground transition-colors">Ethik & Security</button>
-                <button onClick={() => navigate("/support")} className="block hover:text-foreground transition-colors">Support</button>
+              <h4 className="font-semibold text-sm mb-3 text-secondary-foreground">Über Pascal</h4>
+              <div className="space-y-2 text-sm text-secondary-foreground/60">
+                <button onClick={() => navigate("/ueber-hufiai")} className="block hover:text-secondary-foreground transition-colors">Über HufiAi</button>
+                <button onClick={() => navigate("/ethik")} className="block hover:text-secondary-foreground transition-colors">Ethik & Security</button>
+                <button onClick={() => navigate("/support")} className="block hover:text-secondary-foreground transition-colors">Support</button>
               </div>
             </div>
             <div>
-              <h4 className="font-semibold text-sm mb-3">Produkt</h4>
-              <div className="space-y-2 text-sm text-muted-foreground">
-                <button onClick={() => scrollTo("features")} className="block hover:text-foreground transition-colors">Features</button>
-                <button onClick={() => scrollTo("pricing")} className="block hover:text-foreground transition-colors">Preise</button>
-                <button onClick={() => navigate("/manual")} className="block hover:text-foreground transition-colors">Handbuch</button>
+              <h4 className="font-semibold text-sm mb-3 text-secondary-foreground">Produkt</h4>
+              <div className="space-y-2 text-sm text-secondary-foreground/60">
+                <button onClick={() => scrollTo("features")} className="block hover:text-secondary-foreground transition-colors">Features</button>
+                <button onClick={() => scrollTo("pricing")} className="block hover:text-secondary-foreground transition-colors">Preise</button>
+                <button onClick={() => navigate("/manual")} className="block hover:text-secondary-foreground transition-colors">Handbuch</button>
               </div>
             </div>
             <div>
-              <h4 className="font-semibold text-sm mb-3">Rechtliches</h4>
-              <div className="space-y-2 text-sm text-muted-foreground">
-                <button onClick={() => navigate("/datenschutz")} className="block hover:text-foreground transition-colors">Datenschutz</button>
-                <button onClick={() => navigate("/impressum")} className="block hover:text-foreground transition-colors">Impressum</button>
-                <button onClick={() => navigate("/agb")} className="block hover:text-foreground transition-colors">AGB</button>
+              <h4 className="font-semibold text-sm mb-3 text-secondary-foreground">Rechtliches</h4>
+              <div className="space-y-2 text-sm text-secondary-foreground/60">
+                <button onClick={() => navigate("/datenschutz")} className="block hover:text-secondary-foreground transition-colors">Datenschutz</button>
+                <button onClick={() => navigate("/impressum")} className="block hover:text-secondary-foreground transition-colors">Impressum</button>
+                <button onClick={() => navigate("/agb")} className="block hover:text-secondary-foreground transition-colors">AGB</button>
               </div>
+            </div>
+          </div>
+
+          {/* Right: Social + Newsletter */}
+          <div className="max-w-xs w-full">
+            <h4 className="font-semibold text-sm mb-3 text-secondary-foreground">Newsletter</h4>
+            <p className="text-xs text-secondary-foreground/60 mb-3">Weekly AI Tips für Hufpfleger</p>
+            <div className="flex gap-2 mb-4">
+              <input
+                type="email"
+                placeholder="deine@email.de"
+                className="flex-1 px-3 py-2 rounded-lg bg-secondary-foreground/10 border border-secondary-foreground/10 text-sm text-secondary-foreground placeholder:text-secondary-foreground/30 focus:outline-none focus:ring-1 focus:ring-primary"
+              />
+              <Button size="sm" className="shrink-0 text-xs">
+                Abo
+              </Button>
+            </div>
+            <div className="flex items-center gap-3">
+              <a href="https://instagram.com/hufiai" target="_blank" rel="noopener noreferrer" className="text-secondary-foreground/50 hover:text-primary transition-colors text-sm">Instagram</a>
+              <span className="text-secondary-foreground/20">·</span>
+              <a href="https://linkedin.com/company/hufiai" target="_blank" rel="noopener noreferrer" className="text-secondary-foreground/50 hover:text-primary transition-colors text-sm">LinkedIn</a>
             </div>
           </div>
         </div>
-        <div className="max-w-7xl mx-auto px-6 mt-8 pt-6 border-t border-border space-y-2">
-          <p className="text-xs text-muted-foreground text-center">&copy; {new Date().getFullYear()} HufiAi. Alle Rechte vorbehalten.</p>
-          <p className="text-xs text-muted-foreground/60 text-center">
-            <a href="/admin" className="text-muted-foreground/60 hover:text-muted-foreground/60 no-underline cursor-text" tabIndex={-1} aria-hidden="true">KI</a>-generierte Inhalte k&ouml;nnen Fehler enthalten.
+
+        <div className="max-w-7xl mx-auto px-6 mt-10 pt-6 border-t border-secondary-foreground/10 space-y-2">
+          <p className="text-xs text-secondary-foreground/40 text-center">&copy; {new Date().getFullYear()} HufiAi. Alle Rechte vorbehalten.</p>
+          <p className="text-xs text-secondary-foreground/30 text-center">
+            <a href="/admin" className="text-secondary-foreground/30 hover:text-secondary-foreground/30 no-underline cursor-text" tabIndex={-1} aria-hidden="true">KI</a>-generierte Inhalte k&ouml;nnen Fehler enthalten.
           </p>
         </div>
       </footer>
