@@ -186,10 +186,11 @@ export default function PdfExportDialog({ conversationId, open, onOpenChange }: 
         </DialogHeader>
 
         <Tabs defaultValue="template" className="flex-1 overflow-hidden flex flex-col">
-          <TabsList className="grid grid-cols-3 w-full">
+          <TabsList className="grid grid-cols-4 w-full">
             <TabsTrigger value="template" className="text-xs">📄 Vorlage</TabsTrigger>
             <TabsTrigger value="options" className="text-xs"><Settings2 className="w-3 h-3 mr-1" /> Optionen</TabsTrigger>
             <TabsTrigger value="batch" className="text-xs"><Files className="w-3 h-3 mr-1" /> Batch</TabsTrigger>
+            <TabsTrigger value="preview" className="text-xs">👁 Vorschau</TabsTrigger>
           </TabsList>
 
           <ScrollArea className="flex-1 pr-2">
