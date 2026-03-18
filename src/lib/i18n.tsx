@@ -195,6 +195,46 @@ const translations: Translations = {
     de: "Wähle aus 5+ KI-Modellen das beste für deinen Einsatzzweck: Realismus, Biomechanik oder 3D.",
     en: "Choose from 5+ AI models for your use case: realism, biomechanics or 3D.",
   },
+
+  // Gamification Journey
+  "gamification.badge": { de: "Dein Weg zum Profi", en: "Your Path to Pro" },
+  "gamification.title": { de: "Von Unsicher zu Selbstbewusst – in 4 Wochen", en: "From Uncertain to Confident – in 4 Weeks" },
+  "gamification.before": { de: "Vorher", en: "Before" },
+  "gamification.before.quote": { de: "KI? Das ist viel zu kompliziert für mich. Ich bleibe lieber bei dem, was ich kenne.", en: "AI? That's way too complicated for me. I'll stick with what I know." },
+  "gamification.before.persona": { de: "Typischer Anfänger", en: "Typical Beginner" },
+  "gamification.before.feeling": { de: "Überfordert & unsicher", en: "Overwhelmed & unsure" },
+  "gamification.after": { de: "Nachher", en: "After" },
+  "gamification.after.quote": { de: "Ich erstelle jetzt professionelle Berichte und Videos – in Minuten statt Stunden!", en: "I now create professional reports and videos – in minutes instead of hours!" },
+  "gamification.after.persona": { de: "HufiAi Nutzer · Level 5", en: "HufiAi User · Level 5" },
+  "gamification.after.feeling": { de: "Selbstbewusst & produktiv", en: "Confident & productive" },
+  "gamification.week": { de: "Woche", en: "Week" },
+
+  "gamification.level1.title": { de: "Erste Schritte", en: "First Steps" },
+  "gamification.level1.desc": { de: "Stelle deine erste Frage im Chat. HufiAi führt dich sanft ein – wie WhatsApp, nur schlauer. Kein Vorwissen nötig.", en: "Ask your first question in chat. HufiAi gently guides you – like WhatsApp, just smarter. No prior knowledge needed." },
+  "gamification.level1.badge": { de: "🏅 Erster Chat abgeschlossen", en: "🏅 First Chat Completed" },
+
+  "gamification.level2.title": { de: "Wissen aufbauen", en: "Building Knowledge" },
+  "gamification.level2.desc": { de: "Lerne, Fotos hochzuladen und Pferdeprofile anzulegen. Die KI merkt sich dein Pferd und gibt personalisierte Tipps.", en: "Learn to upload photos and create horse profiles. AI remembers your horse and gives personalized tips." },
+  "gamification.level2.badge": { de: "📸 Erstes Pferdeprofil erstellt", en: "📸 First Horse Profile Created" },
+
+  "gamification.level3.title": { de: "Profi-Werkzeuge nutzen", en: "Using Pro Tools" },
+  "gamification.level3.desc": { de: "Erstelle deinen ersten PDF-Bericht oder Content-Post. Nutze die Wissensdatenbank für maßgeschneiderte Antworten.", en: "Create your first PDF report or content post. Use the knowledge base for tailored answers." },
+  "gamification.level3.badge": { de: "📄 Erster Bericht exportiert", en: "📄 First Report Exported" },
+
+  "gamification.level4.title": { de: "Experte werden", en: "Becoming an Expert" },
+  "gamification.level4.desc": { de: "Nutze die Video Engine, vernetze dich im Ecosystem und teile Pferdeprofile mit Tierärzten und Hufschmieden.", en: "Use the Video Engine, connect in the Ecosystem and share horse profiles with vets and farriers." },
+  "gamification.level4.badge": { de: "🎬 Erstes Video erstellt", en: "🎬 First Video Created" },
+
+  "gamification.level5.title": { de: "HufiAi Meister", en: "HufiAi Master" },
+  "gamification.level5.desc": { de: "Du nutzt alle Features wie ein Profi – Autopilot-Videos, Batch-Exporte und KI-gestützte Geschäftsprozesse. Teile dein Wissen mit der Community!", en: "You use all features like a pro – autopilot videos, batch exports and AI-powered business processes. Share your knowledge with the community!" },
+  "gamification.level5.badge": { de: "🏆 HufiAi Meister", en: "🏆 HufiAi Master" },
+
+  "gamification.social.achievements": { de: "Achievements", en: "Achievements" },
+  "gamification.social.achievements.desc": { de: "Sammle Abzeichen auf deinem Weg", en: "Collect badges along your journey" },
+  "gamification.social.share": { de: "Teile Erfolge", en: "Share Achievements" },
+  "gamification.social.share.desc": { de: "Zeige deinen Fortschritt", en: "Show your progress" },
+  "gamification.social.community": { de: "Community", en: "Community" },
+  "gamification.social.community.desc": { de: "Lerne gemeinsam mit anderen", en: "Learn together with others" },
 };
 
 interface I18nContextType {
