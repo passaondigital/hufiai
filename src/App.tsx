@@ -173,7 +173,9 @@ function App() {
           <Sonner />
           <BrowserRouter>
             <AuthProvider>
-              <AppRoutes />
+              <EducationProvider>
+                <AppRoutes />
+              </EducationProvider>
             </AuthProvider>
           </BrowserRouter>
         </TooltipProvider>

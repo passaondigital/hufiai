@@ -6,7 +6,7 @@ import { useUnreadNotifications } from "@/hooks/useUnreadNotifications";
 import {
   MessageSquare, FolderKanban, FileText, CreditCard, Settings,
   LogOut, ChevronLeft, ChevronRight, Plus, Shield,
-  ArrowLeftRight, Building2, Map, Megaphone, Crown, Heart, Award, Users, Sparkles, Link2, Database, Bell, Video, BookOpen
+  ArrowLeftRight, Building2, Map, Megaphone, Crown, Heart, Award, Users, Sparkles, Link2, Database, Bell, Video, BookOpen, Trophy
 } from "lucide-react";
 import hufiaiLogo from "@/assets/hufiai-logo.svg";
 
