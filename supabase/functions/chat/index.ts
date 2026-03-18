@@ -542,8 +542,13 @@ serve(async (req) => {
       systemContent += `\n\nAKTUELLES PFERD:\n${horse_context}`;
     }
 
-    // Append structured memory context (facts, reminders)
-    if (memory_context) {
+    // Inject server-side Master Memory block (replaces client-side memory_context)
+    if (memoryBlock) {
+      systemContent += memoryBlock;
+    }
+
+    // Legacy: also append client-side memory_context if provided (backward compat)
+    if (memory_context && !memoryBlock) {
       systemContent += `\n\n═══ STRUCTURED MEMORY ═══\n${memory_context}\nNutze dieses Wissen kontextbezogen. Wenn eine Erinnerung aktiv ist, erwähne sie natürlich in deiner Antwort.`;
     }
     if (user_type === "gewerbe") {
