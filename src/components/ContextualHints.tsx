@@ -72,7 +72,7 @@ const HINTS: Record<string, Hint> = {
     why: "Schnellzugriff = schnellerer Workflow.",
     example: "Klicke \u2B50 auf einen Prompt oder eigenen Text.",
     tip: "Erstelle 3–5 Favoriten für deinen Workflow.",
-    xp: "+5 XP für gespeicherte Favoriten",
+    xp: "+5 XP f\u00FCr gespeicherte Favoriten",
   },
   collaborate: {
     id: "collaborate",
