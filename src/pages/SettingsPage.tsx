@@ -121,6 +121,7 @@ export default function SettingsPage() {
             <TabsTrigger value="ecosystem"><Fingerprint className="w-4 h-4 mr-2" />Ecosystem</TabsTrigger>
             <TabsTrigger value="horses">🐴 Pferde</TabsTrigger>
             <TabsTrigger value="ai-prompt"><Brain className="w-4 h-4 mr-2" />AI Prompt</TabsTrigger>
+            <TabsTrigger value="memory"><Sparkles className="w-4 h-4 mr-2" />Memory</TabsTrigger>
             <TabsTrigger value="privacy"><Shield className="w-4 h-4 mr-2" />Datenschutz</TabsTrigger>
             <TabsTrigger value="danger"><AlertTriangle className="w-4 h-4 mr-2" />Danger Zone</TabsTrigger>
           </TabsList>
