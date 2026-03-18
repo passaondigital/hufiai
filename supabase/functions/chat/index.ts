@@ -484,7 +484,7 @@ serve(async (req) => {
       console.log("System prompt load skipped:", e);
     }
 
-    const { messages, conversation_id, horse_context, user_type, log_training, file_context, mode, provider } = await req.json();
+    const { messages, conversation_id, horse_context, memory_context, user_type, log_training, file_context, mode, provider } = await req.json();
 
     const useClaude = provider === "claude";
 
