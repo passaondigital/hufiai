@@ -511,6 +511,11 @@ serve(async (req) => {
     if (horse_context) {
       systemContent += `\n\nAKTUELLES PFERD:\n${horse_context}`;
     }
+
+    // Append structured memory context (facts, reminders)
+    if (memory_context) {
+      systemContent += `\n\n═══ STRUCTURED MEMORY ═══\n${memory_context}\nNutze dieses Wissen kontextbezogen. Wenn eine Erinnerung aktiv ist, erwähne sie natürlich in deiner Antwort.`;
+    }
     if (user_type === "gewerbe") {
       systemContent += `\n\nDer Nutzer ist ein Gewerbetreibender in der Pferdebranche. Berücksichtige geschäftliche Aspekte in deinen Antworten.`;
     }
