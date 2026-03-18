@@ -1,8 +1,7 @@
 import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { ArrowRight, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/integrations/supabase/client";
 
 import horseHero from "@/assets/horse-hero.png";
 import hufiaiLogo from "@/assets/hufiai-logo.svg";
@@ -10,7 +9,9 @@ import hufiaiLogo from "@/assets/hufiai-logo.svg";
 import LanguageToggle from "@/components/landing/LanguageToggle";
 import TrustBar from "@/components/landing/TrustBar";
 import AboutPascalSection from "@/components/landing/AboutPascalSection";
+import MissionSection from "@/components/landing/MissionSection";
 import ComparisonTable from "@/components/landing/ComparisonTable";
+import ValuesSection from "@/components/landing/ValuesSection";
 import CoreValuesSection from "@/components/landing/CoreValuesSection";
 import GamificationJourney from "@/components/landing/GamificationJourney";
 import SocialProofSection from "@/components/landing/SocialProofSection";
@@ -37,7 +38,7 @@ export default function Landing() {
             <img src={hufiaiLogo} alt="HufiAi" className="h-10 md:h-[4.5rem]" />
           </div>
           <div className="hidden md:flex items-center gap-6 text-sm font-medium text-muted-foreground">
-            <button onClick={() => scrollTo("about-pascal")} className="hover:text-foreground transition-colors">Über Pascal</button>
+            <button onClick={() => scrollTo("about-pascal")} className="hover:text-foreground transition-colors">&Uuml;ber Pascal</button>
             <button onClick={() => navigate("/ethik")} className="hover:text-foreground transition-colors">Ethik</button>
             <button onClick={() => scrollTo("features")} className="hover:text-foreground transition-colors">Features</button>
             <button onClick={() => scrollTo("pricing")} className="hover:text-foreground transition-colors">Preise</button>
@@ -59,7 +60,7 @@ export default function Landing() {
         {mobileMenuOpen && (
           <div className="md:hidden border-t border-border bg-background/95 backdrop-blur-lg px-4 py-4 space-y-1 animate-in slide-in-from-top-2 duration-200">
             {[
-              { label: "Über Pascal", action: () => scrollTo("about-pascal") },
+              { label: "\u00dcber Pascal", action: () => scrollTo("about-pascal") },
               { label: "Ethik", action: () => navigate("/ethik") },
               { label: "Features", action: () => scrollTo("features") },
               { label: "Preise", action: () => scrollTo("pricing") },
@@ -77,7 +78,7 @@ export default function Landing() {
         )}
       </nav>
 
-      {/* SECTION 1: Hero */}
+      {/* HERO */}
       <section id="hero" className="relative max-w-7xl mx-auto pt-10 md:pt-16 pb-12 md:pb-20 px-4 md:px-6 flex flex-col md:flex-row items-center gap-6 md:gap-8">
         <div className="flex-1 text-center md:text-left z-10">
           <h1 className="text-3xl md:text-5xl lg:text-6xl font-extrabold tracking-tight mb-4 md:mb-6 leading-tight">
@@ -85,7 +86,7 @@ export default function Landing() {
             <span className="text-gradient">KI ist dein Werkzeug.</span>
           </h1>
           <p className="text-base md:text-xl text-muted-foreground max-w-xl mb-6 md:mb-10">
-            Ohne Fach-Chinesisch. Ohne Angst. Nur echte Hilfe.
+            Ich bin Pascal. Ich bin Hufpfleger. Ich liebe KI. Und ich will dir zeigen: Es ist nicht so kompliziert.
           </p>
           <div className="flex flex-col sm:flex-row items-center gap-3 md:gap-4 justify-center md:justify-start">
             <Button size="lg" onClick={() => navigate("/auth")} className="text-base px-8">
@@ -95,77 +96,53 @@ export default function Landing() {
               Meine Story
             </Button>
             <Button size="lg" variant="ghost" onClick={() => navigate("/ethik")} className="text-base">
-              Ethik & Sicherheit
+              Ethik &amp; Sicherheit
             </Button>
           </div>
         </div>
         <div className="flex-1 flex justify-center md:justify-end">
-          <img src={horseHero} alt="HufiAi – KI für die Pferdebranche" className="w-full max-w-md md:max-w-lg object-contain drop-shadow-2xl" />
+          <img src={horseHero} alt="HufiAi \u2013 KI f\u00fcr die Pferdebranche" className="w-full max-w-md md:max-w-lg object-contain drop-shadow-2xl" />
         </div>
       </section>
 
-      {/* Trust Bar */}
       <TrustBar />
-
-      {/* SECTION 2: About Pascal */}
       <AboutPascalSection />
-
-      {/* SECTION 3: Why Different */}
+      <MissionSection />
       <ComparisonTable />
-
-      {/* SECTION 4: Core Values */}
+      <ValuesSection />
       <CoreValuesSection />
-
-      {/* SECTION 5: Gamification */}
       <GamificationJourney />
-
-      {/* SECTION 6: Social Proof */}
       <SocialProofSection />
-
-      {/* SECTION 7: Fear */}
       <FearSection />
-
-      {/* SECTION 8: Mega Features */}
       <MegaFeaturesSection />
-
-      {/* SECTION 9: Pricing */}
       <PricingSection />
-
-      {/* SECTION 10: Ethics */}
       <EthicsSection />
-
-      {/* SECTION 11: FAQ */}
       <FAQSection />
-
-      {/* SECTION 12: Final CTA */}
       <FinalCTASection />
-
       <CookieBanner />
 
       {/* Footer */}
       <footer className="bg-secondary text-secondary-foreground border-t border-border py-14">
         <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-start gap-10">
-          {/* Left: Logo + tagline */}
           <div className="max-w-xs">
             <img src={hufiaiLogo} alt="HufiAi" className="h-[4.5rem] mb-3 brightness-0 invert" />
-            <p className="text-sm text-secondary-foreground/70 mb-2">
-              KI-Plattform für die Pferdebranche. Einfach. Sicher. Gamified.
+            <p className="text-sm text-secondary-foreground/70 mb-1">
+              Made with ❤️ von Pascal
             </p>
-            <p className="text-xs text-secondary-foreground/50">
-              Made with ❤️ from Düsseldorf
+            <p className="text-xs text-secondary-foreground/50 mb-2">
+              Das ist nicht nur Software. Es ist meine Mission.
             </p>
-            <p className="text-xs text-secondary-foreground/40 mt-1">
+            <p className="text-xs text-secondary-foreground/40">
               support@hufiai.de
             </p>
           </div>
 
-          {/* Middle: Link columns */}
           <div className="flex flex-col sm:flex-row gap-8 sm:gap-12">
             <div>
-              <h4 className="font-semibold text-sm mb-3 text-secondary-foreground">Über Pascal</h4>
+              <h4 className="font-semibold text-sm mb-3 text-secondary-foreground">&Uuml;ber Pascal</h4>
               <div className="space-y-2 text-sm text-secondary-foreground/60">
-                <button onClick={() => navigate("/ueber-hufiai")} className="block hover:text-secondary-foreground transition-colors">Über HufiAi</button>
-                <button onClick={() => navigate("/ethik")} className="block hover:text-secondary-foreground transition-colors">Ethik & Security</button>
+                <button onClick={() => navigate("/ueber-hufiai")} className="block hover:text-secondary-foreground transition-colors">&Uuml;ber HufiAi</button>
+                <button onClick={() => navigate("/ethik")} className="block hover:text-secondary-foreground transition-colors">Ethik &amp; Security</button>
                 <button onClick={() => navigate("/support")} className="block hover:text-secondary-foreground transition-colors">Support</button>
               </div>
             </div>
@@ -187,10 +164,9 @@ export default function Landing() {
             </div>
           </div>
 
-          {/* Right: Social + Newsletter */}
           <div className="max-w-xs w-full">
             <h4 className="font-semibold text-sm mb-3 text-secondary-foreground">Newsletter</h4>
-            <p className="text-xs text-secondary-foreground/60 mb-3">Weekly AI Tips für Hufpfleger</p>
+            <p className="text-xs text-secondary-foreground/60 mb-3">Weekly AI Tips vom Hufpfleger</p>
             <div className="flex gap-2 mb-4">
               <input
                 type="email"
@@ -203,7 +179,7 @@ export default function Landing() {
             </div>
             <div className="flex items-center gap-3">
               <a href="https://instagram.com/hufiai" target="_blank" rel="noopener noreferrer" className="text-secondary-foreground/50 hover:text-primary transition-colors text-sm">Instagram</a>
-              <span className="text-secondary-foreground/20">·</span>
+              <span className="text-secondary-foreground/20">&middot;</span>
               <a href="https://linkedin.com/company/hufiai" target="_blank" rel="noopener noreferrer" className="text-secondary-foreground/50 hover:text-primary transition-colors text-sm">LinkedIn</a>
             </div>
           </div>
