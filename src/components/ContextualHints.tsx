@@ -70,7 +70,7 @@ const HINTS: Record<string, Hint> = {
     title: "Favoriten speichern",
     description: "Speichere deine besten Prompts als Favoriten.",
     why: "Schnellzugriff = schnellerer Workflow.",
-    example: "Klicke ⭐ auf einen Prompt oder eigenen Text.",
+    example: "Klicke \u2B50 auf einen Prompt oder eigenen Text.",
     tip: "Erstelle 3–5 Favoriten für deinen Workflow.",
     xp: "+5 XP für gespeicherte Favoriten",
   },
