@@ -140,6 +140,9 @@ export default function Landing() {
       {/* Video Engine Showcase */}
       <VideoShowcase />
 
+      {/* Gamification Journey */}
+      <GamificationJourney />
+
       {/* Use Cases */}
       <UseCaseSection />
 
