@@ -302,6 +302,31 @@ export default function OmniInterface() {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) throw new Error(lang === "de" ? "Nicht authentifiziert" : "Not authenticated");
 
+      // Fetch memory context for injection
+      let memoryContext = "";
+      try {
+        const memResp = await supabase.functions.invoke("manage-memory", {
+          body: { action: "get_context" },
+        });
+        if (memResp.data) {
+          const { facts, reminders, legacyMemory } = memResp.data;
+          const parts = [facts, reminders, legacyMemory].filter(Boolean);
+          if (parts.length > 0) memoryContext = "\n\n[User Memory]\n" + parts.join("\n");
+        }
+      } catch { /* memory fetch optional */ }
+
+      // Check reminders
+      try {
+        const remResp = await supabase.functions.invoke("manage-memory", {
+          body: { action: "check_reminders", messages: [{ role: "user", content: fullContent }] },
+        });
+        if (remResp.data?.triggered?.length > 0) {
+          const reminderTexts = remResp.data.triggered.map((r: any) => r.message).join(", ");
+          toast.info(`📌 Erinnerung: ${reminderTexts}`, { duration: 6000 });
+          memoryContext += `\n[Active Reminder] ${reminderTexts}`;
+        }
+      } catch { /* reminder check optional */ }
+
       const resp = await fetch(CHAT_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.access_token}` },
@@ -309,6 +334,7 @@ export default function OmniInterface() {
           messages: aiMessages,
           conversation_id: convId,
           horse_context: horseContext || undefined,
+          memory_context: memoryContext || undefined,
           user_type: profile?.user_type || "privat",
           log_training: shouldLog,
           user_id: shouldLog ? user.id : undefined,
