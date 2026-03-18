@@ -15,6 +15,7 @@ import SystemPromptEditor from "@/components/SystemPromptEditor";
 import MemoryDashboard from "@/components/memory/MemoryDashboard";
 import PartnerAccessMatrix from "@/components/PartnerAccessMatrix";
 import PartnerSharedDataView from "@/components/PartnerSharedDataView";
+import EcosystemHealthDashboard from "@/components/EcosystemHealthDashboard";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
