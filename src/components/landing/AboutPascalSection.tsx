@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { ArrowRight, Calendar, Briefcase, Lightbulb, Target } from "lucide-react";
+import pascalPortrait from "@/assets/pascal-portrait.png";
 
 const chapters = [
   {
@@ -102,13 +103,21 @@ export default function AboutPascalSection() {
 
   return (
     <section id="about-pascal" className="max-w-6xl mx-auto py-20 px-6">
-      <div className="text-center mb-12">
-        <h2 className="text-3xl md:text-4xl font-bold mb-3">
-          \u00dcber Pascal Schmid &ndash; Gr\u00fcnder von HufManager &amp; HufiAi
-        </h2>
-        <p className="text-muted-foreground max-w-2xl mx-auto">
-          Die Story eines Hufpflegers der KI liebte
-        </p>
+      <div className="flex flex-col md:flex-row items-center gap-6 mb-12">
+        <img
+          src={pascalPortrait}
+          alt="Pascal Schmid – Gr\u00fcnder von HufiAi"
+          className="w-28 h-28 md:w-36 md:h-36 rounded-full object-cover object-top border-4 border-primary/20 shadow-lg shrink-0"
+        />
+        <div className="text-center md:text-left">
+          <h2 className="text-3xl md:text-4xl font-bold mb-2">
+            \u00dcber Pascal Schmid
+          </h2>
+          <p className="text-primary font-medium text-sm mb-1">Gr\u00fcnder von HufManager &amp; HufiAi</p>
+          <p className="text-muted-foreground max-w-xl">
+            Die Story eines Hufpflegers der KI liebte
+          </p>
+        </div>
       </div>
 
       {/* Tab navigation */}
