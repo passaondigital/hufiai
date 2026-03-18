@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, CheckCircle2, Circle, Clock, Play, FileText, Sparkles, HelpCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import InteractiveQuiz from "@/components/InteractiveQuiz";
+import ModelComparisonContent from "@/components/learning/ModelComparisonContent";
 import { toast } from "sonner";
 
 interface LearningPath {
