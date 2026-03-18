@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/lib/auth";
 import { I18nProvider } from "@/lib/i18n";
+import { EducationProvider } from "@/hooks/useEducation";
 import Landing from "./pages/Landing";
 import Auth from "./pages/Auth";
 import Onboarding from "./pages/Onboarding";
@@ -35,6 +36,7 @@ import HufManagerDashboard from "./pages/HufManagerDashboard";
 import VideoEngine from "./pages/VideoEngine";
 import PromptLibrary from "./pages/PromptLibrary";
 import ResetPassword from "./pages/ResetPassword";
+import Gamification from "./pages/Gamification";
 import NotFound from "./pages/NotFound";
 import PWAInstallPrompt from "./components/PWAInstallPrompt";
 import { Loader2 } from "lucide-react";
@@ -155,6 +157,7 @@ function AppRoutes() {
         <Route path="/hufmanager" element={<ProtectedRoute><HufManagerDashboard /></ProtectedRoute>} />
         <Route path="/video-engine" element={<ProtectedRoute><VideoEngine /></ProtectedRoute>} />
         <Route path="/prompts" element={<ProtectedRoute><PromptLibrary /></ProtectedRoute>} />
+        <Route path="/gamification" element={<ProtectedRoute><Gamification /></ProtectedRoute>} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </>
@@ -170,7 +173,9 @@ function App() {
           <Sonner />
           <BrowserRouter>
             <AuthProvider>
-              <AppRoutes />
+              <EducationProvider>
+                <AppRoutes />
+              </EducationProvider>
             </AuthProvider>
           </BrowserRouter>
         </TooltipProvider>

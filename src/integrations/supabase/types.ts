@@ -869,6 +869,7 @@ export type Database = {
           content_type: string
           content_url: string | null
           created_at: string
+          description: string | null
           duration_minutes: number | null
           id: string
           learning_path_id: string
@@ -880,6 +881,7 @@ export type Database = {
           content_type?: string
           content_url?: string | null
           created_at?: string
+          description?: string | null
           duration_minutes?: number | null
           id?: string
           learning_path_id: string
@@ -891,6 +893,7 @@ export type Database = {
           content_type?: string
           content_url?: string | null
           created_at?: string
+          description?: string | null
           duration_minutes?: number | null
           id?: string
           learning_path_id?: string
@@ -1800,6 +1803,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_education_settings: {
+        Row: {
+          created_at: string | null
+          dismissed_hints: string[] | null
+          education_mode_enabled: boolean | null
+          hint_frequency: string | null
+          id: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          dismissed_hints?: string[] | null
+          education_mode_enabled?: boolean | null
+          hint_frequency?: string | null
+          id?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          dismissed_hints?: string[] | null
+          education_mode_enabled?: boolean | null
+          hint_frequency?: string | null
+          id?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
       }
       user_favorite_prompts: {
         Row: {

@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import LevelBadge from "@/components/LevelBadge";
 import { useAuth } from "@/lib/auth";
 import { useSubscription } from "@/hooks/useSubscription";
 import { useUnreadNotifications } from "@/hooks/useUnreadNotifications";
 import {
   MessageSquare, FolderKanban, FileText, CreditCard, Settings,
   LogOut, ChevronLeft, ChevronRight, Plus, Shield,
-  ArrowLeftRight, Building2, Map, Megaphone, Crown, Heart, Award, Users, Sparkles, Link2, Database, Bell, Video, BookOpen
+  ArrowLeftRight, Building2, Map, Megaphone, Crown, Heart, Award, Users, Sparkles, Link2, Database, Bell, Video, BookOpen, Trophy
 } from "lucide-react";
 import hufiaiLogo from "@/assets/hufiai-logo.svg";
 
@@ -37,6 +38,7 @@ export default function AppSidebar() {
 
   const navItems: { icon: any; label: string; path: string; badge?: number }[] = [
     { icon: MessageSquare, label: "Chat", path: "/" },
+    { icon: Trophy, label: "Gamification", path: "/gamification" },
     { icon: BookOpen, label: "Prompt-Bibliothek", path: "/prompts" },
     { icon: Sparkles, label: "Meine Pferde", path: "/horses" },
     ...(profile?.user_type === "gewerbe" || hasGewerbeAccess ? [
@@ -118,6 +120,9 @@ export default function AppSidebar() {
 
       {/* Footer */}
       <div className="p-3 border-t border-sidebar-border space-y-1">
+        {/* Level Badge */}
+        {!collapsed && <LevelBadge variant="sidebar" />}
+        {collapsed && <LevelBadge variant="mini" className="justify-center" />}
         {/* User type badge + switch */}
         {!collapsed && profile && (
           <button
