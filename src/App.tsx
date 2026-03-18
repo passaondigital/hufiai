@@ -35,6 +35,7 @@ import HufManagerDashboard from "./pages/HufManagerDashboard";
 import VideoEngine from "./pages/VideoEngine";
 import PromptLibrary from "./pages/PromptLibrary";
 import ResetPassword from "./pages/ResetPassword";
+import Gamification from "./pages/Gamification";
 import NotFound from "./pages/NotFound";
 import PWAInstallPrompt from "./components/PWAInstallPrompt";
 import { Loader2 } from "lucide-react";
