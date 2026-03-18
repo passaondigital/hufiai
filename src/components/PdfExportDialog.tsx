@@ -186,10 +186,11 @@ export default function PdfExportDialog({ conversationId, open, onOpenChange }: 
         </DialogHeader>
 
         <Tabs defaultValue="template" className="flex-1 overflow-hidden flex flex-col">
-          <TabsList className="grid grid-cols-3 w-full">
+          <TabsList className="grid grid-cols-4 w-full">
             <TabsTrigger value="template" className="text-xs">📄 Vorlage</TabsTrigger>
             <TabsTrigger value="options" className="text-xs"><Settings2 className="w-3 h-3 mr-1" /> Optionen</TabsTrigger>
             <TabsTrigger value="batch" className="text-xs"><Files className="w-3 h-3 mr-1" /> Batch</TabsTrigger>
+            <TabsTrigger value="preview" className="text-xs">👁 Vorschau</TabsTrigger>
           </TabsList>
 
           <ScrollArea className="flex-1 pr-2">
@@ -388,6 +389,61 @@ export default function PdfExportDialog({ conversationId, open, onOpenChange }: 
                   <p className="text-[10px] text-muted-foreground">{selectedConvIds.length} Chat(s) ausgewählt</p>
                 </>
               )}
+            </TabsContent>
+
+            {/* PREVIEW TAB */}
+            <TabsContent value="preview" className="space-y-3 mt-2">
+              <div className="border border-border rounded-xl overflow-hidden bg-background">
+                <div className="px-3 py-2 bg-muted/50 border-b border-border flex items-center gap-2">
+                  <span className="text-[10px] font-medium text-muted-foreground">HTML-Vorschau</span>
+                  <span className="text-[10px] text-muted-foreground ml-auto">{template}</span>
+                </div>
+                <div className="p-4 min-h-[200px] max-h-[300px] overflow-y-auto">
+                  <div className="space-y-3 text-xs">
+                    <div className="text-center pb-3 border-b border-border">
+                      <p className="text-lg font-bold text-primary">🐴 HufiAi {TEMPLATES.find(t => t.key === template)?.label}</p>
+                      {horseName && <p className="text-muted-foreground">Pferd: <strong>{horseName}</strong>{horseBreed ? ` (${horseBreed})` : ""}{horseAge ? `, ${horseAge}` : ""}</p>}
+                      {ownerName && <p className="text-muted-foreground">Besitzer: {ownerName}</p>}
+                      <p className="text-[10px] text-muted-foreground mt-1">{new Date().toLocaleDateString("de-DE", { day: "2-digit", month: "long", year: "numeric" })}</p>
+                    </div>
+                    {includeToc && (
+                      <div className="p-2 bg-muted/30 rounded-lg">
+                        <p className="font-medium mb-1">📑 Inhaltsverzeichnis</p>
+                        <p className="text-muted-foreground">1. Zusammenfassung</p>
+                        <p className="text-muted-foreground">2. Hauptinhalt</p>
+                        <p className="text-muted-foreground">3. Fazit</p>
+                      </div>
+                    )}
+                    <div className="space-y-2">
+                      <p className="font-medium">1. Zusammenfassung</p>
+                      <p className="text-muted-foreground leading-relaxed">KI-generierte Zusammenfassung des Chat-Verlaufs wird hier angezeigt...</p>
+                      {includePrompts && (
+                        <div className="p-2 bg-primary/5 rounded-lg border border-primary/10">
+                          <p className="text-[10px] text-primary font-medium">👤 Beispiel-Prompt</p>
+                          <p className="text-muted-foreground">Wie pflege ich die Hufe meines Pferdes richtig?</p>
+                        </div>
+                      )}
+                      <div className="p-2 bg-muted/30 rounded-lg">
+                        <p className="text-[10px] font-medium">🤖 HufiAi Antwort</p>
+                        <p className="text-muted-foreground">Ausführliche Antwort mit Fachterminologie...</p>
+                      </div>
+                    </div>
+                    {addWatermark && (
+                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-10">
+                        <p className="text-4xl font-bold text-foreground rotate-[-30deg]">{watermarkText}</p>
+                      </div>
+                    )}
+                    {includeMetadata && (
+                      <div className="pt-2 border-t border-border text-[10px] text-muted-foreground">
+                        <p>Modell: gemini-2.5-flash • Exportiert: {new Date().toLocaleString("de-DE")}</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+              <p className="text-[10px] text-muted-foreground text-center">
+                Dies ist eine vereinfachte Vorschau. Das finale PDF kann abweichen.
+              </p>
             </TabsContent>
           </ScrollArea>
         </Tabs>
