@@ -32,7 +32,7 @@ const APPS: EcosystemApp[] = [
   {
     key: "hufiai",
     name: "Hufi",
-    description: "KI-gestützte Hufanalyse & Beratung",
+    description: "Digitale Hufakte & Beratungsassistenz",
     icon: Bot,
     idLabel: "#kid",
     registerUrl: "/auth",

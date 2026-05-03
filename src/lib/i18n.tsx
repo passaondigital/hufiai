@@ -143,12 +143,12 @@ const translations: Translations = {
   // Stats
   "stats.gdpr": { de: "DSGVO-konform", en: "GDPR Compliant" },
   "stats.available": { de: "Verfügbar", en: "Available" },
-  "stats.models": { de: "KI-Modelle", en: "AI Models" },
+  "stats.models": { de: "Integrationen", en: "Integrations" },
 
   // Footer
   "footer.desc": {
-    de: "KI-gestützte Lösungen für die gesamte Pferdebranche. DSGVO-konform, in der EU gehostet.",
-    en: "AI-powered solutions for the entire equine industry. GDPR-compliant, hosted in the EU.",
+    de: "Das digitale Betriebssystem für Pferdebetriebe. DSGVO-konform, in der EU gehostet.",
+    en: "The digital operating system for equine businesses. GDPR-compliant, hosted in the EU.",
   },
   "footer.product": { de: "Produkt", en: "Product" },
   "footer.features": { de: "Funktionen", en: "Features" },

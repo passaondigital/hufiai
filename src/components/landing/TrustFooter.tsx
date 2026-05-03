@@ -5,7 +5,7 @@ export default function TrustFooter() {
     <section className="bg-secondary py-12">
       <div className="max-w-5xl mx-auto px-6">
         <div className="text-center mb-8">
-          <h2 className="text-2xl font-bold text-secondary-foreground mb-2">AI for Good</h2>
+          <h2 className="text-2xl font-bold text-secondary-foreground mb-2">Sicherheit & Vertrauen</h2>
           <p className="text-secondary-foreground/70 max-w-2xl mx-auto text-sm">
             Warum Hufi neue Maßstäbe in Tierwohl & Datensicherheit setzt.
           </p>

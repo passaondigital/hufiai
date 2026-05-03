@@ -139,14 +139,14 @@ export default function Onboarding() {
         {/* Step 3: Data Privacy Consent */}
         {step === 3 && (
           <>
-            <h1 className="text-2xl font-bold mb-2 text-center">Hilf mit, Hufi smarter zu machen</h1>
+            <h1 className="text-2xl font-bold mb-2 text-center">Hilf mit, Hufi besser zu machen</h1>
             <div className="bg-card rounded-2xl border border-border p-6 mb-6">
               <div className="flex items-start gap-3 mb-4">
                 <Heart className="w-6 h-6 text-primary mt-0.5 shrink-0" />
                 <div>
-                  <h3 className="font-semibold mb-1">Hufi Horse-LLM Initiative</h3>
+                  <h3 className="font-semibold mb-1">Hufi Datenqualität</h3>
                   <p className="text-sm text-muted-foreground leading-relaxed">
-                    Wir entwickeln ein spezialisiertes KI-Modell für die Pferdebranche. Unser Credo: <strong>Pferdeschutz & Datenschutz zuerst.</strong>
+                    Anonymisierte Praxisdaten helfen dabei, die Assistenzfunktionen für alle Pferdebetriebe zu verbessern. Unser Credo: <strong>Pferdeschutz & Datenschutz zuerst.</strong>
                   </p>
                 </div>
               </div>
