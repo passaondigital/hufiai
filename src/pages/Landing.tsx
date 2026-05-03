@@ -4,7 +4,7 @@ import { ArrowRight, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 import horseHero from "@/assets/horse-hero.png";
-import hufiaiLogo from "@/assets/hufiai-logo.svg";
+import hufiLogo from "@/assets/hufi-logo.svg";
 
 import LanguageToggle from "@/components/landing/LanguageToggle";
 import TrustBar from "@/components/landing/TrustBar";
@@ -35,7 +35,7 @@ export default function Landing() {
       <nav className="sticky top-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border">
         <div className="flex items-center justify-between px-4 md:px-6 py-3 max-w-7xl mx-auto">
           <div className="flex items-center gap-2 cursor-pointer" onClick={() => scrollTo("hero")}>
-            <img src={hufiaiLogo} alt="Hufi" className="h-10 md:h-[4.5rem]" />
+            <img src={hufiLogo} alt="Hufi" className="h-10 md:h-[4.5rem]" />
           </div>
           <div className="hidden md:flex items-center gap-6 text-sm font-medium text-muted-foreground">
             <button onClick={() => scrollTo("about-pascal")} className="hover:text-foreground transition-colors">&Uuml;ber Pascal</button>
@@ -82,11 +82,11 @@ export default function Landing() {
       <section id="hero" className="relative max-w-7xl mx-auto pt-10 md:pt-16 pb-12 md:pb-20 px-4 md:px-6 flex flex-col md:flex-row items-center gap-6 md:gap-8">
         <div className="flex-1 text-center md:text-left z-10">
           <h1 className="text-3xl md:text-5xl lg:text-6xl font-extrabold tracking-tight mb-4 md:mb-6 leading-tight">
-            KI ist nicht dein Feind.{" "}
-            <span className="text-gradient">KI ist dein Werkzeug.</span>
+            Deine Zeit gehört dem Pferd.{" "}
+            <span className="text-gradient">Den Rest macht Hufi.</span>
           </h1>
           <p className="text-base md:text-xl text-muted-foreground max-w-xl mb-6 md:mb-10">
-            Ich bin Pascal. Ich bin Hufpfleger. Ich liebe KI. Und ich will dir zeigen: Es ist nicht so kompliziert.
+            Das digitale Betriebssystem für moderne Pferdebetriebe und mobile Pferdeprofis.
           </p>
           <div className="flex flex-col sm:flex-row items-center gap-3 md:gap-4 justify-center md:justify-start">
             <Button size="lg" onClick={() => navigate("/auth")} className="text-base px-8">
@@ -125,7 +125,7 @@ export default function Landing() {
       <footer className="bg-secondary text-secondary-foreground border-t border-border py-14">
         <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-start gap-10">
           <div className="max-w-xs">
-            <img src={hufiaiLogo} alt="Hufi" className="h-[4.5rem] mb-3 brightness-0 invert" />
+            <img src={hufiLogo} alt="Hufi" className="h-[4.5rem] mb-3 brightness-0 invert" />
             <p className="text-sm text-secondary-foreground/70 mb-1">
               Made with ❤️ von Pascal
             </p>
@@ -133,7 +133,7 @@ export default function Landing() {
               Das ist nicht nur Software. Es ist meine Mission.
             </p>
             <p className="text-xs text-secondary-foreground/40">
-              support@hufiai.de
+              support@hufiapp.de
             </p>
           </div>
 

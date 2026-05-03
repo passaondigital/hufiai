@@ -6,7 +6,7 @@ import { CheckCircle2, XCircle, RefreshCw } from "lucide-react";
 
 const APP_NAMES: Record<string, string> = {
   hufmanager: "HufManager",
-  hufiai: "HufiAi",
+  hufiai: "Hufi",
   hufiapp: "HufiApp",
   memberhorse: "MemberHorse",
 };

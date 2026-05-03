@@ -297,7 +297,7 @@ export default function ExpertDashboard() {
         )}
 
         <p className="text-xs text-muted-foreground text-center">
-          ⚖️ HufiAi ist eine KI-Assistenz. Geteilte Daten dienen der Zusammenarbeit – alle fachlichen Entscheidungen liegen beim Experten vor Ort.
+          ⚖️ Hufi ist eine KI-Assistenz. Geteilte Daten dienen der Zusammenarbeit – alle fachlichen Entscheidungen liegen beim Experten vor Ort.
         </p>
       </div>
     </AppLayout>

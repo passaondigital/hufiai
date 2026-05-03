@@ -168,7 +168,7 @@ export default function MyHorses() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `hufiai_${horse.name.toLowerCase().replace(/\s/g, "_")}_export.json`;
+    a.download = `hufi_${horse.name.toLowerCase().replace(/\s/g, "_")}_export.json`;
     a.click();
     URL.revokeObjectURL(url);
     toast.success("JSON exportiert");
@@ -180,7 +180,7 @@ export default function MyHorses() {
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between mb-6">
           <div>
             <h1 className="text-xl md:text-2xl font-bold text-foreground">🐴 Meine Pferde</h1>
-            <p className="text-muted-foreground text-sm">Verwalte deine Pferde. HufiAi merkt sich alles für personalisierte Beratung.</p>
+            <p className="text-muted-foreground text-sm">Verwalte deine Pferde. Hufi merkt sich alles für personalisierte Beratung.</p>
           </div>
           <Button className="w-full md:w-auto min-h-[48px] md:min-h-0" onClick={openNew}>
             <Plus className="w-4 h-4 mr-1" /> Pferd hinzufügen
@@ -193,7 +193,7 @@ export default function MyHorses() {
           <div className="text-center py-20">
             <div className="text-6xl mb-4">🐴</div>
             <h2 className="text-lg font-semibold mb-2">Noch keine Pferde</h2>
-            <p className="text-muted-foreground text-sm mb-4">Füge dein erstes Pferd hinzu, damit HufiAi dich persönlich beraten kann.</p>
+            <p className="text-muted-foreground text-sm mb-4">Füge dein erstes Pferd hinzu, damit Hufi dich persönlich beraten kann.</p>
             <Button className="w-full md:w-auto min-h-[48px]" onClick={openNew}><Plus className="w-4 h-4 mr-1" /> Erstes Pferd hinzufügen</Button>
           </div>
         ) : (

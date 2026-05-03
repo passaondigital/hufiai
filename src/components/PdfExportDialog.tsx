@@ -152,8 +152,8 @@ export default function PdfExportDialog({ conversationId, open, onOpenChange }: 
       const a = document.createElement("a");
       a.href = url;
       const filename = batchMode && batchAction === "combined"
-        ? `HufiAi-Sammelexport-${Date.now()}.pdf`
-        : `HufiAi-${template}-${(ids[0] || "").slice(0, 8)}.pdf`;
+        ? `Hufi-Sammelexport-${Date.now()}.pdf`
+        : `Hufi-${template}-${(ids[0] || "").slice(0, 8)}.pdf`;
       a.download = filename;
       document.body.appendChild(a);
       a.click();
@@ -401,7 +401,7 @@ export default function PdfExportDialog({ conversationId, open, onOpenChange }: 
                 <div className="p-4 min-h-[200px] max-h-[300px] overflow-y-auto">
                   <div className="space-y-3 text-xs">
                     <div className="text-center pb-3 border-b border-border">
-                      <p className="text-lg font-bold text-primary">🐴 HufiAi {TEMPLATES.find(t => t.key === template)?.label}</p>
+                      <p className="text-lg font-bold text-primary">🐴 Hufi {TEMPLATES.find(t => t.key === template)?.label}</p>
                       {horseName && <p className="text-muted-foreground">Pferd: <strong>{horseName}</strong>{horseBreed ? ` (${horseBreed})` : ""}{horseAge ? `, ${horseAge}` : ""}</p>}
                       {ownerName && <p className="text-muted-foreground">Besitzer: {ownerName}</p>}
                       <p className="text-[10px] text-muted-foreground mt-1">{new Date().toLocaleDateString("de-DE", { day: "2-digit", month: "long", year: "numeric" })}</p>
@@ -424,7 +424,7 @@ export default function PdfExportDialog({ conversationId, open, onOpenChange }: 
                         </div>
                       )}
                       <div className="p-2 bg-muted/30 rounded-lg">
-                        <p className="text-[10px] font-medium">🤖 HufiAi Antwort</p>
+                        <p className="text-[10px] font-medium">🤖 Hufi Antwort</p>
                         <p className="text-muted-foreground">Ausführliche Antwort mit Fachterminologie...</p>
                       </div>
                     </div>

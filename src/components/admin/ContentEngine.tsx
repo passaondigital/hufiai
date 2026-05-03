@@ -317,7 +317,7 @@ export default function ContentEngine() {
       });
       if (tokenErr) throw tokenErr;
 
-      const fileName = `HufiAi_Image_${imagePreset}_${Date.now()}.png`;
+      const fileName = `Hufi_Image_${imagePreset}_${Date.now()}.png`;
       const { data: uploadData, error: uploadErr } = await supabase.functions.invoke("export-to-drive", {
         body: {
           action: "upload",
@@ -343,7 +343,7 @@ export default function ContentEngine() {
     if (!generatedImageUrl) return;
     const a = document.createElement("a");
     a.href = generatedImageUrl;
-    a.download = `hufiai-${imagePreset}-${Date.now()}.png`;
+    a.download = `hufi-${imagePreset}-${Date.now()}.png`;
     a.click();
   };
 
@@ -391,7 +391,7 @@ export default function ContentEngine() {
               )}
               {trends.length > 0 && (
                 <div>
-                  <p className="text-xs font-semibold text-muted-foreground mb-2">📊 HufiAi Chat-Trends</p>
+                  <p className="text-xs font-semibold text-muted-foreground mb-2">📊 Hufi Chat-Trends</p>
                   <div className="flex flex-wrap gap-2">
                     {trends.map((t) => <TopicButton key={t.category} t={t} />)}
                   </div>
@@ -662,7 +662,7 @@ export default function ContentEngine() {
                           onClick={() => {
                             const a = document.createElement("a");
                             a.href = img.image_url;
-                            a.download = `hufiai-${img.preset}-${img.id}.png`;
+                            a.download = `hufi-${img.preset}-${img.id}.png`;
                             a.click();
                           }}
                         >

@@ -69,8 +69,8 @@ export default function PWAInstallPrompt({ onDismiss }: { onDismiss: () => void 
           <div className="w-16 h-16 rounded-2xl bg-primary/20 flex items-center justify-center mx-auto mb-3">
             <Smartphone className="w-8 h-8 text-primary" />
           </div>
-          <h2 className="text-xl font-bold text-foreground">HufiAi installieren</h2>
-          <p className="text-sm text-muted-foreground mt-1">Nutze HufiAi als App auf deinem Gerät</p>
+          <h2 className="text-xl font-bold text-foreground">Hufi installieren</h2>
+          <p className="text-sm text-muted-foreground mt-1">Nutze Hufi als App auf deinem Gerät</p>
         </div>
 
         <div className="p-6 space-y-5">
@@ -81,7 +81,7 @@ export default function PWAInstallPrompt({ onDismiss }: { onDismiss: () => void 
                   <CheckCircle2 className="w-6 h-6 text-green-500 shrink-0" />
                   <div>
                     <p className="font-semibold text-sm text-foreground">App bereits installiert</p>
-                    <p className="text-xs text-muted-foreground">HufiAi läuft als installierte App.</p>
+                    <p className="text-xs text-muted-foreground">Hufi läuft als installierte App.</p>
                   </div>
                 </div>
               ) : isIOS ? (
@@ -124,13 +124,13 @@ export default function PWAInstallPrompt({ onDismiss }: { onDismiss: () => void 
           {step === "permissions" && (
             <>
               <p className="text-sm text-muted-foreground text-center">
-                Für die beste Nutzung benötigt HufiAi folgende Berechtigungen:
+                Für die beste Nutzung benötigt Hufi folgende Berechtigungen:
               </p>
 
               <div className="space-y-2">
                 {[
                   { key: "notifications" as const, icon: Bell, label: "Push-Benachrichtigungen", desc: "Updates & Partner-Einladungen", request: requestNotifications },
-                  { key: "camera" as const, icon: Camera, label: "Kamera", desc: "HufiAi Scan & Fotoanalyse", request: requestCamera },
+                  { key: "camera" as const, icon: Camera, label: "Kamera", desc: "Hufi Scan & Fotoanalyse", request: requestCamera },
                   { key: "location" as const, icon: MapPin, label: "Standort", desc: "Experten in deiner Nähe", request: requestLocation },
                   { key: "storage" as const, icon: HardDrive, label: "Speicher", desc: "Offline-Daten & generierte Inhalte", request: requestStorage },
                 ].map(perm => (

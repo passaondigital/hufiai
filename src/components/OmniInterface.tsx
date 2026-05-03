@@ -266,8 +266,8 @@ export default function OmniInterface() {
         id: "disclaimer",
         role: "assistant",
         content: lang === "de"
-          ? "⚖️ **Hinweis:** HufiAi ist eine KI-Assistenz zur Unterstützung. Informationen ersetzen keine fachliche Beratung durch Tierärzte, Huf-Experten oder Juristen.\n\nWie kann ich dir helfen?"
-          : "⚖️ **Note:** HufiAi is an AI assistant. Information does not replace professional advice from veterinarians, hoof experts or lawyers.\n\nHow can I help you?",
+          ? "⚖️ **Hinweis:** Hufi ist eine KI-Assistenz zur Unterstützung. Informationen ersetzen keine fachliche Beratung durch Tierärzte, Huf-Experten oder Juristen.\n\nWie kann ich dir helfen?"
+          : "⚖️ **Note:** Hufi is an AI assistant. Information does not replace professional advice from veterinarians, hoof experts or lawyers.\n\nHow can I help you?",
       };
       currentMessages = [disclaimerMsg, userMsg];
     } else {
@@ -690,7 +690,7 @@ export default function OmniInterface() {
                 >
                   <Crown className="w-5 h-5 text-primary" />
                   <div className="text-left">
-                    <p className="text-sm font-semibold">{lang === "de" ? "HufiAi Founder Flow starten" : "Start HufiAi Founder Flow"}</p>
+                    <p className="text-sm font-semibold">{lang === "de" ? "Hufi Founder Flow starten" : "Start Hufi Founder Flow"}</p>
                     <p className="text-xs text-muted-foreground">{lang === "de" ? "30 Tage Gewerbe Pro kostenlos testen" : "30 days Business Pro free trial"}</p>
                   </div>
                 </button>

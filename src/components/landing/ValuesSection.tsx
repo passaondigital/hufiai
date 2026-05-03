@@ -7,7 +7,7 @@ const values = [
   {
     emoji: "💯",
     title: "Honesty Over Hype",
-    text: "Ich sage dir die Wahrheit. HufiAi ist nicht perfekt. Es wird sich entwickeln. Aber ich baue es transparent und FAIR.",
+    text: "Ich sage dir die Wahrheit. Hufi ist nicht perfekt. Es wird sich entwickeln. Aber ich baue es transparent und FAIR.",
   },
   {
     emoji: "🐴",
@@ -17,7 +17,7 @@ const values = [
   {
     emoji: "🌱",
     title: "Long-Term Over Quick Money",
-    text: "Mein Ziel ist nicht $. Mein Ziel ist Vertrauen. Wenn du HufiAi in 5 Jahren liebst \u2013 DANN bin ich erfolgreich.",
+    text: "Mein Ziel ist nicht $. Mein Ziel ist Vertrauen. Wenn du Hufi in 5 Jahren liebst \u2013 DANN bin ich erfolgreich.",
   },
 ];
 

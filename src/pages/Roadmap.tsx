@@ -118,7 +118,7 @@ export default function Roadmap() {
             <h1 className="text-2xl font-bold flex items-center gap-2">
               <Map className="w-6 h-6 text-primary" /> Developer Roadmap
             </h1>
-            <p className="text-muted-foreground">Features, Bugs und Ideen für HufiAi.</p>
+            <p className="text-muted-foreground">Features, Bugs und Ideen für Hufi.</p>
           </div>
           <Button onClick={() => setShowForm(true)}>
             <Plus className="w-4 h-4 mr-2" /> Neuer Eintrag

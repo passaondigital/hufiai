@@ -96,7 +96,7 @@ export default function PricingSection() {
         <div>
           <p className="font-bold text-sm">30-Tage Geld-zurück-Garantie</p>
           <p className="text-xs text-muted-foreground">
-            Wenn HufiAi nicht dein Ding ist, 100% Rückerstattung.
+            Wenn Hufi nicht dein Ding ist, 100% Rückerstattung.
           </p>
         </div>
       </div>

@@ -188,9 +188,9 @@ export default function SettingsPage() {
               <div className="flex items-start gap-3 mb-4">
                 <Heart className="w-6 h-6 text-primary mt-0.5 shrink-0" />
                 <div>
-                  <h2 className="font-semibold mb-1">HufiAi Horse-LLM Initiative</h2>
+                  <h2 className="font-semibold mb-1">Hufi Horse-LLM Initiative</h2>
                   <p className="text-sm text-muted-foreground leading-relaxed">
-                    Hilf uns, HufiAi smarter zu machen für jedes Pferd. Wir trainieren ein spezialisiertes KI-Modell für die Pferdebranche.
+                    Hilf uns, Hufi smarter zu machen für jedes Pferd. Wir trainieren ein spezialisiertes KI-Modell für die Pferdebranche.
                     Unser Credo: <strong>Pferdeschutz & Datenschutz zuerst.</strong>
                   </p>
                 </div>

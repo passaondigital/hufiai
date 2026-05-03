@@ -103,7 +103,7 @@ export default function MediaEditor({ mediaUrl, mediaType, onClose }: MediaEdito
     setIsExporting(true);
     try {
       const link = document.createElement("a");
-      link.download = `HufiAi_edited_${Date.now()}.png`;
+      link.download = `Hufi_edited_${Date.now()}.png`;
       link.href = canvas.toDataURL("image/png");
       link.click();
       toast({ title: "Bild exportiert ✓" });

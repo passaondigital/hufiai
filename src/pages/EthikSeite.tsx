@@ -16,7 +16,7 @@ export default function EthikSeite() {
             <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
               <Sparkles className="w-4 h-4 text-primary-foreground" />
             </div>
-            <span className="font-bold text-lg">HufiAi</span>
+            <span className="font-bold text-lg">Hufi</span>
           </div>
           <div className="w-16" />
         </div>
@@ -32,7 +32,7 @@ export default function EthikSeite() {
             Unsere Verantwortung: <span className="text-primary">KI im Dienst des Pferdewohls</span>
           </h1>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-            Warum HufiAi kein Ersatz für das Handwerk ist, sondern dessen stärkster Verbündeter.
+            Warum Hufi kein Ersatz für das Handwerk ist, sondern dessen stärkster Verbündeter.
           </p>
         </section>
 
@@ -45,7 +45,7 @@ export default function EthikSeite() {
             <h2 className="text-2xl font-bold">1. Die Vision 2030</h2>
           </div>
           <p className="text-muted-foreground leading-relaxed text-lg">
-            HufiAi ist nicht einfach eine App. Es ist der erste Schritt einer Reise, die am <strong className="text-foreground">15. November 2030</strong> in der Eröffnung des modernsten Forschungs- und Schulungszentrums der Pferdewelt gipfeln wird.
+            Hufi ist nicht einfach eine App. Es ist der erste Schritt einer Reise, die am <strong className="text-foreground">15. November 2030</strong> in der Eröffnung des modernsten Forschungs- und Schulungszentrums der Pferdewelt gipfeln wird.
           </p>
           <p className="text-muted-foreground leading-relaxed">
             Unser Ziel ist es, die digitale Intelligenz zu nutzen, um die physische Welt der Pferde – vom Stallbau bis zur Hufpflege – radikal zu verbessern.
@@ -61,7 +61,7 @@ export default function EthikSeite() {
             <h2 className="text-2xl font-bold">2. Wissen ist keine Kompetenz</h2>
           </div>
           <p className="text-muted-foreground leading-relaxed text-lg">
-            Wir glauben an die Demokratisierung von Wissen. HufiAi macht Expertenwissen für jeden Pferdebesitzer zugänglich. Doch wir ziehen eine klare Grenze:
+            Wir glauben an die Demokratisierung von Wissen. Hufi macht Expertenwissen für jeden Pferdebesitzer zugänglich. Doch wir ziehen eine klare Grenze:
           </p>
           <div className="grid md:grid-cols-2 gap-6">
             <div className="bg-primary/5 rounded-xl p-6 border border-primary/10">
@@ -73,7 +73,7 @@ export default function EthikSeite() {
             <div className="bg-primary/5 rounded-xl p-6 border border-primary/10">
               <p className="font-semibold text-primary mb-2">🧑‍🔧 Der Mensch handelt</p>
               <p className="text-sm text-muted-foreground leading-relaxed">
-                Kein Algorithmus der Welt ersetzt das Fingerspitzengefühl eines erfahrenen Hufschmieds, die Intuition eines Tierarztes oder das feine Gespür eines Trainers. HufiAi ist der Kompass, aber der Mensch hält das Steuer.
+                Kein Algorithmus der Welt ersetzt das Fingerspitzengefühl eines erfahrenen Hufschmieds, die Intuition eines Tierarztes oder das feine Gespür eines Trainers. Hufi ist der Kompass, aber der Mensch hält das Steuer.
               </p>
             </div>
           </div>
@@ -121,7 +121,7 @@ export default function EthikSeite() {
             <h2 className="text-2xl font-bold">4. Die „Passive Miete" für einen guten Zweck</h2>
           </div>
           <p className="text-muted-foreground leading-relaxed text-lg">
-            HufiAi finanziert sich durch ein faires Abo-Modell. Diese „passive Miete" ist der Treibstoff für unsere größeren Ziele:
+            Hufi finanziert sich durch ein faires Abo-Modell. Diese „passive Miete" ist der Treibstoff für unsere größeren Ziele:
           </p>
           <div className="grid md:grid-cols-2 gap-4">
             <div className="bg-background rounded-xl p-5 border border-border">
@@ -146,7 +146,7 @@ export default function EthikSeite() {
             <h2 className="text-2xl font-bold">5. Unser Versprechen</h2>
           </div>
           <p className="text-muted-foreground leading-relaxed text-lg">
-            Wir lehnen Abhängigkeiten ab. Wir bauen unsere eigenen Systeme, um unabhängig von den „Big Playern" agieren zu können. HufiAi bleibt eine Plattform <strong className="text-foreground">von Pferdemenschen für Pferdemenschen</strong> – getrieben von Leidenschaft, nicht von reiner Gier.
+            Wir lehnen Abhängigkeiten ab. Wir bauen unsere eigenen Systeme, um unabhängig von den „Big Playern" agieren zu können. Hufi bleibt eine Plattform <strong className="text-foreground">von Pferdemenschen für Pferdemenschen</strong> – getrieben von Leidenschaft, nicht von reiner Gier.
           </p>
           <div className="grid md:grid-cols-3 gap-6 text-sm">
             {[
@@ -169,7 +169,7 @@ export default function EthikSeite() {
             <h2 className="text-2xl font-bold">Der Ethic Guardrail</h2>
           </div>
           <p className="text-muted-foreground leading-relaxed">
-            HufiAi verfügt über einen eingebauten "Ethic Guardrail". Wenn die KI eine
+            Hufi verfügt über einen eingebauten "Ethic Guardrail". Wenn die KI eine
             potenziell kritische Situation erkennt – ob akute Verletzung, Kolik-Verdacht,
             Hufrehe oder andere Notfälle – greift ein automatischer Schutzmechanismus:
           </p>
@@ -205,7 +205,7 @@ export default function EthikSeite() {
       </main>
 
       <footer className="border-t border-border py-6 text-center">
-        <p className="text-xs text-muted-foreground">© {new Date().getFullYear()} HufiAi. Alle Rechte vorbehalten.</p>
+        <p className="text-xs text-muted-foreground">© {new Date().getFullYear()} Hufi. Alle Rechte vorbehalten.</p>
       </footer>
     </div>
   );

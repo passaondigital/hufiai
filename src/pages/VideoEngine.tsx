@@ -549,7 +549,7 @@ export default function VideoEngine() {
                               <div className="flex items-center gap-3">
                                 <Switch checked={brandingOverlay} onCheckedChange={setBrandingOverlay} />
                                 <label className="text-xs text-[hsl(var(--sidebar-foreground))] flex items-center gap-1">
-                                  <Stamp className="w-3.5 h-3.5 text-primary" /> HufiAi Branding
+                                  <Stamp className="w-3.5 h-3.5 text-primary" /> Hufi Branding
                                 </label>
                               </div>
                               <Select value={format} onValueChange={setFormat}>
@@ -725,7 +725,7 @@ export default function VideoEngine() {
                         <div key={job.id} className="rounded-lg overflow-hidden border border-[hsl(var(--sidebar-border))] relative">
                           <video src={job.video_url!} controls className="w-full" style={{ filter: cssFilter }} />
                           {brandingOverlay && (
-                            <div className="absolute bottom-3 right-3 bg-black/50 px-2 py-1 rounded text-[10px] font-bold text-primary">HufiAi</div>
+                            <div className="absolute bottom-3 right-3 bg-black/50 px-2 py-1 rounded text-[10px] font-bold text-primary">Hufi</div>
                           )}
                         </div>
                       ))}
@@ -867,7 +867,7 @@ export default function VideoEngine() {
           {/* Footer */}
           <div className="text-center py-4 border-t border-[hsl(var(--sidebar-border))]">
             <p className="text-[10px] text-[hsl(var(--sidebar-muted))]">
-              HufiAi Social Intelligence Hub · Powered by Open-Source Models · "Wir sind hier, um einen Unterschied zu machen."
+              Hufi Social Intelligence Hub · Powered by Open-Source Models · "Wir sind hier, um einen Unterschied zu machen."
             </p>
           </div>
         </div>
@@ -906,7 +906,7 @@ function GalleryPanel({ jobs, giveFeedback, deleteJob, downloadWithFormat, cssFi
                 <div className="relative w-full h-full">
                   <video src={job.video_url} className="w-full h-full object-cover" controls style={{ filter: cssFilter }} />
                   {brandingOverlay && (
-                    <div className="absolute bottom-2 right-2 bg-black/60 px-1.5 py-0.5 rounded text-[9px] font-bold text-primary pointer-events-none">HufiAi</div>
+                    <div className="absolute bottom-2 right-2 bg-black/60 px-1.5 py-0.5 rounded text-[9px] font-bold text-primary pointer-events-none">Hufi</div>
                   )}
                 </div>
               ) : (

@@ -112,7 +112,7 @@ export default function ExpertenSuche() {
             <ArrowLeft className="w-4 h-4" />
             <span className="text-sm">Zurück</span>
           </Link>
-          <h1 className="text-lg font-bold text-foreground">HufiAi Experten-Suche</h1>
+          <h1 className="text-lg font-bold text-foreground">Hufi Experten-Suche</h1>
           <div className="w-16" />
         </div>
       </header>
@@ -284,7 +284,7 @@ export default function ExpertenSuche() {
         )}
 
         <p className="text-xs text-muted-foreground text-center pt-4">
-          ⚖️ HufiAi ist eine KI-Assistenz. Alle fachlichen Entscheidungen liegen beim Experten vor Ort.
+          ⚖️ Hufi ist eine KI-Assistenz. Alle fachlichen Entscheidungen liegen beim Experten vor Ort.
         </p>
       </main>
     </div>

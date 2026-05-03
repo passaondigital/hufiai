@@ -9,7 +9,7 @@ import {
   LogOut, ChevronLeft, ChevronRight, Plus, Shield,
   ArrowLeftRight, Building2, Map, Megaphone, Crown, Heart, Award, Users, Sparkles, Link2, Database, Bell, Video, BookOpen, Trophy
 } from "lucide-react";
-import hufiaiLogo from "@/assets/hufiai-logo.svg";
+import hufiLogo from "@/assets/hufi-logo.svg";
 
 import { toast } from "sonner";
 
@@ -73,7 +73,7 @@ export default function AppSidebar() {
       <div className="flex items-center justify-between p-4 border-b border-sidebar-border">
         {!collapsed && (
           <div className="flex items-center gap-2">
-            <img src={hufiaiLogo} alt="HufiAi" className="h-[4.25rem]" />
+            <img src={hufiLogo} alt="Hufi" className="h-[4.25rem]" />
           </div>
         )}
         <button

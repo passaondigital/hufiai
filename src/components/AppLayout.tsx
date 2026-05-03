@@ -15,7 +15,7 @@ import {
   Building2, Map, Megaphone, Crown, Heart, Award, Users, Sparkles,
   Link2, Database, Bell, Video, Globe, Home
 } from "lucide-react";
-import hufiaiLogo from "@/assets/hufiai-logo.svg";
+import hufiLogo from "@/assets/hufi-logo.svg";
 import { toast } from "sonner";
 
 interface AppLayoutProps {
@@ -94,7 +94,7 @@ function OmniNavRail() {
     <div className="w-[60px] bg-sidebar flex flex-col items-center py-3 border-r border-sidebar-border shrink-0">
       {/* Logo */}
       <div className="mb-3 cursor-pointer" onClick={() => navigate("/")}>
-        <img src={hufiaiLogo} alt="HufiAi" className="h-8 w-8 object-contain" />
+        <img src={hufiLogo} alt="Hufi" className="h-8 w-8 object-contain" />
       </div>
 
       {/* Nav items */}
@@ -194,7 +194,7 @@ function FullSidebar() {
   return (
     <aside className={`h-screen bg-sidebar flex flex-col transition-all duration-300 ${collapsed ? "w-16" : "w-64"}`}>
       <div className="flex items-center justify-between p-4 border-b border-sidebar-border">
-        {!collapsed && <img src={hufiaiLogo} alt="HufiAi" className="h-[4.25rem]" />}
+        {!collapsed && <img src={hufiLogo} alt="Hufi" className="h-[4.25rem]" />}
         <button onClick={() => setCollapsed(!collapsed)} className="p-1.5 rounded-lg text-sidebar-muted hover:text-sidebar-foreground hover:bg-sidebar-accent transition-colors">
           {collapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
         </button>

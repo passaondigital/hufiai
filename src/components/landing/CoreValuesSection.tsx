@@ -43,7 +43,7 @@ const pillars = [
     emoji: "🚀",
     title: "Real Tools for Real Work",
     subtitle: "Gebaut f\u00fcr Solo-Entrepreneurs & Handwerker.",
-    intro: "HufiAi ist nicht \u201Enoch ein Chat-Interface\u201C. Es ist eine komplette Produktivit\u00e4ts-Suite.",
+    intro: "Hufi ist nicht \u201Enoch ein Chat-Interface\u201C. Es ist eine komplette Produktivit\u00e4ts-Suite.",
     points: [
       "30 Prompts + Generator (f\u00fcr deine Aufgaben)",
       "Content Creator (Images, Graphics, Videos)",
@@ -62,7 +62,7 @@ export default function CoreValuesSection() {
     <section className="max-w-6xl mx-auto py-20 px-6">
       <div className="text-center mb-12">
         <h2 className="text-3xl md:text-4xl font-bold mb-3">
-          Die drei S\u00e4ulen von HufiAi
+          Die drei S\u00e4ulen von Hufi
         </h2>
         <p className="text-muted-foreground">Von Pascal & f\u00fcr dich.</p>
       </div>

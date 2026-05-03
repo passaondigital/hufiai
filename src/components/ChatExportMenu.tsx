@@ -29,18 +29,18 @@ export default function ChatExportMenu({ messages, conversationId, onExportPdf }
 
   const exportAsText = () => {
     const text = messages
-      .map(m => `${m.role === "user" ? "👤 Du" : "🤖 HufiAi"}:\n${m.content}`)
+      .map(m => `${m.role === "user" ? "👤 Du" : "🤖 Hufi"}:\n${m.content}`)
       .join("\n\n---\n\n");
-    downloadBlob(new Blob([text], { type: "text/plain;charset=utf-8" }), `HufiAi-Chat-${Date.now()}.txt`);
+    downloadBlob(new Blob([text], { type: "text/plain;charset=utf-8" }), `Hufi-Chat-${Date.now()}.txt`);
     toast.success("Chat als Text exportiert");
   };
 
   const exportAsMarkdown = () => {
-    const md = `# HufiAi Chat Export\n_${new Date().toLocaleDateString("de-DE")}_\n\n` +
+    const md = `# Hufi Chat Export\n_${new Date().toLocaleDateString("de-DE")}_\n\n` +
       messages
-        .map(m => `## ${m.role === "user" ? "👤 Du" : "🤖 HufiAi"}\n\n${m.content}`)
+        .map(m => `## ${m.role === "user" ? "👤 Du" : "🤖 Hufi"}\n\n${m.content}`)
         .join("\n\n---\n\n");
-    downloadBlob(new Blob([md], { type: "text/markdown;charset=utf-8" }), `HufiAi-Chat-${Date.now()}.md`);
+    downloadBlob(new Blob([md], { type: "text/markdown;charset=utf-8" }), `Hufi-Chat-${Date.now()}.md`);
     toast.success("Chat als Markdown exportiert");
   };
 
@@ -50,7 +50,7 @@ export default function ChatExportMenu({ messages, conversationId, onExportPdf }
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>HufiAi Chat Export</title>
+  <title>Hufi Chat Export</title>
   <style>
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 720px; margin: 40px auto; padding: 0 20px; background: #fafafa; color: #1a1a1a; }
     .header { text-align: center; padding: 20px 0; border-bottom: 2px solid #e5e5e5; margin-bottom: 30px; }
@@ -67,23 +67,23 @@ export default function ChatExportMenu({ messages, conversationId, onExportPdf }
 </head>
 <body>
   <div class="header">
-    <h1>🐴 HufiAi Chat</h1>
+    <h1>🐴 Hufi Chat</h1>
     <p>${new Date().toLocaleDateString("de-DE", { day: "2-digit", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" })}</p>
   </div>
   ${messages.map(m => `
   <div class="msg msg-${m.role === "user" ? "user" : "ai"}">
     <div class="bubble">${m.content.replace(/\n/g, "<br>")}</div>
   </div>`).join("")}
-  <div class="watermark">Exportiert von HufiAi · hufiai.lovable.app</div>
+  <div class="watermark">Exportiert von Hufi · hufiapp.de</div>
 </body>
 </html>`;
-    downloadBlob(new Blob([html], { type: "text/html;charset=utf-8" }), `HufiAi-Chat-${Date.now()}.html`);
+    downloadBlob(new Blob([html], { type: "text/html;charset=utf-8" }), `Hufi-Chat-${Date.now()}.html`);
     toast.success("Chat als HTML exportiert");
   };
 
   const copyAll = () => {
     const text = messages
-      .map(m => `${m.role === "user" ? "Du" : "HufiAi"}:\n${m.content}`)
+      .map(m => `${m.role === "user" ? "Du" : "Hufi"}:\n${m.content}`)
       .join("\n\n---\n\n");
     navigator.clipboard.writeText(text);
     toast.success("Gesamter Chat kopiert!");

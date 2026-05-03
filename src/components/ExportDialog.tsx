@@ -37,23 +37,23 @@ export default function ExportDialog({ open, onOpenChange, messages, onExportPdf
     const date = new Date().toLocaleDateString("de-DE", { day: "2-digit", month: "long", year: "numeric" });
 
     if (format === "txt") {
-      const text = (includeMetadata ? `HufiAi Chat Export – ${date}\n${"=".repeat(40)}\n\n` : "") +
-        messages.map(m => `${m.role === "user" ? "👤 Du" : "🤖 HufiAi"}:\n${m.content}`).join("\n\n---\n\n") +
-        (includeWatermark ? "\n\n---\nExportiert von HufiAi" : "");
-      downloadBlob(new Blob([text], { type: "text/plain;charset=utf-8" }), `HufiAi-Chat-${Date.now()}.txt`);
+      const text = (includeMetadata ? `Hufi Chat Export – ${date}\n${"=".repeat(40)}\n\n` : "") +
+        messages.map(m => `${m.role === "user" ? "👤 Du" : "🤖 Hufi"}:\n${m.content}`).join("\n\n---\n\n") +
+        (includeWatermark ? "\n\n---\nExportiert von Hufi" : "");
+      downloadBlob(new Blob([text], { type: "text/plain;charset=utf-8" }), `Hufi-Chat-${Date.now()}.txt`);
     } else if (format === "md") {
-      const md = (includeMetadata ? `# HufiAi Chat Export\n_${date}_\n\n` : "") +
-        messages.map(m => `## ${m.role === "user" ? "👤 Du" : "🤖 HufiAi"}\n\n${m.content}`).join("\n\n---\n\n") +
-        (includeWatermark ? "\n\n---\n_Exportiert von HufiAi_" : "");
-      downloadBlob(new Blob([md], { type: "text/markdown;charset=utf-8" }), `HufiAi-Chat-${Date.now()}.md`);
+      const md = (includeMetadata ? `# Hufi Chat Export\n_${date}_\n\n` : "") +
+        messages.map(m => `## ${m.role === "user" ? "👤 Du" : "🤖 Hufi"}\n\n${m.content}`).join("\n\n---\n\n") +
+        (includeWatermark ? "\n\n---\n_Exportiert von Hufi_" : "");
+      downloadBlob(new Blob([md], { type: "text/markdown;charset=utf-8" }), `Hufi-Chat-${Date.now()}.md`);
     } else if (format === "html") {
-      const html = `<!DOCTYPE html><html lang="de"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>HufiAi Chat</title>
+      const html = `<!DOCTYPE html><html lang="de"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Hufi Chat</title>
 <style>body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;max-width:720px;margin:40px auto;padding:0 20px;background:#fafafa;color:#1a1a1a}.header{text-align:center;padding:20px 0;border-bottom:2px solid #e5e5e5;margin-bottom:30px}.msg{margin:16px 0;display:flex}.msg-user{justify-content:flex-end}.msg-ai{justify-content:flex-start}.bubble{max-width:75%;padding:12px 16px;border-radius:16px;font-size:14px;line-height:1.6}.msg-user .bubble{background:#2563eb;color:white;border-bottom-right-radius:4px}.msg-ai .bubble{background:white;border:1px solid #e5e5e5;border-bottom-left-radius:4px}.watermark{text-align:center;color:#999;font-size:11px;padding:20px 0;border-top:1px solid #e5e5e5;margin-top:30px}</style></head><body>
-${includeMetadata ? `<div class="header"><h1>🐴 HufiAi Chat</h1><p>${date}</p></div>` : ""}
+${includeMetadata ? `<div class="header"><h1>🐴 Hufi Chat</h1><p>${date}</p></div>` : ""}
 ${messages.map(m => `<div class="msg msg-${m.role === "user" ? "user" : "ai"}"><div class="bubble">${m.content.replace(/\n/g, "<br>")}</div></div>`).join("")}
-${includeWatermark ? '<div class="watermark">Exportiert von HufiAi · hufiai.lovable.app</div>' : ""}
+${includeWatermark ? '<div class="watermark">Exportiert von Hufi · hufiapp.de</div>' : ""}
 </body></html>`;
-      downloadBlob(new Blob([html], { type: "text/html;charset=utf-8" }), `HufiAi-Chat-${Date.now()}.html`);
+      downloadBlob(new Blob([html], { type: "text/html;charset=utf-8" }), `Hufi-Chat-${Date.now()}.html`);
     }
     toast.success(`Als ${format.toUpperCase()} exportiert`);
     onOpenChange(false);
@@ -77,7 +77,7 @@ ${includeWatermark ? '<div class="watermark">Exportiert von HufiAi · hufiai.lov
               <Switch id="metadata" checked={includeMetadata} onCheckedChange={setIncludeMetadata} />
             </div>
             <div className="flex items-center justify-between">
-              <Label htmlFor="watermark" className="text-sm">HufiAi Watermark</Label>
+              <Label htmlFor="watermark" className="text-sm">Hufi Watermark</Label>
               <Switch id="watermark" checked={includeWatermark} onCheckedChange={setIncludeWatermark} />
             </div>
           </div>

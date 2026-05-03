@@ -31,7 +31,7 @@ const APPS: EcosystemApp[] = [
   },
   {
     key: "hufiai",
-    name: "HufiAi",
+    name: "Hufi",
     description: "KI-gestützte Hufanalyse & Beratung",
     icon: Bot,
     idLabel: "#kid",
@@ -113,7 +113,7 @@ export default function EcosystemConnect() {
       return;
     }
 
-    // For HufiAi (current app), auto-connect
+    // For Hufi (current app), auto-connect
     if (app.key === "hufiai") {
       const { error } = await supabase.from("ecosystem_links").upsert({
         user_id: user.id,

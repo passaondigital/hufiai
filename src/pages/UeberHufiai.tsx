@@ -17,7 +17,7 @@ export default function UeberHufiai() {
             <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
               <Sparkles className="w-4 h-4 text-primary-foreground" />
             </div>
-            <span className="font-bold text-lg">HufiAi</span>
+            <span className="font-bold text-lg">Hufi</span>
           </div>
           <div className="w-16" />
         </div>
@@ -34,7 +34,7 @@ export default function UeberHufiai() {
             <span className="text-primary">Pferdebranche gestalten</span>
           </h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            HufiAi ist mehr als ein KI-Tool. Es ist eine Vision für eine Branche, 
+            Hufi ist das digitale Betriebssystem für Pferdebetriebe. Eine Vision für eine Branche,
             in der Technologie dem Tierwohl dient und Handwerk respektiert wird.
           </p>
         </section>
@@ -47,14 +47,14 @@ export default function UeberHufiai() {
             </div>
             <h2 className="text-2xl font-bold">Vision 2030</h2>
             <p className="text-muted-foreground leading-relaxed">
-              Bis 2030 wollen wir die führende KI-Plattform für die gesamte Equine-Branche im 
-              deutschsprachigen Raum sein. Unser Ziel: Jeder Hufbearbeiter, Tierarzt und 
-              Pferdebesitzer hat Zugang zu intelligentem, ethischem KI-Support.
+              Bis 2030 wollen wir das führende digitale Betriebssystem für die gesamte Equine-Branche im
+              deutschsprachigen Raum sein. Unser Ziel: Jeder Hufbearbeiter, Tierarzt und
+              Pferdebesitzer hat einen strukturierten, professionellen Betriebsalltag.
             </p>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li className="flex items-center gap-2">✅ 10.000+ aktive Nutzer bis 2027</li>
               <li className="flex items-center gap-2">✅ Vollständig selbsttragendes Geschäftsmodell</li>
-              <li className="flex items-center gap-2">✅ Erste branchenspezifische KI-Modelle</li>
+              <li className="flex items-center gap-2">✅ Vollständige Betriebsdokumentation</li>
               <li className="flex items-center gap-2">✅ Integration mit Hufmanager & Co.</li>
             </ul>
           </div>
@@ -65,14 +65,14 @@ export default function UeberHufiai() {
             </div>
             <h2 className="text-2xl font-bold">Passive Rent Philosophie</h2>
             <p className="text-muted-foreground leading-relaxed">
-              HufiAi baut auf dem Prinzip der "Passive Rent" – einmal aufgebaute Systeme 
+              Hufi baut auf dem Prinzip der "Passive Rent" – einmal aufgebaute Systeme 
               generieren nachhaltigen Mehrwert. Unser Ansatz: Investiere in Qualität, 
               automatisiere intelligent und lass die Plattform für dich arbeiten.
             </p>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li className="flex items-center gap-2">🔄 Automatisierte Content-Pipeline</li>
               <li className="flex items-center gap-2">📈 Skalierbare SaaS-Architektur</li>
-              <li className="flex items-center gap-2">🤖 KI, die sich selbst verbessert</li>
+              <li className="flex items-center gap-2">🤝 Assistent im Hintergrund, Mensch im Vordergrund</li>
               <li className="flex items-center gap-2">💰 Faire, transparente Preisgestaltung</li>
             </ul>
           </div>
@@ -85,7 +85,7 @@ export default function UeberHufiai() {
           </div>
           <h2 className="text-2xl font-bold">Von Pferdemenschen, für Pferdemenschen</h2>
           <p className="text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            HufiAi wurde nicht in einem Silicon Valley Lab geboren, sondern im Stall. 
+            Hufi wurde nicht in einem Silicon Valley Lab geboren, sondern im Stall. 
             Aus echten Problemen. Aus der Frustration, dass die Pferdebranche bei der 
             Digitalisierung abgehängt wird. Wir glauben: Technologie muss dem Tier dienen – 
             nicht umgekehrt.
@@ -100,7 +100,7 @@ export default function UeberHufiai() {
           {[
             { icon: Globe, title: "100% EU-Server", desc: "Alle Daten werden in der EU gespeichert und verarbeitet. DSGVO-konform von Tag 1." },
             { icon: Heart, title: "Open Knowledge", desc: "Wir glauben an offenes Wissen. Unser Blog und Manual sind für alle zugänglich." },
-            { icon: Sparkles, title: "KI mit Gewissen", desc: "Unsere KI erkennt kritische Situationen und verweist an echte Experten vor Ort." },
+            { icon: Sparkles, title: "Assistent mit Gewissen", desc: "Hufi erkennt kritische Situationen und verweist an echte Experten vor Ort." },
           ].map((item) => (
             <div key={item.title} className="bg-card rounded-xl border border-border p-6 text-center space-y-3">
               <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mx-auto">
@@ -114,7 +114,7 @@ export default function UeberHufiai() {
       </main>
 
       <footer className="border-t border-border py-6 text-center">
-        <p className="text-xs text-muted-foreground">© {new Date().getFullYear()} HufiAi. Alle Rechte vorbehalten.</p>
+        <p className="text-xs text-muted-foreground">© {new Date().getFullYear()} Hufi. Alle Rechte vorbehalten.</p>
       </footer>
     </div>
   );

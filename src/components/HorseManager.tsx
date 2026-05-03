@@ -93,7 +93,7 @@ export default function HorseManager() {
       <div className="flex items-center justify-between mb-4">
         <div>
           <h2 className="font-semibold">🐴 Meine Pferde</h2>
-          <p className="text-xs text-muted-foreground">HufiAi merkt sich deine Pferde für personalisierte Beratung.</p>
+          <p className="text-xs text-muted-foreground">Hufi merkt sich deine Pferde für personalisierte Beratung.</p>
         </div>
         <Button size="sm" onClick={openNew}><Plus className="w-4 h-4 mr-1" />Pferd hinzufügen</Button>
       </div>

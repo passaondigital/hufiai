@@ -11,7 +11,7 @@ interface LinkRow {
 
 const APP_NAMES: Record<string, string> = {
   hufmanager: "HufManager",
-  hufiai: "HufiAi",
+  hufiai: "Hufi",
   hufiapp: "HufiApp",
   memberhorse: "MemberHorse",
 };

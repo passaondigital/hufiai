@@ -67,7 +67,7 @@ export default function Onboarding() {
             <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
               <Sparkles className="w-5 h-5 text-primary-foreground" />
             </div>
-            <span className="text-2xl font-bold">HufiAi</span>
+            <span className="text-2xl font-bold">Hufi</span>
           </div>
           {/* Progress dots */}
           <div className="flex justify-center gap-2 mb-4">
@@ -139,12 +139,12 @@ export default function Onboarding() {
         {/* Step 3: Data Privacy Consent */}
         {step === 3 && (
           <>
-            <h1 className="text-2xl font-bold mb-2 text-center">Hilf mit, HufiAi smarter zu machen</h1>
+            <h1 className="text-2xl font-bold mb-2 text-center">Hilf mit, Hufi smarter zu machen</h1>
             <div className="bg-card rounded-2xl border border-border p-6 mb-6">
               <div className="flex items-start gap-3 mb-4">
                 <Heart className="w-6 h-6 text-primary mt-0.5 shrink-0" />
                 <div>
-                  <h3 className="font-semibold mb-1">HufiAi Horse-LLM Initiative</h3>
+                  <h3 className="font-semibold mb-1">Hufi Horse-LLM Initiative</h3>
                   <p className="text-sm text-muted-foreground leading-relaxed">
                     Wir entwickeln ein spezialisiertes KI-Modell für die Pferdebranche. Unser Credo: <strong>Pferdeschutz & Datenschutz zuerst.</strong>
                   </p>

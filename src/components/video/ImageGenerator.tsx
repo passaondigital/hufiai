@@ -163,7 +163,7 @@ export default function ImageGenerator({ onShareToPreview }: ImageGeneratorProps
   const downloadImage = (url: string, idx: number) => {
     const a = document.createElement("a");
     a.href = url;
-    a.download = `hufiai-image-${idx}-${Date.now()}.png`;
+    a.download = `hufi-image-${idx}-${Date.now()}.png`;
     a.target = "_blank";
     a.click();
   };
@@ -320,7 +320,7 @@ export default function ImageGenerator({ onShareToPreview }: ImageGeneratorProps
                     </Button>
                     <Button variant="outline" size="sm" onClick={() => {
                       if (navigator.share) {
-                        navigator.share({ title: "HufiAi Bild", url: images[0].url });
+                        navigator.share({ title: "Hufi Bild", url: images[0].url });
                       } else {
                         navigator.clipboard.writeText(images[0].url);
                         toast.success("URL kopiert!");

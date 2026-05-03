@@ -208,7 +208,7 @@ export default function GraphicsDesign() {
     if (!result) return;
     const a = document.createElement("a");
     a.href = result;
-    a.download = `hufiai-${activeTab}-${Date.now()}.${exportFormat}`;
+    a.download = `hufi-${activeTab}-${Date.now()}.${exportFormat}`;
     a.target = "_blank";
     a.click();
   };

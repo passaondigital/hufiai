@@ -22,7 +22,7 @@ export default function AchievementCard({ achievement, unlockedAt, onShare, clas
   const [copied, setCopied] = useState(false);
 
   const handleCopy = () => {
-    const text = `${achievement.icon_emoji} ${achievement.title} – ${achievement.description}\n\nVerdient bei HufiAI! 🎉`;
+    const text = `${achievement.icon_emoji} ${achievement.title} – ${achievement.description}\n\nVerdient bei Hufi! 🎉`;
     navigator.clipboard.writeText(text);
     setCopied(true);
     toast.success("In Zwischenablage kopiert!");

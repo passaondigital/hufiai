@@ -64,7 +64,7 @@ export default function MultiFormatExport({ jobs, userId }: { jobs: VideoJob[]; 
           if (response.ok) {
             const blob = await response.blob();
             const ratioLabel = job.aspect_ratio.replace(":", "x");
-            const fileName = `HufiAi_${ratioLabel}_${job.id.slice(0, 8)}.${job.format || "mp4"}`;
+            const fileName = `Hufi_${ratioLabel}_${job.id.slice(0, 8)}.${job.format || "mp4"}`;
 
             if (includeAllFormats) {
               zip.file(`Reels_9x16/${fileName}`, blob);
@@ -86,7 +86,7 @@ export default function MultiFormatExport({ jobs, userId }: { jobs: VideoJob[]; 
       const url = URL.createObjectURL(zipBlob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `HufiAi_Export_${new Date().toISOString().slice(0, 10)}.zip`;
+      a.download = `Hufi_Export_${new Date().toISOString().slice(0, 10)}.zip`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);

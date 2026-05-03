@@ -59,7 +59,7 @@ export default function ImageLab() {
     if (!imageUrl) return;
     const a = document.createElement("a");
     a.href = imageUrl;
-    a.download = `hufiai-image-${Date.now()}.png`;
+    a.download = `hufi-image-${Date.now()}.png`;
     a.click();
   };
 

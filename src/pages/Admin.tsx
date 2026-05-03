@@ -74,7 +74,7 @@ const FEATURE_AMPEL = {
   red: [
     "Automatische Video-Analyse", "Context Retention über Sessions", "One-Click AVV",
     "Hufgesundheits-Tracking mit Timeline", "Team-Verwaltung / Multi-User", "Mobile App (PWA)",
-    "Hufmanager-API Anbindung", "Eigenes HufiAi-Modell Training",
+    "Hufmanager-API Anbindung", "Eigenes Hufi-Modell Training",
   ],
 };
 
@@ -182,7 +182,7 @@ export default function Admin() {
 
     if (format === "json") {
       blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
-      filename = `hufiai-training-logs-${new Date().toISOString().slice(0, 10)}.json`;
+      filename = `hufi-training-logs-${new Date().toISOString().slice(0, 10)}.json`;
     } else {
       const headers = Object.keys(data[0]);
       const csvRows = [
@@ -196,7 +196,7 @@ export default function Admin() {
         ),
       ];
       blob = new Blob([csvRows.join("\n")], { type: "text/csv" });
-      filename = `hufiai-training-logs-${new Date().toISOString().slice(0, 10)}.csv`;
+      filename = `hufi-training-logs-${new Date().toISOString().slice(0, 10)}.csv`;
     }
 
     const url = URL.createObjectURL(blob);
@@ -794,7 +794,7 @@ export default function Admin() {
                 <Database className="w-5 h-5 text-primary" /> Letzte KI-Interaktionen (Opt-in)
               </h2>
               <p className="text-xs text-muted-foreground mb-4">
-                Nur von Nutzern mit aktivem Daten-Beitrag. Inhalte werden anonymisiert für zukünftiges HufiAi-Modelltraining gesammelt.
+                Nur von Nutzern mit aktivem Daten-Beitrag. Inhalte werden anonymisiert für zukünftiges Hufi-Modelltraining gesammelt.
               </p>
               {trainingLogs.length === 0 ? (
                 <p className="text-sm text-muted-foreground">Noch keine Trainingsdaten vorhanden.</p>

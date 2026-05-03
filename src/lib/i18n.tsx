@@ -6,7 +6,7 @@ type Translations = Record<string, Record<Lang, string>>;
 
 const translations: Translations = {
   // Navbar
-  "nav.about": { de: "Über HufiAi", en: "About HufiAi" },
+  "nav.about": { de: "Über Hufi", en: "About Hufi" },
   "nav.ethics": { de: "Ethik", en: "Ethics" },
   "nav.features": { de: "Funktionen", en: "Features" },
   "nav.experts": { de: "Experten", en: "Experts" },
@@ -15,12 +15,12 @@ const translations: Translations = {
   "nav.cta": { de: "Kostenlos starten", en: "Start Free" },
 
   // Hero
-  "hero.badge": { de: "KI für die Pferdebranche", en: "AI for the Equine Industry" },
-  "hero.title1": { de: "Dein KI-Assistent für die", en: "Your AI Assistant for the" },
-  "hero.title2": { de: "Pferdebranche", en: "Equine Industry" },
+  "hero.badge": { de: "Für Pferdebetriebe", en: "For Equine Businesses" },
+  "hero.title1": { de: "Deine Zeit gehört dem Pferd.", en: "Your time belongs to the horse." },
+  "hero.title2": { de: "Den Rest macht Hufi.", en: "Hufi handles the rest." },
   "hero.subtitle": {
-    de: "HufiAi unterstützt Pferdebesitzer, Hufschmiede, Tierärzte und Betriebe mit modernster KI – DSGVO-konform und speziell für die Equine-Branche entwickelt.",
-    en: "HufiAi supports horse owners, farriers, veterinarians and businesses with cutting-edge AI – GDPR-compliant and purpose-built for the equine industry.",
+    de: "Das digitale Betriebssystem für moderne Pferdebetriebe und mobile Pferdeprofis. DSGVO-konform, in Deutschland entwickelt.",
+    en: "The digital operating system for modern equine businesses and mobile horse professionals. GDPR-compliant, built in Germany.",
   },
   "hero.cta": { de: "Jetzt starten", en: "Get Started" },
   "hero.cta2": { de: "Mehr erfahren", en: "Learn More" },
@@ -29,18 +29,18 @@ const translations: Translations = {
   "trust.gdpr": { de: "DSGVO-konform", en: "GDPR Compliant" },
   "trust.eu": { de: "EU-Server", en: "EU Servers" },
   "trust.available": { de: "24/7 verfügbar", en: "24/7 Available" },
-  "trust.multiLLM": { de: "Multi-LLM KI", en: "Multi-LLM AI" },
+  "trust.multiLLM": { de: "Integrierter Assistent", en: "Integrated Assistant" },
 
-  // Why HufiAi
-  "why.title": { de: "Warum HufiAi?", en: "Why HufiAi?" },
+  // Why Hufi
+  "why.title": { de: "Warum Hufi?", en: "Why Hufi?" },
   "why.subtitle": {
-    de: "KI, der du vertrauen kannst – entwickelt von Pferdemenschen für Pferdemenschen.",
-    en: "AI you can trust – built by horse people, for horse people.",
+    de: "Struktur, Ruhe und Klarheit – entwickelt von Pferdemenschen für Pferdemenschen.",
+    en: "Structure, calm and clarity – built by horse people, for horse people.",
   },
   "why.trust.title": { de: "Kein Risiko, kein Hokuspokus", en: "No Risk, No Magic Tricks" },
   "why.trust.desc": {
-    de: "HufiAi ersetzt keinen Experten. Es gibt dir Werkzeuge, die dein Wissen erweitern und deinen Alltag erleichtern – transparent und nachvollziehbar.",
-    en: "HufiAi doesn't replace experts. It gives you tools that expand your knowledge and simplify your daily work – transparent and traceable.",
+    de: "Hufi ersetzt keinen Experten. Es gibt dir Werkzeuge, die dein Wissen erweitern und deinen Alltag erleichtern – transparent und nachvollziehbar.",
+    en: "Hufi doesn't replace experts. It gives you tools that expand your knowledge and simplify your daily work – transparent and traceable.",
   },
   "why.data.title": { de: "Deine Daten gehören dir", en: "Your Data Belongs to You" },
   "why.data.desc": {
@@ -49,12 +49,12 @@ const translations: Translations = {
   },
   "why.easy.title": { de: "Einfach wie WhatsApp", en: "Simple as WhatsApp" },
   "why.easy.desc": {
-    de: "Keine Schulung nötig. Stelle deine Frage, lade ein Foto hoch oder diktiere – HufiAi versteht dich sofort.",
-    en: "No training needed. Ask a question, upload a photo, or dictate – HufiAi understands you instantly.",
+    de: "Keine Schulung nötig. Stelle deine Frage, lade ein Foto hoch oder diktiere – Hufi versteht dich sofort.",
+    en: "No training needed. Ask a question, upload a photo, or dictate – Hufi understands you instantly.",
   },
 
   // Features
-  "features.title": { de: "Was du mit HufiAi erreichst", en: "What You Can Achieve with HufiAi" },
+  "features.title": { de: "Was du mit Hufi erreichst", en: "What You Can Achieve with Hufi" },
   "features.subtitle": {
     de: "Von der ersten Frage bis zum professionellen Video – eine Plattform für alles.",
     en: "From your first question to professional video – one platform for everything.",
@@ -92,14 +92,14 @@ const translations: Translations = {
 
   // Use Cases
   "usecases.title": { de: "Wähle deine Situation", en: "Choose Your Situation" },
-  "usecases.subtitle": { de: "So hilft dir HufiAi im Alltag.", en: "How HufiAi helps you every day." },
+  "usecases.subtitle": { de: "So hilft dir Hufi im Alltag.", en: "How Hufi helps you every day." },
   "usecases.private": { de: "Pferdebesitzer", en: "Horse Owner" },
   "usecases.business": { de: "Profi / Gewerbe", en: "Professional" },
 
   "usecases.p1.q": { de: "Mein Pferd hat einen Hufspalt", en: "My horse has a hoof crack" },
   "usecases.p1.a": {
-    de: "HufiAi analysiert das Problem, erklärt mögliche Ursachen und gibt dir einen Aktionsplan mit Pflege-Tipps.",
-    en: "HufiAi analyzes the problem, explains possible causes and gives you an action plan with care tips.",
+    de: "Hufi analysiert das Problem, erklärt mögliche Ursachen und gibt dir einen Aktionsplan mit Pflege-Tipps.",
+    en: "Hufi analyzes the problem, explains possible causes and gives you an action plan with care tips.",
   },
   "usecases.p2.q": { de: "Welches Futter bei Hufrehe?", en: "What feed for laminitis?" },
   "usecases.p2.a": {
@@ -118,8 +118,8 @@ const translations: Translations = {
   },
   "usecases.b2.q": { de: "Kunden-Report für Tierarzt erstellen", en: "Create client report for vet" },
   "usecases.b2.a": {
-    de: "HufiAi generiert einen druckreifen Bericht mit Befund, Empfehlung und Verlaufsdokumentation.",
-    en: "HufiAi generates a print-ready report with findings, recommendations and progress documentation.",
+    de: "Hufi generiert einen druckreifen Bericht mit Befund, Empfehlung und Verlaufsdokumentation.",
+    en: "Hufi generates a print-ready report with findings, recommendations and progress documentation.",
   },
   "usecases.b3.q": { de: "Marketing-Video für meine Schmiede", en: "Marketing video for my forge" },
   "usecases.b3.a": {
@@ -156,7 +156,7 @@ const translations: Translations = {
   "footer.manual": { de: "Handbuch", en: "Manual" },
   "footer.pricing": { de: "Preise", en: "Pricing" },
   "footer.company": { de: "Unternehmen", en: "Company" },
-  "footer.about": { de: "Über HufiAi", en: "About HufiAi" },
+  "footer.about": { de: "Über Hufi", en: "About Hufi" },
   "footer.ethics": { de: "Ethik & Verantwortung", en: "Ethics & Responsibility" },
   "footer.legal": { de: "Rechtliches", en: "Legal" },
   "footer.imprint": { de: "Impressum", en: "Imprint" },
@@ -177,8 +177,8 @@ const translations: Translations = {
   },
   "videoShowcase.autopilot": { de: "Autopilot-Produzent", en: "Autopilot Producer" },
   "videoShowcase.autopilot.desc": {
-    de: "Gib eine URL ein – HufiAi scrapt den Inhalt, erstellt ein Skript und produziert ein fertiges Video. Automatisch.",
-    en: "Enter a URL – HufiAi scrapes the content, creates a script and produces a finished video. Automatically.",
+    de: "Gib eine URL ein – Hufi scrapt den Inhalt, erstellt ein Skript und produziert ein fertiges Video. Automatisch.",
+    en: "Enter a URL – Hufi scrapes the content, creates a script and produces a finished video. Automatically.",
   },
   "videoShowcase.storyboard": { de: "Storyboard-Vorschau", en: "Storyboard Preview" },
   "videoShowcase.storyboard.desc": {
@@ -205,12 +205,12 @@ const translations: Translations = {
   "gamification.before.feeling": { de: "Überfordert & unsicher", en: "Overwhelmed & unsure" },
   "gamification.after": { de: "Nachher", en: "After" },
   "gamification.after.quote": { de: "Ich erstelle jetzt professionelle Berichte und Videos – in Minuten statt Stunden!", en: "I now create professional reports and videos – in minutes instead of hours!" },
-  "gamification.after.persona": { de: "HufiAi Nutzer · Level 5", en: "HufiAi User · Level 5" },
+  "gamification.after.persona": { de: "Hufi Nutzer · Level 5", en: "Hufi User · Level 5" },
   "gamification.after.feeling": { de: "Selbstbewusst & produktiv", en: "Confident & productive" },
   "gamification.week": { de: "Woche", en: "Week" },
 
   "gamification.level1.title": { de: "Erste Schritte", en: "First Steps" },
-  "gamification.level1.desc": { de: "Stelle deine erste Frage im Chat. HufiAi führt dich sanft ein – wie WhatsApp, nur schlauer. Kein Vorwissen nötig.", en: "Ask your first question in chat. HufiAi gently guides you – like WhatsApp, just smarter. No prior knowledge needed." },
+  "gamification.level1.desc": { de: "Stelle deine erste Frage im Chat. Hufi führt dich sanft ein – wie WhatsApp, nur schlauer. Kein Vorwissen nötig.", en: "Ask your first question in chat. Hufi gently guides you – like WhatsApp, just smarter. No prior knowledge needed." },
   "gamification.level1.badge": { de: "🏅 Erster Chat abgeschlossen", en: "🏅 First Chat Completed" },
 
   "gamification.level2.title": { de: "Wissen aufbauen", en: "Building Knowledge" },
@@ -225,9 +225,9 @@ const translations: Translations = {
   "gamification.level4.desc": { de: "Nutze die Video Engine, vernetze dich im Ecosystem und teile Pferdeprofile mit Tierärzten und Hufschmieden.", en: "Use the Video Engine, connect in the Ecosystem and share horse profiles with vets and farriers." },
   "gamification.level4.badge": { de: "🎬 Erstes Video erstellt", en: "🎬 First Video Created" },
 
-  "gamification.level5.title": { de: "HufiAi Meister", en: "HufiAi Master" },
+  "gamification.level5.title": { de: "Hufi Meister", en: "Hufi Master" },
   "gamification.level5.desc": { de: "Du nutzt alle Features wie ein Profi – Autopilot-Videos, Batch-Exporte und KI-gestützte Geschäftsprozesse. Teile dein Wissen mit der Community!", en: "You use all features like a pro – autopilot videos, batch exports and AI-powered business processes. Share your knowledge with the community!" },
-  "gamification.level5.badge": { de: "🏆 HufiAi Meister", en: "🏆 HufiAi Master" },
+  "gamification.level5.badge": { de: "🏆 Hufi Meister", en: "🏆 Hufi Master" },
 
   "gamification.social.achievements": { de: "Achievements", en: "Achievements" },
   "gamification.social.achievements.desc": { de: "Sammle Abzeichen auf deinem Weg", en: "Collect badges along your journey" },

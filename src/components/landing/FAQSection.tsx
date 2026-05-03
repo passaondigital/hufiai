@@ -27,7 +27,7 @@ const faqs = [
     a: "In 4 Wochen erreichst du Level 5 (Master).",
   },
   {
-    q: "Was wenn mir HufiAi nicht passt?",
+    q: "Was wenn mir Hufi nicht passt?",
     a: "30-Tage Geld-zurück-Garantie. Kein Risiko.",
   },
 ];

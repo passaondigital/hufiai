@@ -14,18 +14,18 @@ export default function AGB() {
         <div className="prose prose-sm max-w-none space-y-4 text-muted-foreground">
 
           <h2 className="text-foreground font-semibold text-lg">§ 1 Geltungsbereich und Anbieter</h2>
-          <p>Diese AGB gelten für alle Nutzungen der Plattform HufiAi, betrieben von: Pascal Schmid, Laurentiusstrasse 34, 54497 Morscheid Riedenburg (nachfolgend „Anbieter").</p>
+          <p>Diese AGB gelten für alle Nutzungen der Plattform Hufi, betrieben von: Pascal Schmid, Laurentiusstrasse 34, 54497 Morscheid Riedenburg (nachfolgend „Anbieter").</p>
 
           <h2 className="text-foreground font-semibold text-lg">§ 2 Leistungsbeschreibung</h2>
-          <p>HufiAi ist ein intelligentes Branchen-Portal für die Pferdewelt. Der Anbieter stellt folgende Dienste zur Verfügung:</p>
+          <p>Hufi ist ein intelligentes Branchen-Portal für die Pferdewelt. Der Anbieter stellt folgende Dienste zur Verfügung:</p>
           <ul className="list-disc pl-6 space-y-1">
-            <li><strong>HufiAi Chat:</strong> Ein KI-gestütztes Assistenzsystem zur Analyse und Information.</li>
+            <li><strong>Hufi Chat:</strong> Ein KI-gestütztes Assistenzsystem zur Analyse und Information.</li>
             <li><strong>Experten-Netzwerk:</strong> Vermittlung von Kontakten zu professionellen Dienstleistern.</li>
             <li><strong>Content-Plattform:</strong> Bereitstellung von Fachwissen und News.</li>
           </ul>
 
           <h2 className="text-foreground font-semibold text-lg">§ 3 Haftungsausschluss für KI-Inhalte</h2>
-          <p>Die durch HufiAi generierten Inhalte (Texte, Analysen, Empfehlungen) werden durch eine Künstliche Intelligenz erstellt.</p>
+          <p>Die durch Hufi generierten Inhalte (Texte, Analysen, Empfehlungen) werden durch eine Künstliche Intelligenz erstellt.</p>
           <div className="bg-destructive/10 border border-destructive/20 rounded-xl p-4 my-3">
             <p className="text-sm font-semibold text-destructive">⚠️ Wichtiger Hinweis</p>
             <p className="text-sm mt-1">Diese Inhalte dienen ausschließlich der Information. Sie stellen keine tierärztliche Diagnose oder Behandlungsempfehlung dar.</p>
@@ -46,7 +46,7 @@ export default function AGB() {
           <p>Die missbräuchliche Nutzung der KI-Schnittstelle (z.&nbsp;B. durch automatisierte Massenabfragen oder Scraping) ist untersagt und führt zur sofortigen Sperrung.</p>
 
           <h2 className="text-foreground font-semibold text-lg">§ 7 Vision 2030 und Daten-Nutzung</h2>
-          <p>Der Nutzer erkennt an, dass HufiAi Teil eines größeren Forschungsprojekts für das Pferdewohl ist. Der Anbieter ist berechtigt, anonymisierte Daten zur Verbesserung der KI-Modelle und für wissenschaftliche Auswertungen im Rahmen der Mission 2030 zu nutzen, sofern der Nutzer dem in der Datenschutzerklärung nicht widersprochen hat.</p>
+          <p>Der Nutzer erkennt an, dass Hufi Teil eines größeren Forschungsprojekts für das Pferdewohl ist. Der Anbieter ist berechtigt, anonymisierte Daten zur Verbesserung der KI-Modelle und für wissenschaftliche Auswertungen im Rahmen der Mission 2030 zu nutzen, sofern der Nutzer dem in der Datenschutzerklärung nicht widersprochen hat.</p>
 
           <h2 className="text-foreground font-semibold text-lg">§ 8 Schlussbestimmungen</h2>
           <p>Es gilt das Recht der Bundesrepublik Deutschland. Gerichtsstand ist, soweit gesetzlich zulässig, der Sitz des Anbieters.</p>

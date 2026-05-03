@@ -12,7 +12,7 @@ const testimonials = [
     avatar: "👩‍💼",
     name: "Sarah M.",
     badge: "📱 Content Creator",
-    quote: "Mit HufiAi erstelle ich jetzt täglich Content für mein Business.",
+    quote: "Mit Hufi erstelle ich jetzt täglich Content für mein Business.",
     metric: "20 Social Media Posts generiert",
   },
   {
@@ -35,7 +35,7 @@ export default function SocialProofSection() {
   return (
     <section className="max-w-6xl mx-auto py-20 px-6">
       <div className="text-center mb-14">
-        <h2 className="text-3xl md:text-4xl font-bold mb-4">Was User mit HufiAi schaffen</h2>
+        <h2 className="text-3xl md:text-4xl font-bold mb-4">Was User mit Hufi schaffen</h2>
         <p className="text-muted-foreground">Echte Ergebnisse. Echte Badges.</p>
       </div>
       <div className="grid md:grid-cols-2 gap-6">

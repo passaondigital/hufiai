@@ -53,18 +53,18 @@ const chapters = [
     icon: Briefcase,
     years: "2024–2026",
     tab: "Building",
-    title: "Ich baute HufManager. Dann HufiAi.",
+    title: "Ich baute HufManager. Dann Hufi.",
     paragraphs: [
       "2024: Ich startete HufManager. Eine App f\u00fcr Hufpfleger. Von einem Hufpfleger gebaut. Mit allem, was wir brauchen: Kunden-Management, Pferde-Datenbank, automatische Rechnungen, Scheduling.",
       "HufManager wurde mein Leben. Und mein Business. Aber ich sah ein neues Problem: Die Branche hat Angst vor KI. Sie verstehen es nicht. Sie trauen sich nicht.",
       "Wenn HufManager das Betriebssystem f\u00fcr Hufpfleger ist\u2026 dann muss es auch der KI-Coach sein. Der Lehrer. Der Freund, der dir die Angst nimmt.",
     ],
     highlight:
-      "M\u00e4rz 2026: HufiAi entstand aus einer Frage: \u201EWie mache ich KI einfach? Sicher? Spa\u00df?\u201C",
+      "März 2026: Hufi entstand aus einer Frage: \u201EWie gebe ich Pferdeprofis ihr digitales Betriebssystem?\u201C",
     highlightDetail:
-      "Eine KI-Plattform speziell f\u00fcr die Pferdewelt. F\u00fcr Menschen, die keine Angst haben wollen. Die es verstehen wollen. Die es nutzen wollen, um besser zu werden. Mit Gamification, Education Paths, Sicherheit und Transparenz.",
+      "Ein digitales Betriebssystem speziell f\u00fcr die Pferdewelt. F\u00fcr Menschen, die Struktur wollen, Klarheit suchen und ihren Betrieb professionell f\u00fchren m\u00f6chten. Mit Terminplanung, Dokumentation, Touren und Rechnungen an einem Ort.",
     quote:
-      "Ich baute HufManager f\u00fcr mein Business. Aber ich baue HufiAi f\u00fcr die ganze Branche.",
+      "Ich baute HufManager f\u00fcr mein Business. Aber ich baue Hufi f\u00fcr die ganze Branche.",
     color: "border-primary/30 bg-primary/5",
     dotColor: "bg-primary",
     highlightColor: "bg-primary/10 border-primary/20 text-foreground",
@@ -77,7 +77,7 @@ const chapters = [
     tab: "Mission 2030",
     title: "Mission 2030: Die Zukunft der Pferdewelt",
     paragraphs: [
-      "Heute \u2013 M\u00e4rz 2026 \u2013 bin ich bei einem Wendepunkt. HufManager ist erfolgreich. HufiAi startet jetzt. Aber das ist nur der Anfang.",
+      "Heute \u2013 M\u00e4rz 2026 \u2013 bin ich bei einem Wendepunkt. HufManager ist erfolgreich. Hufi startet jetzt. Aber das ist nur der Anfang.",
       "Meine Vision bis 2030 (mein 40. Geburtstag): #ZukunftHuf2030 \u2013 Die gr\u00f6\u00dfte, modernste, fairste Hufpflege-L\u00f6sung im DACH-Raum. Eine echte Akademie f\u00fcr Business & Handwerk.",
       "Nicht Geld. Nicht Fame. Sondern: Du schaffst es, dein Business zu skalieren, ohne dich selbst zu zerst\u00f6ren. Du vertraust KI. Du bist empowert, selbstbestimmt, frei. Das ist BeTheHorse.",
     ],
@@ -106,14 +106,14 @@ export default function AboutPascalSection() {
       <div className="flex flex-col md:flex-row items-center gap-6 mb-12">
         <img
           src={pascalPortrait}
-          alt="Pascal Schmid – Gr\u00fcnder von HufiAi"
+          alt="Pascal Schmid – Gr\u00fcnder von Hufi"
           className="w-28 h-28 md:w-36 md:h-36 rounded-full object-cover object-top border-4 border-primary/20 shadow-lg shrink-0"
         />
         <div className="text-center md:text-left">
           <h2 className="text-3xl md:text-4xl font-bold mb-2">
             \u00dcber Pascal Schmid
           </h2>
-          <p className="text-primary font-medium text-sm mb-1">Gr\u00fcnder von HufManager &amp; HufiAi</p>
+          <p className="text-primary font-medium text-sm mb-1">Gr\u00fcnder von HufManager &amp; Hufi</p>
           <p className="text-muted-foreground max-w-xl">
             Die Story eines Hufpflegers der KI liebte
           </p>

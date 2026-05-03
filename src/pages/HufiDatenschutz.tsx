@@ -112,7 +112,7 @@ export default function HufiDatenschutz() {
       return;
     }
     toast.info(
-      "Bitte kontaktiere uns für die vollständige Datenlöschung: support@hufiai.de"
+      "Bitte kontaktiere uns für die vollständige Datenlöschung: support@hufiapp.de"
     );
     setDeleteConfirm("");
   };

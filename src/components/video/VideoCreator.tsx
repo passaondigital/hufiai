@@ -140,7 +140,7 @@ export default function VideoCreator() {
     if (!job.video_url) return;
     const a = document.createElement("a");
     a.href = job.video_url;
-    a.download = `hufiai-${platform}-${Date.now()}.${job.format}`;
+    a.download = `hufi-${platform}-${Date.now()}.${job.format}`;
     a.click();
     toast.success(`Export für ${platform} gestartet!`);
   };

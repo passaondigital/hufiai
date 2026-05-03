@@ -242,7 +242,7 @@ export default function Pricing() {
         <div className="max-w-md mx-auto mt-8 text-center">
           <div className="bg-primary/5 border border-primary/20 rounded-2xl p-6">
             <Crown className="w-8 h-8 text-primary mx-auto mb-3" />
-            <h3 className="font-bold text-lg mb-1">HufiAi Founder Flow</h3>
+            <h3 className="font-bold text-lg mb-1">Hufi Founder Flow</h3>
             <p className="text-sm text-muted-foreground mb-4">
               30 Tage Gewerbe Pro kostenlos testen. Inklusive KI-gestütztem Business-Coach.
             </p>

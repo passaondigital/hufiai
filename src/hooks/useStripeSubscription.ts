@@ -3,7 +3,7 @@ import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 
 // Stripe product → plan mapping
-// These are the Stripe product IDs created for HufiAi
+// These are the Stripe product IDs created for Hufi
 const PRODUCT_TO_PLAN: Record<string, string> = {
   prod_TyUNeDWvGWGGWl: "privat_plus",
   prod_TyTqpIcDxURUJ4: "gewerbe_pro",
@@ -70,6 +70,6 @@ export const PLAN_PRICES: Record<string, string> = {
 // Note: The price IDs above are placeholders. They need to be replaced
 // with actual Stripe price IDs from the Stripe Dashboard.
 // The products have been created:
-// - HufiAi Privat Plus (prod_TyTohMqivbT1AJ) → 9,99€/month
-// - HufiAi Gewerbe Pro (prod_TyTqpIcDxURUJ4) → 24,99€/month
-// - HufiAi Gewerbe Team (prod_TyTqCg4deHyNKj) → 49,00€/month
+// - Hufi Privat Plus (prod_TyTohMqivbT1AJ) → 9,99€/month
+// - Hufi Gewerbe Pro (prod_TyTqpIcDxURUJ4) → 24,99€/month
+// - Hufi Gewerbe Team (prod_TyTqCg4deHyNKj) → 49,00€/month

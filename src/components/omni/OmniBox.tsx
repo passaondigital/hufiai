@@ -152,7 +152,7 @@ export default function OmniBox({
           onKeyDown={handleKeyDown}
           placeholder={selectedHorseName
             ? (lang === "de" ? `Frage zu ${selectedHorseName}...` : `Question about ${selectedHorseName}...`)
-            : (lang === "de" ? "Frag HufiAi alles rund ums Pferd..." : "Ask HufiAi anything about horses...")}
+            : (lang === "de" ? "Frag Hufi alles rund ums Pferd..." : "Ask Hufi anything about horses...")}
           className="w-full bg-transparent text-sm outline-none px-4 py-3 resize-none placeholder:text-muted-foreground min-h-[44px] max-h-[160px]"
           rows={1}
           disabled={disabled}
@@ -204,8 +204,8 @@ export default function OmniBox({
       {/* Disclaimer */}
       <p className="text-[10px] text-muted-foreground text-center leading-relaxed">
         ⚖️ {lang === "de"
-          ? "HufiAi ist eine KI-Assistenz. Informationen ersetzen keine fachliche Beratung."
-          : "HufiAi is an AI assistant. Information does not replace professional advice."}
+          ? "Hufi ist eine KI-Assistenz. Informationen ersetzen keine fachliche Beratung."
+          : "Hufi is an AI assistant. Information does not replace professional advice."}
       </p>
     </div>
   );

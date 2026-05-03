@@ -299,7 +299,7 @@ export default function ChatInterface() {
       const disclaimerMsg: Message = {
         id: "disclaimer",
         role: "assistant",
-        content: "⚖️ **Hinweis:** HufiAi ist eine KI-Assistenz zur Unterstützung. Informationen ersetzen keine fachliche Beratung durch Tierärzte, Huf-Experten oder Juristen. Nutzung auf eigenes Risiko.\n\nBasierend auf den vorliegenden Informationen unterstütze ich dich gerne – in Zusammenarbeit mit Fachleuten vor Ort. Wie kann ich dir helfen?",
+        content: "⚖️ **Hinweis:** Hufi ist eine KI-Assistenz zur Unterstützung. Informationen ersetzen keine fachliche Beratung durch Tierärzte, Huf-Experten oder Juristen. Nutzung auf eigenes Risiko.\n\nBasierend auf den vorliegenden Informationen unterstütze ich dich gerne – in Zusammenarbeit mit Fachleuten vor Ort. Wie kann ich dir helfen?",
       };
       currentMessages = [disclaimerMsg, userMsg];
       setMessages(currentMessages);
@@ -574,7 +574,7 @@ export default function ChatInterface() {
               >
                 <Crown className="w-5 h-5 text-primary" />
                 <div className="text-left">
-                  <p className="text-sm font-semibold">HufiAi Founder Flow starten</p>
+                  <p className="text-sm font-semibold">Hufi Founder Flow starten</p>
                   <p className="text-xs text-muted-foreground">30 Tage Gewerbe Pro kostenlos testen</p>
                 </div>
               </button>
@@ -718,7 +718,7 @@ export default function ChatInterface() {
             </Button>
           </div>
           <p className="text-[10px] text-muted-foreground text-center mt-2 max-w-lg mx-auto leading-relaxed">
-            ⚖️ HufiAi ist eine KI-Assistenz zur Unterstützung. Informationen ersetzen keine fachliche Beratung durch Tierärzte, Huf-Experten oder Juristen. Nutzung auf eigenes Risiko.
+            ⚖️ Hufi ist eine KI-Assistenz zur Unterstützung. Informationen ersetzen keine fachliche Beratung durch Tierärzte, Huf-Experten oder Juristen. Nutzung auf eigenes Risiko.
           </p>
         </div>
       </div>

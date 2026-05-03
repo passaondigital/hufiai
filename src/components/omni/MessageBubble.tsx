@@ -55,7 +55,7 @@ export default function MessageBubble({
   const handleExportMd = () => {
     if (onExportMessage) onExportMessage(content, "md");
     else {
-      const blob = new Blob([`## ${role === "user" ? "Du" : "HufiAi"}\n\n${content}`], { type: "text/markdown;charset=utf-8" });
+      const blob = new Blob([`## ${role === "user" ? "Du" : "Hufi"}\n\n${content}`], { type: "text/markdown;charset=utf-8" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url; a.download = `nachricht-${Date.now()}.md`;
@@ -67,7 +67,7 @@ export default function MessageBubble({
   const handleExportTxt = () => {
     if (onExportMessage) onExportMessage(content, "txt");
     else {
-      const blob = new Blob([`${role === "user" ? "Du" : "HufiAi"}:\n\n${content}`], { type: "text/plain;charset=utf-8" });
+      const blob = new Blob([`${role === "user" ? "Du" : "Hufi"}:\n\n${content}`], { type: "text/plain;charset=utf-8" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url; a.download = `nachricht-${Date.now()}.txt`;

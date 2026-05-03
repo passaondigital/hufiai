@@ -414,7 +414,7 @@ Antworte auf Deutsch, strukturiert mit Markdown-Überschriften.`
             </CardHeader>
             <CardContent className="space-y-4">
               <p className="text-xs text-[hsl(var(--sidebar-muted))]">
-                Gib einen öffentlichen Social-Media-Link ein. HufiAi analysiert das Profil und erstellt eine Konkurrenz-Analyse mit Content-Strategie-Empfehlungen.
+                Gib einen öffentlichen Social-Media-Link ein. Hufi analysiert das Profil und erstellt eine Konkurrenz-Analyse mit Content-Strategie-Empfehlungen.
               </p>
               <div className="flex gap-2">
                 <div className="relative flex-1">
@@ -472,7 +472,7 @@ Antworte auf Deutsch, strukturiert mit Markdown-Überschriften.`
             </CardHeader>
             <CardContent className="space-y-3">
               <p className="text-xs text-[hsl(var(--sidebar-muted))]">
-                HufiAi analysiert deine Account-Daten und generiert maßgeschneiderte Content-Ideen für die Pferdebranche.
+                Hufi analysiert deine Account-Daten und generiert maßgeschneiderte Content-Ideen für die Pferdebranche.
               </p>
               <Button onClick={analyzeWithAI} disabled={isAnalyzing || accounts.length === 0}
                 className="bg-primary hover:bg-primary/90 text-xs gap-1.5">
@@ -504,7 +504,7 @@ Antworte auf Deutsch, strukturiert mit Markdown-Überschriften.`
               <Sparkles className="w-8 h-8 mx-auto mb-2 text-primary opacity-50" />
               <p className="text-sm font-semibold text-[hsl(var(--sidebar-foreground))]">Monatlicher Redaktionsplan</p>
               <p className="text-[10px] text-[hsl(var(--sidebar-muted))] mt-1">
-                Kombiniere deine Account-Daten mit der Konkurrenz-Analyse. HufiAi erstellt automatisch einen monatlichen Content-Plan mit Video-Projekten.
+                Kombiniere deine Account-Daten mit der Konkurrenz-Analyse. Hufi erstellt automatisch einen monatlichen Content-Plan mit Video-Projekten.
               </p>
               <Badge variant="outline" className="mt-3 text-[10px] border-primary/40 text-primary">Coming Soon</Badge>
             </CardContent>

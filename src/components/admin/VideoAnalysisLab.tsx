@@ -23,7 +23,7 @@ interface AnalysisResult {
 
 const MODES: { id: AnalysisMode; label: string; icon: typeof Flame; desc: string }[] = [
   { id: "hooks", label: "Viral Hooks erstellen", icon: Flame, desc: "3 provokante, fachlich fundierte Hooks für Reels & TikTok" },
-  { id: "caption", label: "Social Caption schreiben", icon: MessageSquare, desc: "Packende Caption mit CTA im HufiAi Brand Voice" },
+  { id: "caption", label: "Social Caption schreiben", icon: MessageSquare, desc: "Packende Caption mit CTA im Hufi Brand Voice" },
   { id: "report", label: "Technischer Bericht", icon: ClipboardList, desc: "Fachliches Protokoll für Kunden-Dokumentation" },
 ];
 
@@ -157,7 +157,7 @@ export default function VideoAnalysisLab({ selectedModel }: VideoAnalysisLabProp
         if (tokenErr) throw tokenErr;
 
         // Upload to Drive
-        const fileName = `HufiAi_${label.replace(/\s+/g, "_")}_${new Date().toISOString().slice(0, 10)}.txt`;
+        const fileName = `Hufi_${label.replace(/\s+/g, "_")}_${new Date().toISOString().slice(0, 10)}.txt`;
         const { data: uploadData, error: uploadErr } = await supabase.functions.invoke("export-to-drive", {
           body: { action: "upload", access_token: tokenData.access_token, content, file_name: fileName },
         });
@@ -186,7 +186,7 @@ export default function VideoAnalysisLab({ selectedModel }: VideoAnalysisLabProp
       </CardHeader>
       <CardContent className="space-y-4">
         <p className="text-sm text-muted-foreground">
-          Lade ein Video hoch (.mp4, max 50 MB). Wähle dann die gewünschte Analyse – jeder Modus nutzt einen spezialisierten HufiAi-Prompt.
+          Lade ein Video hoch (.mp4, max 50 MB). Wähle dann die gewünschte Analyse – jeder Modus nutzt einen spezialisierten Hufi-Prompt.
         </p>
 
         {/* Upload Zone */}

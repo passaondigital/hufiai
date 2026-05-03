@@ -102,8 +102,8 @@ export default function BatchPdfExport() {
       const a = document.createElement("a");
       a.href = url;
       a.download = format === "combined_pdf"
-        ? `HufiAi-Sammelexport-${Date.now()}.pdf`
-        : `HufiAi-Batch-${Date.now()}.pdf`;
+        ? `Hufi-Sammelexport-${Date.now()}.pdf`
+        : `Hufi-Batch-${Date.now()}.pdf`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -126,7 +126,7 @@ export default function BatchPdfExport() {
                 action: "upload",
                 access_token: driveToken,
                 content,
-                file_name: `HufiAi-Export-${new Date().toISOString().slice(0, 10)}.pdf`,
+                file_name: `Hufi-Export-${new Date().toISOString().slice(0, 10)}.pdf`,
                 folder_id: driveFolder || undefined,
               },
             });

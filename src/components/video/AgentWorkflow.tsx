@@ -108,7 +108,7 @@ export default function AgentWorkflow({ userId }: { userId: string }) {
 
       try {
         // Build color-graded prompt
-        const coloredPrompt = `${scene.prompt}, color palette: ${scene.color_mood}, accent color: #F47B20 HufiAi orange`;
+        const coloredPrompt = `${scene.prompt}, color palette: ${scene.color_mood}, accent color: #F47B20 Hufi orange`;
 
         const { data: insertData, error: insertError } = await supabase.from("video_jobs").insert({
           user_id: userId,
@@ -205,7 +205,7 @@ export default function AgentWorkflow({ userId }: { userId: string }) {
                 ))}
                 <div className="flex items-center gap-2 ml-3 pl-3 border-l border-[hsl(var(--sidebar-border))]">
                   <div className="w-8 h-8 rounded-lg border-2 border-primary shadow-sm" style={{ backgroundColor: "#F47B20" }} />
-                  <span className="text-[10px] text-primary font-mono font-bold">#F47B20 (HufiAi Akzent)</span>
+                  <span className="text-[10px] text-primary font-mono font-bold">#F47B20 (Hufi Akzent)</span>
                 </div>
               </div>
               <p className="text-[10px] text-[hsl(var(--sidebar-muted))] mt-3">

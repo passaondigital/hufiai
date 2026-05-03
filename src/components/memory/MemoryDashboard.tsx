@@ -209,7 +209,7 @@ export default function MemoryDashboard() {
               <div className="text-center py-8 text-muted-foreground">
                 <Brain className="w-10 h-10 mx-auto mb-2 opacity-30" />
                 <p className="text-sm">Noch keine Fakten gespeichert.</p>
-                <p className="text-xs mt-1">Chatte mit HufiAi – Fakten werden automatisch extrahiert!</p>
+                <p className="text-xs mt-1">Chatte mit Hufi – Fakten werden automatisch extrahiert!</p>
               </div>
             ) : (
               filteredFacts.map(fact => (

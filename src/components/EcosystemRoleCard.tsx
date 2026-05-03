@@ -167,7 +167,7 @@ export default function EcosystemRoleCard() {
         {/* Account type mapping */}
         <div className="text-xs text-muted-foreground border-t border-border pt-3 mt-3">
           <p>
-            <strong>HufiAi Account-Typ:</strong>{" "}
+            <strong>Hufi Account-Typ:</strong>{" "}
             <Badge variant="outline" className="text-xs ml-1">
               {profile.user_type === "gewerbe" ? "Gewerbe" : "Privat"}
             </Badge>

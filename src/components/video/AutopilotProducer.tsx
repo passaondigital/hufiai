@@ -75,7 +75,7 @@ const INITIAL_STEPS: AutopilotStep[] = [
   { id: "script", label: "Skripte werden erstellt...", description: "Video-Skripte für 3 Formate werden generiert", icon: FileText, status: "idle" },
   { id: "translate", label: "EN-Übersetzung...", description: "Skripte werden für den internationalen Markt übersetzt", icon: Languages, status: "idle" },
   { id: "render", label: "Rendering läuft...", description: "Videos werden in allen Formaten generiert", icon: Clapperboard, status: "idle" },
-  { id: "export", label: "Export & Branding...", description: "HufiAi-Overlay und HD-Export", icon: Download, status: "idle" },
+  { id: "export", label: "Export & Branding...", description: "Hufi-Overlay und HD-Export", icon: Download, status: "idle" },
 ];
 
 export default function AutopilotProducer({ userId }: { userId: string }) {
@@ -250,7 +250,7 @@ export default function AutopilotProducer({ userId }: { userId: string }) {
       setGenerationJobs(prev => prev.map((j, idx) => idx === i ? { ...j, status: "generating" } : j));
 
       try {
-        const coloredPrompt = `${scene.prompt}, color palette: ${scene.color_mood}, accent color: #F47B20 HufiAi orange${autoOverlay && scene.overlay_text ? `, text overlay: "${scene.overlay_text}" in orange #F47B20` : ""}`;
+        const coloredPrompt = `${scene.prompt}, color palette: ${scene.color_mood}, accent color: #F47B20 Hufi orange${autoOverlay && scene.overlay_text ? `, text overlay: "${scene.overlay_text}" in orange #F47B20` : ""}`;
 
         const { data: insertData } = await supabase.from("video_jobs").insert({
           user_id: userId,
@@ -332,7 +332,7 @@ export default function AutopilotProducer({ userId }: { userId: string }) {
           const format = video.optimized_prompt?.includes("reel") ? "Reel_9x16" :
             video.optimized_prompt?.includes("youtube") ? "YouTube_16x9" :
             video.optimized_prompt?.includes("square") ? "Square_1x1" : video.aspect_ratio?.replace(":", "x");
-          const fileName = `HufiAi_${lang}_${format}_${video.id.slice(0, 8)}.mp4`;
+          const fileName = `Hufi_${lang}_${format}_${video.id.slice(0, 8)}.mp4`;
 
           const response = await fetch(video.video_url!);
           if (response.ok) {
@@ -350,7 +350,7 @@ export default function AutopilotProducer({ userId }: { userId: string }) {
       const url = URL.createObjectURL(zipBlob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `HufiAi_Autopilot_${new Date().toISOString().slice(0, 10)}.zip`;
+      a.download = `Hufi_Autopilot_${new Date().toISOString().slice(0, 10)}.zip`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -830,7 +830,7 @@ export default function AutopilotProducer({ userId }: { userId: string }) {
           </CardHeader>
           <CardContent className="space-y-3">
             <p className="text-[11px] text-[hsl(var(--sidebar-muted))]">
-              Bewerte diesen Autopilot-Durchlauf. „Perfekt"-Bewertungen werden als Gold-Standard für das HufiAi-Modell-Training markiert.
+              Bewerte diesen Autopilot-Durchlauf. „Perfekt"-Bewertungen werden als Gold-Standard für das Hufi-Modell-Training markiert.
             </p>
             <div className="flex gap-3">
               <Button

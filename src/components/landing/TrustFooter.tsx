@@ -7,7 +7,7 @@ export default function TrustFooter() {
         <div className="text-center mb-8">
           <h2 className="text-2xl font-bold text-secondary-foreground mb-2">AI for Good</h2>
           <p className="text-secondary-foreground/70 max-w-2xl mx-auto text-sm">
-            Warum HufiAi neue Maßstäbe in Tierwohl & Datensicherheit setzt.
+            Warum Hufi neue Maßstäbe in Tierwohl & Datensicherheit setzt.
           </p>
         </div>
         <div className="grid md:grid-cols-3 gap-6">

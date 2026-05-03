@@ -25,7 +25,7 @@ export default function ProfilePublish() {
   const generateMessage = () => {
     const selectedAchs = achievements.filter((a) => selected.has(a.id));
     const badges = selectedAchs.map((a) => `${a.icon_emoji} ${a.title}`).join("\n");
-    return `${levelEmoji} Level ${userLevel?.current_level ?? 1} ${levelName} bei HufiAi!\n\nMeine Badges:\n${badges}\n\n#HufiAi #KI #AIforGood`;
+    return `${levelEmoji} Level ${userLevel?.current_level ?? 1} ${levelName} bei Hufi!\n\nMeine Badges:\n${badges}\n\n#Hufi #KI #AIforGood`;
   };
 
   const handleCopy = () => {
@@ -37,7 +37,7 @@ export default function ProfilePublish() {
 
   const shareToLinkedIn = () => {
     const text = encodeURIComponent(generateMessage());
-    window.open(`https://www.linkedin.com/sharing/share-offsite/?url=https://hufiai.lovable.app&summary=${text}`, "_blank");
+    window.open(`https://www.linkedin.com/sharing/share-offsite/?url=https://hufiapp.de&summary=${text}`, "_blank");
   };
 
   return (

@@ -62,7 +62,7 @@ export default function Manual() {
             <ArrowLeft className="w-4 h-4" /><span className="text-sm">Zurück</span>
           </Link>
           <h1 className="text-lg font-bold flex items-center gap-2">
-            <BookOpen className="w-5 h-5 text-primary" /> HufiAi Handbuch
+            <BookOpen className="w-5 h-5 text-primary" /> Hufi Handbuch
           </h1>
           <div className="w-16" />
         </div>
@@ -71,7 +71,7 @@ export default function Manual() {
       <main className="max-w-4xl mx-auto px-4 py-8 space-y-6">
         <div className="text-center space-y-2">
           <h2 className="text-3xl font-bold">Handbuch & FAQ</h2>
-          <p className="text-muted-foreground">Alles was du über HufiAi wissen musst – automatisch aktualisiert.</p>
+          <p className="text-muted-foreground">Alles was du über Hufi wissen musst – automatisch aktualisiert.</p>
         </div>
 
         <div className="relative max-w-md mx-auto">

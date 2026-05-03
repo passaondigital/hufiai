@@ -196,9 +196,9 @@ export default function MobileSlideMenu({ open, onOpenChange }: MobileSlideMenuP
               <div className="flex items-center gap-3">
                 <Shield className="w-5 h-5 text-primary shrink-0" />
                 <div>
-                  <span className="text-sm font-medium">HufiAi Training</span>
+                  <span className="text-sm font-medium">Hufi Training</span>
                   <p className="text-[11px] text-muted-foreground leading-tight mt-0.5">
-                    {lang === "de" ? "Anonymisierte Daten für das HufiAi-Modell" : "Anonymous data for the HufiAi model"}
+                    {lang === "de" ? "Anonymisierte Daten für das Hufi-Modell" : "Anonymous data for the Hufi model"}
                   </p>
                 </div>
               </div>
@@ -272,7 +272,7 @@ export default function MobileSlideMenu({ open, onOpenChange }: MobileSlideMenuP
             <LogOut className="w-5 h-5 shrink-0" />
             {lang === "de" ? "Abmelden" : "Sign out"}
           </button>
-          <p className="text-[10px] text-muted-foreground text-center">HufiAi v1.0.0</p>
+          <p className="text-[10px] text-muted-foreground text-center">Hufi v1.0.0</p>
         </div>
       </SheetContent>
     </Sheet>

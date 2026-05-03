@@ -1,7 +1,7 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/lib/auth";
 import { ScanLine, ChevronLeft } from "lucide-react";
-import hufiaiLogo from "@/assets/hufiai-logo.svg";
+import hufiLogo from "@/assets/hufi-logo.svg";
 
 export default function MobileHeader() {
   const { profile } = useAuth();
@@ -33,8 +33,8 @@ export default function MobileHeader() {
 
         <div className="flex justify-center">
           <img
-            src={hufiaiLogo}
-            alt="HufiAi"
+            src={hufiLogo}
+            alt="Hufi"
             className="h-8 cursor-pointer"
             onClick={() => navigate("/")}
           />

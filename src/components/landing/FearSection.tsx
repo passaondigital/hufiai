@@ -13,7 +13,7 @@ const fears = [
   },
   {
     q: "\u201EDas ist zu kompliziert f\u00fcr mich.\u201C",
-    a: "Das dachte ich auch. Dann baute ich HufManager. Dann HufiAi. Jetzt verstehe ich es. Und du wirst es auch verstehen.",
+    a: "Das dachte ich auch. Dann baute ich HufManager. Dann Hufi. Jetzt verstehe ich es. Und du wirst es auch verstehen.",
   },
   {
     q: "\u201EIch verstehe die Technik nicht.\u201C",
@@ -21,7 +21,7 @@ const fears = [
   },
   {
     q: "\u201EDas kostet wahrscheinlich viel.\u201C",
-    a: "Nein. HufiAi kostet nix. Free forever. Upgrades optional. Du kannst dich jederzeit l\u00f6schen.",
+    a: "Nein. Hufi kostet nix. Free forever. Upgrades optional. Du kannst dich jederzeit l\u00f6schen.",
   },
 ];
 
@@ -75,7 +75,7 @@ export default function FearSection() {
               "KI-Angst gehabt (wie du)",
               "KI gelernt",
               "HufManager gebaut",
-              "HufiAi gebaut (f\u00fcr dich)",
+              "Hufi gebaut (f\u00fcr dich)",
             ].map((item) => (
               <span
                 key={item}

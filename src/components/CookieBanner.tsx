@@ -72,7 +72,7 @@ export default function CookieBanner() {
       key: "innovation" as const,
       label: "Innovation",
       emoji: "🚀",
-      desc: "Anonymisiertes KI-Training (HufiAi Core). Deine Daten helfen, das Modell stetig zu verbessern.",
+      desc: "Anonymisiertes KI-Training (Hufi Core). Deine Daten helfen, das Modell stetig zu verbessern.",
     },
   ];
 

@@ -173,7 +173,7 @@ export default function ProProfile() {
         </Button>
 
         <p className="text-xs text-muted-foreground text-center">
-          ⚖️ HufiAi ist eine KI-Assistenz. Dein Profil dient der Vernetzung – alle fachlichen Entscheidungen liegen bei dir als Experte vor Ort.
+          ⚖️ Hufi ist eine KI-Assistenz. Dein Profil dient der Vernetzung – alle fachlichen Entscheidungen liegen bei dir als Experte vor Ort.
         </p>
       </div>
     </AppLayout>

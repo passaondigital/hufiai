@@ -20,7 +20,7 @@ export default function Datenschutz() {
           <h3 className="text-foreground font-medium">Datenerfassung auf dieser Website</h3>
           <p><strong>Wer ist verantwortlich für die Datenerfassung auf dieser Website?</strong> Die Datenverarbeitung auf dieser Website erfolgt durch den Websitebetreiber: Pascal Schmid, Laurentiusstrasse 34, 54497 Morscheid Riedenburg.</p>
           <p><strong>Wie erfassen wir Ihre Daten?</strong> Ihre Daten werden zum einen dadurch erhoben, dass Sie uns diese mitteilen (z.&nbsp;B. im Chat oder bei der Registrierung). Andere Daten werden automatisch durch unsere IT-Systeme erfasst (technische Daten wie IP-Adresse oder Browser).</p>
-          <p><strong>Wofür nutzen wir Ihre Daten?</strong> Ein Teil der Daten wird erhoben, um eine fehlerfreie Bereitstellung der Website zu gewährleisten. Andere Daten nutzen wir zur Bereitstellung unserer KI-Dienste (HufiAi) sowie zur Abwicklung von Zahlungen.</p>
+          <p><strong>Wofür nutzen wir Ihre Daten?</strong> Ein Teil der Daten wird erhoben, um eine fehlerfreie Bereitstellung der Website zu gewährleisten. Andere Daten nutzen wir zur Bereitstellung unserer KI-Dienste (Hufi) sowie zur Abwicklung von Zahlungen.</p>
 
           <h2 className="text-foreground font-semibold text-lg">2. Hosting und Infrastruktur</h2>
           <p>Wir hosten die Inhalte unserer Website bei folgenden Anbietern:</p>
@@ -30,10 +30,10 @@ export default function Datenschutz() {
           <p>Wir nutzen Supabase (Supabase Inc., USA) zur Speicherung von Nutzerprofilen, Projektdaten und App-Inhalten. Die Daten werden verschlüsselt auf Servern gespeichert, die den europäischen Datenschutzstandards entsprechen. Grundlage ist Art.&nbsp;6 Abs.&nbsp;1 lit.&nbsp;b DSGVO.</p>
 
           <h2 className="text-foreground font-semibold text-lg">3. Spezifische Dienste: KI &amp; Zahlungen</h2>
-          <h3 className="text-foreground font-medium">HufiAi Künstliche Intelligenz (Learning Loop)</h3>
+          <h3 className="text-foreground font-medium">Hufi Künstliche Intelligenz (Learning Loop)</h3>
           <p>Im Rahmen unserer Dienstleistung nutzen wir Künstliche Intelligenz, um Analysen und Chat-Antworten zu generieren.</p>
-          <p><strong>Chat-Verarbeitung:</strong> Eingaben im HufiAi-Chat werden verarbeitet, um Ihnen fachliche Antworten zu liefern.</p>
-          <p><strong>Anonymisiertes Training:</strong> Sofern Sie eingewilligt haben, nutzen wir anonymisierte Interaktionen, um das Modell HufiAi Core stetig zu verbessern. Hierbei werden alle persönlichen Merkmale (Namen, Orte) entfernt, sodass kein Rückschluss auf Ihre Person möglich ist.</p>
+          <p><strong>Chat-Verarbeitung:</strong> Eingaben im Hufi-Chat werden verarbeitet, um Ihnen fachliche Antworten zu liefern.</p>
+          <p><strong>Anonymisiertes Training:</strong> Sofern Sie eingewilligt haben, nutzen wir anonymisierte Interaktionen, um das Modell Hufi Core stetig zu verbessern. Hierbei werden alle persönlichen Merkmale (Namen, Orte) entfernt, sodass kein Rückschluss auf Ihre Person möglich ist.</p>
           <p><strong>Verantwortung:</strong> KI-Analysen sind Assistenz-Systeme und ersetzen keine tierärztliche Diagnose oder handwerkliche Facharbeit vor Ort.</p>
 
           <h3 className="text-foreground font-medium">Stripe (Zahlungsabwicklung)</h3>
@@ -55,7 +55,7 @@ export default function Datenschutz() {
           <h3 className="text-foreground font-medium">YouTube und Soziale Medien</h3>
           <p>Elemente von YouTube, Facebook und Instagram sind so eingebunden, dass Daten erst übertragen werden, wenn Sie aktiv auf diese Elemente klicken (Einwilligung nach Art.&nbsp;6 Abs.&nbsp;1 lit.&nbsp;a DSGVO).</p>
 
-          <p className="text-xs mt-8">Stand: Februar 2026 · Quelle: Erstellt unter Einbeziehung von e-recht24.de und spezifischen Ergänzungen für HufiAi.</p>
+          <p className="text-xs mt-8">Stand: Februar 2026 · Quelle: Erstellt unter Einbeziehung von e-recht24.de und spezifischen Ergänzungen für Hufi.</p>
         </div>
       </div>
     </div>

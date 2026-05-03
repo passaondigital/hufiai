@@ -25,7 +25,7 @@ const resources = [
   {
     icon: Phone,
     title: "Fachliche Beratung vor Ort",
-    desc: "HufiAi ersetzt keine fachliche Beratung. Bei gesundheitlichen Fragen wende dich immer an qualifizierte Experten.",
+    desc: "Hufi ersetzt keine fachliche Beratung. Bei gesundheitlichen Fragen wende dich immer an qualifizierte Experten.",
     links: [
       { label: "Tierärzte-Suche (Bundestierärztekammer)", url: "https://www.bundestieraerztekammer.de" },
       { label: "Hufbearbeiter finden (DHG)", url: "https://www.dhgev.de" },
@@ -43,7 +43,7 @@ export default function Support() {
           </div>
           <h1 className="text-3xl font-bold mb-2">Support & Ressourcen</h1>
           <p className="text-muted-foreground max-w-xl mx-auto">
-            HufiAi ist Teil einer Lösung – nicht nur ein Produkt. Hier findest du Hilfe für schwierige Situationen und wichtige Anlaufstellen.
+            Hufi ist Teil einer Lösung – nicht nur ein Produkt. Hier findest du Hilfe für schwierige Situationen und wichtige Anlaufstellen.
           </p>
         </div>
 
@@ -87,7 +87,7 @@ export default function Support() {
               <div>
                 <h2 className="text-lg font-semibold mb-2">Kollaboratives Expertenwissen</h2>
                 <p className="text-sm text-muted-foreground leading-relaxed mb-3">
-                  HufiAi soll ein kollektives Gehirn der Branche werden – kein Einzelkämpfer. 
+                  Hufi soll ein kollektives Gehirn der Branche werden – kein Einzelkämpfer. 
                   Wir arbeiten daran, dass Fachleute (Tierärzte, Hufbearbeiter, Stallbetreiber) 
                   ihr Wissen einbringen und KI-generierte Inhalte verifizieren können.
                 </p>
@@ -108,7 +108,7 @@ export default function Support() {
         </Card>
 
         <p className="text-xs text-muted-foreground text-center">
-          ⚖️ HufiAi ist eine KI-Assistenz zur Unterstützung. Informationen ersetzen keine fachliche Beratung durch Tierärzte, Huf-Experten oder Juristen. Nutzung auf eigenes Risiko.
+          ⚖️ Hufi ist eine KI-Assistenz zur Unterstützung. Informationen ersetzen keine fachliche Beratung durch Tierärzte, Huf-Experten oder Juristen. Nutzung auf eigenes Risiko.
         </p>
       </div>
     </AppLayout>

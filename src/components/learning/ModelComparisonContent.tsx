@@ -67,7 +67,7 @@ export default function ModelComparisonContent() {
 
       {/* Mode combos */}
       <div className="bg-primary/5 border border-primary/10 rounded-xl p-4">
-        <h5 className="font-bold text-sm mb-3">🎯 In HufiAi Pro – Welcher Modus + Modell?</h5>
+        <h5 className="font-bold text-sm mb-3">🎯 In Hufi Pro – Welcher Modus + Modell?</h5>
         <div className="space-y-2">
           {modeCombos.map((c) => (
             <div key={c.mode} className="flex items-center justify-between text-xs bg-background/60 rounded-lg px-3 py-2">
