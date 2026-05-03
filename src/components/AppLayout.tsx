@@ -6,6 +6,7 @@ import { useSubscription } from "@/hooks/useSubscription";
 import { useUnreadNotifications } from "@/hooks/useUnreadNotifications";
 import { useEcosystemRealtime } from "@/hooks/useEcosystemRealtime";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useSwipeNavigation } from "@/hooks/useSwipeNavigation";
 import MobileBottomNav from "./MobileBottomNav";
 import MobileHeader from "./MobileHeader";
 import {
@@ -26,12 +27,13 @@ interface AppLayoutProps {
 export default function AppLayout({ children, omniMode = false }: AppLayoutProps) {
   useEcosystemRealtime();
   const isMobile = useIsMobile();
+  const { swipeRef } = useSwipeNavigation();
 
   if (isMobile) {
     return (
       <div className="flex flex-col h-screen overflow-hidden">
         <MobileHeader />
-        <main className="flex-1 overflow-y-auto pt-14 pb-[72px]">
+        <main ref={swipeRef} className="flex-1 overflow-y-auto pt-14 pb-[72px] transition-all duration-200">
           {children}
         </main>
         <MobileBottomNav />

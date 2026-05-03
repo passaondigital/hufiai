@@ -14,7 +14,7 @@ import {
 import {
   MessageSquare, FolderKanban, FileText, CreditCard, UserCog, LogOut,
   Shield, Link2, Heart, Video, Database, Megaphone, Building2, Crown,
-  Award, Users, Map, Globe, Bell, Sparkles, ArrowLeftRight,
+  Award, Users, Map, Globe, Bell, Sparkles, ArrowLeftRight, Settings2,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useState, useEffect } from "react";
@@ -221,6 +221,10 @@ export default function MobileSlideMenu({ open, onOpenChange }: MobileSlideMenuP
               <button onClick={() => navTo("/settings")} className={menuLinkClass("/settings")}>
                 <UserCog className="w-5 h-5 text-primary shrink-0" />
                 {lang === "de" ? "Profileinstellungen" : "Profile Settings"}
+              </button>
+              <button onClick={() => navTo("/einstellungen")} className={menuLinkClass("/einstellungen")}>
+                <Settings2 className="w-5 h-5 text-primary shrink-0" />
+                {lang === "de" ? "Hufi Einstellungen" : "Hufi Settings"}
               </button>
             </div>
           </div>

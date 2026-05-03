@@ -1,30 +1,46 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/lib/auth";
-import { ScanLine } from "lucide-react";
+import { ScanLine, ChevronLeft } from "lucide-react";
 import hufiaiLogo from "@/assets/hufiai-logo.svg";
 
 export default function MobileHeader() {
   const { profile } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
-  // Derive a short display ID from the profile
   const displayId = profile?.user_id
     ? `#kid-${profile.user_id.substring(0, 5).toUpperCase()}`
     : null;
 
+  const showBack = location.pathname !== "/" && location.pathname !== "/archiv";
+
   return (
     <header className="fixed top-0 inset-x-0 z-50 bg-card border-b border-border md:hidden">
-      <div className="flex items-center justify-between px-4 h-14">
-        {/* Logo */}
-        <img
-          src={hufiaiLogo}
-          alt="HufiAi"
-          className="h-8 cursor-pointer"
-          onClick={() => navigate("/")}
-        />
+      <div className="grid grid-cols-3 items-center px-4 h-14">
+        <div className="flex items-center">
+          {showBack ? (
+            <button
+              onClick={() => navigate(-1)}
+              className="flex items-center justify-center w-9 h-9 rounded-lg text-foreground hover:bg-muted transition-colors"
+              aria-label="Zurück"
+            >
+              <ChevronLeft className="w-6 h-6" />
+            </button>
+          ) : (
+            <div className="w-9" />
+          )}
+        </div>
 
-        {/* Right side: ID + Scan button */}
-        <div className="flex items-center gap-2">
+        <div className="flex justify-center">
+          <img
+            src={hufiaiLogo}
+            alt="HufiAi"
+            className="h-8 cursor-pointer"
+            onClick={() => navigate("/")}
+          />
+        </div>
+
+        <div className="flex items-center justify-end gap-2">
           {displayId && (
             <span className="text-xs font-bold text-foreground bg-muted px-2 py-1 rounded-md">
               {displayId}

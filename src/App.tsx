@@ -37,6 +37,10 @@ import VideoEngine from "./pages/VideoEngine";
 import PromptLibrary from "./pages/PromptLibrary";
 import ResetPassword from "./pages/ResetPassword";
 import Gamification from "./pages/Gamification";
+import Archiv from "./pages/Archiv";
+import HufiEinstellungen from "./pages/HufiEinstellungen";
+import HufiDatenschutz from "./pages/HufiDatenschutz";
+import BusinessEinstellungen from "./pages/BusinessEinstellungen";
 import NotFound from "./pages/NotFound";
 import PWAInstallPrompt from "./components/PWAInstallPrompt";
 import { Loader2 } from "lucide-react";
@@ -158,6 +162,10 @@ function AppRoutes() {
         <Route path="/video-engine" element={<ProtectedRoute><VideoEngine /></ProtectedRoute>} />
         <Route path="/prompts" element={<ProtectedRoute><PromptLibrary /></ProtectedRoute>} />
         <Route path="/gamification" element={<ProtectedRoute><Gamification /></ProtectedRoute>} />
+        <Route path="/archiv" element={<ProtectedRoute><Archiv /></ProtectedRoute>} />
+        <Route path="/einstellungen" element={<ProtectedRoute><HufiEinstellungen /></ProtectedRoute>} />
+        <Route path="/datenschutz-einstellungen" element={<ProtectedRoute><HufiDatenschutz /></ProtectedRoute>} />
+        <Route path="/business-einstellungen" element={<ProtectedRoute><BusinessEinstellungen /></ProtectedRoute>} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </>

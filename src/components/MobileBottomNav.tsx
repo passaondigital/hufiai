@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Home, ScanLine, BookOpen, Menu } from "lucide-react";
+import { Home, ScanLine, BookOpen, Archive, Menu } from "lucide-react";
 import MobileSlideMenu from "./MobileSlideMenu";
 
 const navItems = [
   { icon: Home, label: "Home", path: "/" },
   { icon: BookOpen, label: "Prompts", path: "/prompts" },
   { icon: ScanLine, label: "Pferde", path: "/horses" },
+  { icon: Archive, label: "Archiv", path: "/archiv" },
 ];
 
 export default function MobileBottomNav() {

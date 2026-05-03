@@ -65,13 +65,6 @@ serve(async (req) => {
         .slice(0, 8)
         .map(([cat, count]) => ({ category: cat, count, snippets: topicSnippets[cat] || [] }));
 
-      // OpenClaw mock with ethical focus
-      const openClawMock = [
-        { category: "hoof-rehab", count: 45, snippets: ["Hufrehe Nachsorge Strategien", "Barhuf-Umstellung Tipps"] },
-        { category: "equine-nutrition", count: 38, snippets: ["Fütterung im Winter", "Mineralstoff-Analyse"] },
-        { category: "stable-tech", count: 27, snippets: ["Smart Stable Sensoren", "Automatische Tränken"] },
-      ];
-
       // Ethical conflict topics (prioritized)
       const ethicalConflicts = [
         { category: "ethical-debate", count: 62, snippets: ["Turnierdruck vs. Pferdewohl – Wo ist die Grenze?", "Rollkur-Debatte: Was sagt die Wissenschaft?"] },
@@ -85,7 +78,7 @@ serve(async (req) => {
         })),
       ];
 
-      return new Response(JSON.stringify({ trends, openClaw: openClawMock, ethicalConflicts }), {
+      return new Response(JSON.stringify({ trends, ethicalConflicts }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }

@@ -75,7 +75,6 @@ const CATEGORY_LABELS: Record<string, string> = {
 
 export default function ContentEngine() {
   const [trends, setTrends] = useState<TrendTopic[]>([]);
-  const [openClaw, setOpenClaw] = useState<TrendTopic[]>([]);
   const [ethicalConflicts, setEthicalConflicts] = useState<TrendTopic[]>([]);
   const [drafts, setDrafts] = useState<BlogDraft[]>([]);
   const [loadingTrends, setLoadingTrends] = useState(false);
