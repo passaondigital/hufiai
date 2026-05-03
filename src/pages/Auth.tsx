@@ -10,7 +10,7 @@ import { Loader2, Mail } from "lucide-react";
 import { lovable } from "@/integrations/lovable/index";
 import { supabase } from "@/integrations/supabase/client";
 import horseHero from "@/assets/horse-hero.png";
-import hufiaiLogo from "@/assets/hufiai-logo.svg";
+import hufiLogo from "@/assets/hufi-logo.svg";
 
 export default function Auth() {
   const [isLogin, setIsLogin] = useState(true);
@@ -92,12 +92,12 @@ export default function Auth() {
       <div className="hidden lg:flex flex-1 items-center justify-center bg-secondary relative overflow-hidden">
         <img
           src={horseHero}
-          alt="HufiAi Pferd"
+          alt="Pferd"
           className="w-3/4 max-w-lg object-contain drop-shadow-2xl"
         />
         <div className="absolute bottom-8 left-8 right-8 text-center">
           <p className="text-secondary-foreground/80 text-sm font-medium">
-            KI-gestützte Lösungen für die gesamte Pferdebranche
+            Das digitale Betriebssystem für Pferdebetriebe
           </p>
         </div>
       </div>
@@ -107,7 +107,7 @@ export default function Auth() {
         <div className="w-full max-w-md animate-fade-in">
           <div className="text-center mb-8">
             <div className="inline-flex items-center gap-2 mb-4">
-              <img src={hufiaiLogo} alt="HufiAi" className="h-24" />
+              <img src={hufiLogo} alt="Hufi" className="h-24" />
             </div>
             <p className="text-muted-foreground">
               {isForgotPassword ? "Passwort zurücksetzen" : isLogin ? "Melde dich bei deinem Konto an" : "Erstelle ein neues Konto"}
@@ -190,8 +190,6 @@ export default function Auth() {
                       <span className="text-xs text-muted-foreground leading-relaxed">
                         Ich akzeptiere die{" "}
                         <Link to="/agb" className="text-primary underline hover:text-primary/80" target="_blank">AGB</Link>
-                        {" "}und habe den{" "}
-                        <Link to="/agb" className="text-primary underline hover:text-primary/80" target="_blank">Haftungsausschluss für KI-Inhalte</Link>
                         {" "}sowie die{" "}
                         <Link to="/datenschutz" className="text-primary underline hover:text-primary/80" target="_blank">Datenschutzerklärung</Link>
                         {" "}gelesen.

@@ -3,7 +3,7 @@
   <rect width="5000" height="5000" fill="none"/>
   <g transform="translate(2500,2000)" text-anchor="middle">
     <g transform="scale(2.2)">
-      <path d="M-350 -200 
+      <path d="M-350 -200
                C-250 -300 -100 -320 50 -260
                C150 -220 220 -140 230 -40
                C240 80 160 160 40 180

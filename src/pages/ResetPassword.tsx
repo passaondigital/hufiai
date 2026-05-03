@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Loader2, KeyRound } from "lucide-react";
-import hufiaiLogo from "@/assets/hufiai-logo.svg";
+import hufiLogo from "@/assets/hufi-logo.svg";
 
 export default function ResetPassword() {
   const [password, setPassword] = useState("");
@@ -58,7 +58,7 @@ export default function ResetPassword() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background p-6">
         <div className="text-center animate-fade-in">
-          <img src={hufiaiLogo} alt="HufiAi" className="h-16 mx-auto mb-4" />
+          <img src={hufiLogo} alt="Hufi" className="h-16 mx-auto mb-4" />
           <p className="text-muted-foreground">Kein gültiger Passwort-Reset-Link erkannt.</p>
           <Button onClick={() => navigate("/auth")} className="mt-4">Zur Anmeldung</Button>
         </div>
@@ -70,7 +70,7 @@ export default function ResetPassword() {
     <div className="min-h-screen flex items-center justify-center bg-background p-6">
       <div className="w-full max-w-md animate-fade-in">
         <div className="text-center mb-8">
-          <img src={hufiaiLogo} alt="HufiAi" className="h-20 mx-auto mb-4" />
+          <img src={hufiLogo} alt="Hufi" className="h-20 mx-auto mb-4" />
           <h1 className="text-2xl font-bold text-foreground">Neues Passwort setzen</h1>
           <p className="text-muted-foreground text-sm">Gib dein neues Passwort ein</p>
         </div>

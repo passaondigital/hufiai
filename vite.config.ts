@@ -20,9 +20,9 @@ export default defineConfig(({ mode }) => ({
       registerType: "autoUpdate",
       includeAssets: ["favicon.svg", "favicon.ico", "hufiai-logo.svg", "hufiai-icon.svg", "og-image.png"],
       manifest: {
-        name: "HufiAi – KI für die Pferdebranche",
-        short_name: "HufiAi",
-        description: "KI-gestützte Lösungen für die gesamte Pferdebranche. DSGVO-konform.",
+        name: "Hufi – Das digitale Betriebssystem für Pferdebetriebe",
+        short_name: "Hufi",
+        description: "Das digitale Betriebssystem für Pferdebetriebe. DSGVO-konform.",
         theme_color: "#F47B20",
         background_color: "#000000",
         display: "standalone",
