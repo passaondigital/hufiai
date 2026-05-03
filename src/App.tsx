@@ -10,6 +10,7 @@ import Landing from "./pages/Landing";
 import Auth from "./pages/Auth";
 import Onboarding from "./pages/Onboarding";
 import Chat from "./pages/Chat";
+import CommandCenter from "./pages/CommandCenter";
 import Projects from "./pages/Projects";
 import Knowledge from "./pages/Knowledge";
 import Pricing from "./pages/Pricing";
@@ -135,7 +136,8 @@ function AppRoutes() {
         <Route path="/auth" element={user ? <Navigate to="/" replace /> : <Auth />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/onboarding" element={user ? <Onboarding /> : <Navigate to="/auth" replace />} />
-        <Route path="/" element={<ProtectedRoute><Chat /></ProtectedRoute>} />
+        <Route path="/" element={<ProtectedRoute><CommandCenter /></ProtectedRoute>} />
+        <Route path="/chat" element={<ProtectedRoute><Chat /></ProtectedRoute>} />
         <Route path="/projects" element={<ProtectedRoute><Projects /></ProtectedRoute>} />
         <Route path="/knowledge" element={<ProtectedRoute><Knowledge /></ProtectedRoute>} />
         <Route path="/horses" element={<ProtectedRoute><MyHorses /></ProtectedRoute>} />

@@ -13,7 +13,7 @@ import {
   MessageSquare, FolderKanban, FileText, CreditCard, Settings,
   LogOut, ChevronLeft, ChevronRight, Plus, Shield, ArrowLeftRight,
   Building2, Map, Megaphone, Crown, Heart, Award, Users, Sparkles,
-  Link2, Database, Bell, Video, Globe
+  Link2, Database, Bell, Video, Globe, Home
 } from "lucide-react";
 import hufiaiLogo from "@/assets/hufiai-logo.svg";
 import { toast } from "sonner";
@@ -68,7 +68,8 @@ function OmniNavRail() {
   const unreadCount = useUnreadNotifications();
 
   const navItems = [
-    { icon: MessageSquare, path: "/", label: "Chat" },
+    { icon: Home, path: "/", label: lang === "de" ? "Übersicht" : "Overview" },
+    { icon: MessageSquare, path: "/chat", label: "Chat" },
     { icon: Sparkles, path: "/horses", label: lang === "de" ? "Pferde" : "Horses" },
     ...(profile?.user_type === "gewerbe" || hasGewerbeAccess ? [
       { icon: FolderKanban, path: "/projects", label: lang === "de" ? "Projekte" : "Projects" },
@@ -161,7 +162,8 @@ function FullSidebar() {
   };
 
   const navItems: { icon: any; label: string; path: string; badge?: number }[] = [
-    { icon: MessageSquare, label: "Chat", path: "/" },
+    { icon: Home, label: lang === "de" ? "Übersicht" : "Overview", path: "/" },
+    { icon: MessageSquare, label: "Chat", path: "/chat" },
     { icon: Sparkles, label: lang === "de" ? "Meine Pferde" : "My Horses", path: "/horses" },
     ...(profile?.user_type === "gewerbe" || hasGewerbeAccess ? [
       { icon: FolderKanban, label: lang === "de" ? "Projekte" : "Projects", path: "/projects" },
@@ -199,7 +201,7 @@ function FullSidebar() {
       </div>
 
       <div className="p-3">
-        <button onClick={() => navigate("/")} className="w-full flex items-center gap-2 px-3 py-2.5 rounded-lg bg-sidebar-primary text-sidebar-primary-foreground font-medium text-sm hover:opacity-90 transition-opacity">
+        <button onClick={() => navigate("/chat")} className="w-full flex items-center gap-2 px-3 py-2.5 rounded-lg bg-sidebar-primary text-sidebar-primary-foreground font-medium text-sm hover:opacity-90 transition-opacity">
           <Plus className="w-4 h-4" />
           {!collapsed && (lang === "de" ? "Neuer Chat" : "New Chat")}
         </button>
