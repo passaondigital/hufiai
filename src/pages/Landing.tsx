@@ -35,7 +35,7 @@ export default function Landing() {
       <nav className="sticky top-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border">
         <div className="flex items-center justify-between px-4 md:px-6 py-3 max-w-7xl mx-auto">
           <div className="flex items-center gap-2 cursor-pointer" onClick={() => scrollTo("hero")}>
-            <img src={hufiaiLogo} alt="HufiAi" className="h-10 md:h-[4.5rem]" />
+            <img src={hufiaiLogo} alt="Hufi" className="h-10 md:h-[4.5rem]" />
           </div>
           <div className="hidden md:flex items-center gap-6 text-sm font-medium text-muted-foreground">
             <button onClick={() => scrollTo("about-pascal")} className="hover:text-foreground transition-colors">&Uuml;ber Pascal</button>
@@ -101,7 +101,7 @@ export default function Landing() {
           </div>
         </div>
         <div className="flex-1 flex justify-center md:justify-end">
-          <img src={horseHero} alt="HufiAi \u2013 KI f\u00fcr die Pferdebranche" className="w-full max-w-md md:max-w-lg object-contain drop-shadow-2xl" />
+          <img src={horseHero} alt="Hufi \u2013 Das digitale Betriebssystem f\u00fcr Pferdebetriebe" className="w-full max-w-md md:max-w-lg object-contain drop-shadow-2xl" />
         </div>
       </section>
 
@@ -125,7 +125,7 @@ export default function Landing() {
       <footer className="bg-secondary text-secondary-foreground border-t border-border py-14">
         <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-start gap-10">
           <div className="max-w-xs">
-            <img src={hufiaiLogo} alt="HufiAi" className="h-[4.5rem] mb-3 brightness-0 invert" />
+            <img src={hufiaiLogo} alt="Hufi" className="h-[4.5rem] mb-3 brightness-0 invert" />
             <p className="text-sm text-secondary-foreground/70 mb-1">
               Made with ❤️ von Pascal
             </p>
@@ -141,7 +141,7 @@ export default function Landing() {
             <div>
               <h4 className="font-semibold text-sm mb-3 text-secondary-foreground">&Uuml;ber Pascal</h4>
               <div className="space-y-2 text-sm text-secondary-foreground/60">
-                <button onClick={() => navigate("/ueber-hufiai")} className="block hover:text-secondary-foreground transition-colors">&Uuml;ber HufiAi</button>
+                <button onClick={() => navigate("/ueber-hufiai")} className="block hover:text-secondary-foreground transition-colors">&Uuml;ber Hufi</button>
                 <button onClick={() => navigate("/ethik")} className="block hover:text-secondary-foreground transition-colors">Ethik &amp; Security</button>
                 <button onClick={() => navigate("/support")} className="block hover:text-secondary-foreground transition-colors">Support</button>
               </div>
@@ -186,7 +186,7 @@ export default function Landing() {
         </div>
 
         <div className="max-w-7xl mx-auto px-6 mt-10 pt-6 border-t border-secondary-foreground/10 space-y-2">
-          <p className="text-xs text-secondary-foreground/40 text-center">&copy; {new Date().getFullYear()} HufiAi. Alle Rechte vorbehalten.</p>
+          <p className="text-xs text-secondary-foreground/40 text-center">&copy; {new Date().getFullYear()} Hufi. Alle Rechte vorbehalten.</p>
           <p className="text-xs text-secondary-foreground/30 text-center">
             <a href="/admin" className="text-secondary-foreground/30 hover:text-secondary-foreground/30 no-underline cursor-text" tabIndex={-1} aria-hidden="true">KI</a>-generierte Inhalte k&ouml;nnen Fehler enthalten.
           </p>
